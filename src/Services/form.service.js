@@ -8,6 +8,6 @@ export const formService = {
   createForm: (payload) =>
     api.post("/api/form", payload),
 
-  getTeamLeadForms: () =>
-    api.get("/api/teamlead/forms"),
+  // getTeamLeadForms: () =>
+  //   api.get("/api/teamlead/forms"),
 };
