@@ -206,9 +206,8 @@ const Login = ({ login }) => {
 
         {/* Header / Branding */}
         <div className="login-header">
-          <div className="login-logo">📊</div>
+          {/* <div className="login-logo">📊</div> */}
           <h1>Performance Tracking System</h1>
-          <p>Field Marketing Dashboard</p>
         </div>
 
         {/* Error Message */}
