@@ -174,294 +174,266 @@
 // };
 
 // export default ExecutiveDashboard;
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import LocationForm from "../components/Executive/LocationForm";
-import axios from "axios";
+import { formService } from "../Services/form.service";
 
 const ExecutiveDashboard = ({ user, logout }) => {
-  const [activeTab, setActiveTab] = useState("entry");
-  const [locationEnabled, setLocationEnabled] = useState(false);
-  const [currentLocation, setCurrentLocation] = useState(null);
+  // ─── Location state ────────────────────────────────────────────────────────
+  const [currentLocation, setCurrentLocation] = useState(null);   // raw GPS coords
+  const [geocodedAddress, setGeocodedAddress] = useState(null);   // parsed address for autofill
   const [locationError, setLocationError] = useState("");
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
+
+  // ─── Form submission state ─────────────────────────────────────────────────
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  // Use ref to store watch ID for cleanup
-  const watchIdRef = useRef(null);
 
-  // Get user from props
   const dashboardUser = user;
-
-  // Get current location when component mounts - REAL TIME TRACKING
-  useEffect(() => {
-    startRealTimeLocationTracking();
-    
-    // Cleanup: stop watching location when component unmounts
-    return () => {
-      if (watchIdRef.current) {
-        navigator.geolocation.clearWatch(watchIdRef.current);
-      }
-    };
-  }, []);
-
-  // Function to start real-time location tracking
-  const startRealTimeLocationTracking = () => {
-    if (!navigator.geolocation) {
-      setLocationError("Geolocation is not supported by your browser");
-      return;
-    }
-
-    setLocationError("");
-    
-    // Get initial position
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setCurrentLocation({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          accuracy: position.coords.accuracy,
-          timestamp: position.timestamp
-        });
-        setLocationEnabled(true);
-        console.log("Initial location accessed:", position.coords);
-      },
-      (error) => {
-        handleLocationError(error);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
-      }
-    );
-
-    // Start watching position for real-time updates
-    watchIdRef.current = navigator.geolocation.watchPosition(
-      (position) => {
-        setCurrentLocation({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          accuracy: position.coords.accuracy,
-          timestamp: position.timestamp
-        });
-        setLocationEnabled(true);
-        console.log("Location updated in real-time:", position.coords);
-      },
-      (error) => {
-        handleLocationError(error);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
-        distanceFilter: 10 // Update location when moved by 10 meters
-      }
-    );
-  };
-
-  // Handle location errors
-  const handleLocationError = (error) => {
-    setLocationEnabled(false);
-    switch(error.code) {
-      case error.PERMISSION_DENIED:
-        setLocationError("Location access denied. Please enable location to submit entries.");
-        break;
-      case error.POSITION_UNAVAILABLE:
-        setLocationError("Location information is unavailable. Please check your GPS.");
-        break;
-      case error.TIMEOUT:
-        setLocationError("Location request timed out. Please try again.");
-        break;
-      default:
-        setLocationError("An unknown error occurred while getting location.");
-    }
-    console.error("Location error:", error);
-  };
-
-  // Retry location access
-  const handleRetryLocation = () => {
-    // Clear existing watch
-    if (watchIdRef.current) {
-      navigator.geolocation.clearWatch(watchIdRef.current);
-    }
-    // Restart tracking
-    startRealTimeLocationTracking();
-  };
 
   if (!dashboardUser) {
     return <h2>No User Found. Please Login Again.</h2>;
   }
 
+  // ─── One-shot GPS + reverse geocode ────────────────────────────────────────
+  const handleGetLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationError("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    setIsGettingLocation(true);
+    setLocationError("");
+    setCurrentLocation(null);
+    setGeocodedAddress(null);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude, accuracy } = position.coords;
+        setCurrentLocation({ latitude, longitude, accuracy });
+        console.log("[Location] GPS acquired:", { latitude, longitude, accuracy });
+
+        // ── Reverse geocode with BigDataCloud (free, no API key required) ──
+        try {
+          const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`;
+          const res = await fetch(url);
+
+          if (!res.ok) throw new Error(`Geocode API error: ${res.status}`);
+
+          const data = await res.json();
+          console.log("[Geocode] Raw response:", data);
+
+          // Extract fields with multiple fallbacks for Indian addresses
+          const address = {
+            areaName:
+              data.locality ||
+              data.localityInfo?.administrative?.find(a => a.adminLevel === 8)?.name ||
+              data.city ||
+              "",
+            streetName:
+              data.localityInfo?.informational?.find(i =>
+                i.description?.toLowerCase().includes("road") ||
+                i.description?.toLowerCase().includes("street")
+              )?.name ||
+              data.principalSubdivision?.split(",")[0] ||
+              "",
+            pinCode:
+              data.postcode || "",
+            state:
+              data.principalSubdivision || "",
+          };
+
+          console.log("[Geocode] Parsed address:", address);
+          setGeocodedAddress(address);
+        } catch (geocodeErr) {
+          console.error("[Geocode] Failed:", geocodeErr);
+          // GPS still worked — location is captured, autofill just won't happen
+          setLocationError(
+            "Location captured ✓ but address lookup failed. Please fill address fields manually."
+          );
+        } finally {
+          setIsGettingLocation(false);
+        }
+      },
+      (error) => {
+        // GPS failure codes
+        const messages = {
+          1: "Location access denied. Please allow location permission in your browser and try again.",
+          2: "Location unavailable. Please check your GPS or network and try again.",
+          3: "Location request timed out. Please try again.",
+        };
+        setLocationError(messages[error.code] || "Unable to get location. Please try again.");
+        console.error("[Location] GPS error:", error);
+        setIsGettingLocation(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0,
+      }
+    );
+  };
+
+  // ─── Form submission ────────────────────────────────────────────────────────
   const handleSubmitDailyLog = async (formData) => {
-    if (!locationEnabled || !currentLocation) {
-      alert("Please enable location access before submitting");
+    if (!currentLocation) {
+      alert('Please click "Get Current Location" before submitting.');
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      // Get the most current location before submission
-      const position = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
-        });
-      });
-
-      const latestLocation = {
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-        accuracy: position.coords.accuracy,
-        timestamp: position.timestamp
-      };
-
-      // Update state with latest location
-      setCurrentLocation(latestLocation);
-
       const submissionData = {
+        // Form fields
         vendorShopName: formData.vendorShopName,
-        vendorName: formData.vendorName,
-        contactNumber: formData.contactNumber,
-        mailId: formData.mailId || "",
-        doorNumber: formData.doorNumber,
-        streetName: formData.streetName,
-        areaName: formData.areaName,
-        pinCode: formData.pinCode,
-        state: formData.state,
-        status: formData.status,
-        review: formData.review || "",
-        // Location data
-        latitude: latestLocation.latitude,
-        longitude: latestLocation.longitude,
-        locationAccuracy: latestLocation.accuracy,
+        vendorName:     formData.vendorName,
+        contactNumber:  formData.contactNumber,
+        mailId:         formData.mailId || "",
+        doorNumber:     formData.doorNumber,
+        streetName:     formData.streetName,
+        areaName:       formData.areaName,
+        pinCode:        formData.pinCode,
+        state:          formData.state,
+        status:         formData.status,
+        review:         formData.review || "",
+        // GPS coords captured at the time "Get Location" was clicked
+        latitude:         currentLocation.latitude,
+        longitude:        currentLocation.longitude,
+        locationAccuracy: currentLocation.accuracy,
         // User info
-        executiveId: dashboardUser.userCode,
-        executiveName: dashboardUser.userCode, // You might want to get actual name from user object
-        submittedAt: new Date().toISOString()
+        executiveId:   dashboardUser.userCode,
+        executiveName: dashboardUser.userCode,
+        submittedAt:   new Date().toISOString(),
       };
 
-      console.log('Submitting to API:', submissionData);
-      
-      const response = await axios.post(
-        "https://mft-zwy7.onrender.com/api/form",
-        submissionData,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        }
-      );
+      console.log("[Submit] Payload:", submissionData);
 
-      console.log("Form submitted successfully:", response.data);
+      const response = await formService.createForm(submissionData);
+      console.log("[Submit] Success:", response);
       alert("Form submitted successfully!");
-      
-      // You can add success handling here (reset form, show success message, etc.)
 
     } catch (error) {
-      console.error("Error submitting form:", error);
-      
-      if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        alert(`Server error: ${error.response.data.message || error.response.status}`);
-      } else if (error.request) {
-        // The request was made but no response was received
-        alert("No response from server. Please check your internet connection.");
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        alert(`Error: ${error.message}`);
-      }
+      console.error("[Submit] Error:", error);
+      alert(`Error: ${error.message || "Something went wrong. Please try again."}`);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // ─── Render ─────────────────────────────────────────────────────────────────
   return (
     <>
-      <div className="executive-dashboard">
-        <div className="card">
-          <h1>Welcome {dashboardUser.userCode}!</h1>
-          <button onClick={logout} style={{ float: 'right' }}>Logout</button>
+      {/* Responsive wrapper */}
+      <style>{`
+        .exec-dashboard {
+          width: 100%;
+          max-width: 960px;
+          margin: 0 auto;
+          padding: 16px;
+          box-sizing: border-box;
+        }
+        .exec-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 12px;
+          padding: 16px 20px;
+          margin-bottom: 16px;
+          background: #fff;
+          border-radius: 8px;
+          box-shadow: 0 1px 4px rgba(0,0,0,.08);
+        }
+        .exec-header h1 {
+          margin: 0;
+          font-size: clamp(1rem, 4vw, 1.5rem);
+          color: #1a1a2e;
+        }
+        .exec-logout-btn {
+          padding: 8px 18px;
+          background: #dc3545;
+          color: #fff;
+          border: none;
+          border-radius: 6px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background 0.2s;
+          white-space: nowrap;
+        }
+        .exec-logout-btn:hover { background: #c82333; }
+        .exec-location-strip {
+          display: flex;
+          align-items: flex-start;
+          gap: 10px;
+          padding: 12px 16px;
+          margin-bottom: 16px;
+          border-radius: 8px;
+          font-size: 13px;
+          line-height: 1.5;
+          flex-wrap: wrap;
+        }
+        .exec-location-strip.success {
+          background: #d4edda;
+          color: #155724;
+          border: 1px solid #c3e6cb;
+        }
+        .exec-location-strip.warning {
+          background: #fff3cd;
+          color: #856404;
+          border: 1px solid #ffeeba;
+        }
+        @media (max-width: 480px) {
+          .exec-dashboard { padding: 10px; }
+          .exec-header { padding: 12px 14px; }
+        }
+      `}</style>
+
+      <div className="exec-dashboard">
+
+        {/* Header */}
+        <div className="exec-header">
+          <h1>Welcome, {dashboardUser.userCode}!</h1>
+          <button className="exec-logout-btn" onClick={logout}>Logout</button>
         </div>
 
-        {/* Location Status Banner */}
-        <div className={`location-banner ${locationEnabled ? 'success' : 'error'}`} 
-             style={{
-               padding: '15px 20px',
-               marginBottom: '20px',
-               borderRadius: '8px',
-               backgroundColor: locationEnabled ? '#d4edda' : '#f8d7da',
-               color: locationEnabled ? '#155724' : '#721c24',
-               border: `1px solid ${locationEnabled ? '#c3e6cb' : '#f5c6cb'}`,
-               display: 'flex',
-               alignItems: 'center',
-               justifyContent: 'space-between',
-               flexWrap: 'wrap'
-             }}>
-          <div>
-            <strong>📍 Real-time Location:</strong>{' '}
-            {locationEnabled && currentLocation ? (
+        {/* Location status strip — address only, no lat/lng */}
+        {(currentLocation || locationError) && (
+          <div className={`exec-location-strip ${currentLocation ? "success" : "warning"}`}>
+            {currentLocation ? (
               <>
-                <span style={{ fontWeight: 'bold', color: '#28a745' }}>● LIVE</span>
-                <br />
-                <small>
-                  Lat: {currentLocation.latitude.toFixed(6)}, 
-                  Lng: {currentLocation.longitude.toFixed(6)} 
-                  (Accuracy: ±{Math.round(currentLocation.accuracy)}m)
-                  <br />
-                  Last updated: {new Date(currentLocation.timestamp).toLocaleTimeString()}
-                </small>
+                <span>✅</span>
+                <span>
+                  <strong>Location captured.</strong>{" "}
+                  {geocodedAddress && (geocodedAddress.areaName || geocodedAddress.state) ? (
+                    <>
+                      {geocodedAddress.areaName}
+                      {geocodedAddress.areaName && geocodedAddress.streetName ? " — " : ""}
+                      {geocodedAddress.streetName}
+                      {(geocodedAddress.areaName || geocodedAddress.streetName) && geocodedAddress.state ? ", " : ""}
+                      {geocodedAddress.state}
+                      {geocodedAddress.pinCode ? ` — ${geocodedAddress.pinCode}` : ""}
+                    </>
+                  ) : (
+                    "Address fields have been auto-filled below."
+                  )}
+                </span>
               </>
             ) : (
-              <span>{locationError || "Requesting location access..."}</span>
+              <><span>⚠️</span><span>{locationError}</span></>
             )}
           </div>
-          
-          {!locationEnabled && (
-            <button 
-              onClick={handleRetryLocation}
-              style={{
-                padding: '8px 20px',
-                backgroundColor: '#dc3545',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: 'bold'
-              }}
-            >
-              🔄 Retry Location Access
-            </button>
-          )}
+        )}
 
-          {locationEnabled && (
-            <button 
-              onClick={handleRetryLocation}
-              style={{
-                padding: '5px 15px',
-                backgroundColor: '#28a745',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '12px',
-                marginLeft: '10px'
-              }}
-              title="Refresh location manually"
-            >
-              🔄 Refresh
-            </button>
-          )}
-        </div>
-
-        <LocationForm 
-          onSubmit={handleSubmitDailyLog} 
-          locationEnabled={locationEnabled}
+        {/* Form */}
+        <LocationForm
+          onSubmit={handleSubmitDailyLog}
+          locationCaptured={!!currentLocation}
           isSubmitting={isSubmitting}
           userCode={dashboardUser.userCode}
-          currentLocation={currentLocation}
+          geocodedAddress={geocodedAddress}
+          onGetLocation={handleGetLocation}
+          isGettingLocation={isGettingLocation}
         />
 
       </div>
