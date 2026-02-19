@@ -2,13 +2,18 @@ import React from 'react';
 import Sidebar from './Sidebar';
 
 const MainLayout = ({ children, user, logout }) => {
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    console.log('[MainLayout] Logout button clicked');
+    console.log('[MainLayout] logout prop received:', typeof logout);
     if (logout) {
-      logout();
+      // logout() is async — await it so App.jsx handles clearing state + redirect
+      await logout();
     } else {
+      // fallback if logout prop not passed
+      console.log('[MainLayout] No logout prop — fallback: clearing localStorage');
       localStorage.removeItem('user');
+      window.location.href = '/login';
     }
-    window.location.href = '/login';
   };
 
   return (

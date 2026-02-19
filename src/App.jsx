@@ -132,36 +132,26 @@ const useAuth = () => {
     setLoading(false);
   }, []);
 
-  // ✅ LOGIN API
-  const login = async (credentials) => {
-    try {
-      const response = await api.post("/api/auth/login", credentials);
-
-      const userData = {
-        userCode: response.userCode,
-        role: response.role.toLowerCase(), // EXECUTIVE → executive
-      };
-
-      setUser(userData);
-      localStorage.setItem("user", JSON.stringify(userData));
-
-      return response;
-    } catch (error) {
-      throw error;
-    }
+  // ✅ LOGIN — only updates state (API call is handled in Login.jsx)
+  const login = (userData) => {
+    setUser(userData);
   };
 
   // ✅ LOGOUT API
   const logout = async () => {
+    console.log('[App] logout() called — calling API...');
     try {
       await api.post("/api/auth/logout");
-
+      console.log('[App] Logout API success');
+    } catch (error) {
+      // API failed — log it but still clear local session
+      console.log('[App] Logout API error (continuing with local logout):', error);
+    } finally {
+      // Always clear local state regardless of API result
       setUser(null);
       localStorage.removeItem("user");
-
+      console.log('[App] Local session cleared — redirecting to /login');
       window.location.href = "/login";
-    } catch (error) {
-      console.log("Logout Error:", error);
     }
   };
 
