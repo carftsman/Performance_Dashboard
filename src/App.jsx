@@ -12,7 +12,7 @@ import ExecutiveDashboard from "./Pages/ExecutiveDashboard";
 import TeamLeadDashboard from "./Pages/TeamLeadDashboard";
 import ManagementDashboard from "./Pages/ManagementDashboard";
 
-import api from './Services/api';
+import { authService } from './Services/authservice';
 
 // ✅ Auth Hook
 const useAuth = () => {
@@ -35,7 +35,7 @@ const useAuth = () => {
   const logout = async () => {
     console.log('[App] logout() called — calling API...');
     try {
-      await api.post("/api/auth/logout");
+      await authService.logout();
       console.log('[App] Logout API success');
     } catch (error) {
       // API failed — log it but still clear local session
