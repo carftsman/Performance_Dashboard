@@ -32,9 +32,13 @@ api.interceptors.request.use(
    RESPONSE INTERCEPTOR
 ========================= */
 api.interceptors.response.use(
-  (response) => response.data,
+  (response) => {
+    console.log("Response:", response.data);
+    return response.data
+},
   (error) => {
     // Network error
+    console.log("Error from api.service.js:", error.response);
     if (!error.response) {
       return Promise.reject({
         message: "Network error. Please check internet connection.",
