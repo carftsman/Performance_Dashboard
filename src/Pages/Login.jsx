@@ -125,7 +125,7 @@
 // export default Login;
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../Services/api";
+import { authService } from "../Services/authservice";
 
 const Login = ({ login }) => {
   const [userCode, setUserCode] = useState("");
@@ -159,11 +159,8 @@ const Login = ({ login }) => {
     }
 
     try {
-      // ✅ API CALL
-      const response = await api.post("/api/auth/login", {
-        userCode,
-        password,
-      });
+      // ✅ API CALL via authService
+      const response = await authService.login({ userCode, password });
 
       console.log("Login Response:", response);
 
@@ -193,8 +190,21 @@ const Login = ({ login }) => {
       // Redirect
       navigate(`/${backendRole}`);
     } catch (err) {
-      console.log("Login Error:", err);
-      setError(err.message || "Invalid credentials. Please try again.");
+      // Log full error details for debugging
+      console.log("Login Error (full):", err);
+      console.log("Status:", err.response?.status);
+      console.log("Server response body:", err.response?.data);
+
+      // Extract the real server message (not the generic AxiosError string)
+      const serverError = err.response?.data;
+      const errorMessage =
+        serverError?.message ||
+        serverError?.error ||
+        serverError?.detail ||
+        (typeof serverError === "string" ? serverError : null) ||
+        "Invalid credentials. Please try again.";
+
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
