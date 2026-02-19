@@ -203,17 +203,25 @@ const Login = ({ login }) => {
   return (
     <div className="login-container">
       <div className="login-box">
+
+        {/* Header / Branding */}
         <div className="login-header">
+          <div className="login-logo">📊</div>
           <h1>Performance Tracking System</h1>
+          <p>Field Marketing Dashboard</p>
         </div>
 
-        {/* ✅ Error */}
+        {/* Error Message */}
         {error && (
-          <p style={{ color: "red", textAlign: "center" }}>{error}</p>
+          <div className="login-error">
+            ⚠️ {error}
+          </div>
         )}
 
+        {/* Form */}
         <form onSubmit={handleSubmit}>
-          {/* ✅ ROLE DROPDOWN */}
+
+          {/* ROLE DROPDOWN */}
           <div className="form-group">
             <label>Role</label>
             <select
@@ -231,7 +239,7 @@ const Login = ({ login }) => {
             </select>
           </div>
 
-          {/* ✅ USER CODE */}
+          {/* USER CODE */}
           <div className="form-group">
             <label>User Code</label>
             <input
@@ -241,10 +249,11 @@ const Login = ({ login }) => {
               className="input-field"
               placeholder="Enter User Code (Ex: ITS115)"
               required
+              autoComplete="username"
             />
           </div>
 
-          {/* ✅ PASSWORD */}
+          {/* PASSWORD */}
           <div className="form-group">
             <label>Password</label>
             <input
@@ -254,16 +263,24 @@ const Login = ({ login }) => {
               className="input-field"
               placeholder="Enter Password"
               required
+              autoComplete="current-password"
             />
           </div>
 
-          {/* ✅ BUTTON */}
+          {/* SUBMIT BUTTON */}
           <button
             type="submit"
-            className="btn btn-block"
+            className="btn btn-block login-btn"
             disabled={loading}
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? (
+              <span className="login-btn-loading">
+                <span className="login-spinner"></span>
+                Logging in...
+              </span>
+            ) : (
+              "Login"
+            )}
           </button>
         </form>
       </div>
