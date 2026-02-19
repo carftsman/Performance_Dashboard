@@ -174,7 +174,7 @@
 // };
 
 // export default ExecutiveDashboard;
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import LocationForm from "../components/Executive/LocationForm";
 import { formService } from "../Services/form.service";
 
@@ -284,11 +284,11 @@ const ExecutiveDashboard = ({ user, logout }) => {
 
     try {
       const submissionData = {
-        // Form fields
         vendorShopName: formData.vendorShopName,
         vendorName:     formData.vendorName,
         contactNumber:  formData.contactNumber,
         mailId:         formData.mailId || "",
+        vendorLocation: `${currentLocation.latitude}, ${currentLocation.longitude}`,
         doorNumber:     formData.doorNumber,
         streetName:     formData.streetName,
         areaName:       formData.areaName,
@@ -296,17 +296,9 @@ const ExecutiveDashboard = ({ user, logout }) => {
         state:          formData.state,
         status:         formData.status,
         review:         formData.review || "",
-        // GPS coords captured at the time "Get Location" was clicked
-        latitude:         currentLocation.latitude,
-        longitude:        currentLocation.longitude,
-        locationAccuracy: currentLocation.accuracy,
-        // User info
-        executiveId:   dashboardUser.userCode,
-        executiveName: dashboardUser.userCode,
-        submittedAt:   new Date().toISOString(),
       };
 
-      console.log("[Submit] Payload:", submissionData);
+      console.log("[Submit] Payload to backend:", JSON.stringify(submissionData, null, 2));
 
       const response = await formService.createForm(submissionData);
       console.log("[Submit] Success:", response);
