@@ -219,18 +219,6 @@ const ManagementDashboard = ({ user, logout }) => {
                 <div className="stat-label">Total Entries</div>
               </div>
               <div className="stat-card">
-                <div className="stat-value" style={{ color: '#166534' }}>{stats.interested}</div>
-                <div className="stat-label">Interested</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-value" style={{ color: '#1e40af' }}>{stats.onboarded}</div>
-                <div className="stat-label">Onboarded</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-value" style={{ color: '#991b1b' }}>{stats.notInterested}</div>
-                <div className="stat-label">Not Interested</div>
-              </div>
-              <div className="stat-card">
                 <div className="stat-value">{stats.totalExecutives}</div>
                 <div className="stat-label">Executives</div>
               </div>
@@ -242,23 +230,6 @@ const ManagementDashboard = ({ user, logout }) => {
 
             {/* Filters */}
             <div className="card filters-card">
-              <div className="filters-header">
-                <h3 className="card-title">Filters</h3>
-                <div className="view-toggle">
-                  <button 
-                    className={`view-toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
-                    onClick={() => setViewMode('table')}
-                  >
-                    Table View
-                  </button>
-                  <button 
-                    className={`view-toggle-btn ${viewMode === 'card' ? 'active' : ''}`}
-                    onClick={() => setViewMode('card')}
-                  >
-                    Card View
-                  </button>
-                </div>
-              </div>
               
               <div className="filters-grid">
                 <input
@@ -269,16 +240,6 @@ const ManagementDashboard = ({ user, logout }) => {
                   className="filter-input"
                 />
 
-                <select 
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="all">All Status</option>
-                  <option value="INTERESTED">Interested</option>
-                  <option value="ONBOARDED">Onboarded</option>
-                  <option value="NOT_INTERESTED">Not Interested</option>
-                </select>
 
                 <select 
                   value={teamFilter}
@@ -335,7 +296,7 @@ const ManagementDashboard = ({ user, logout }) => {
                         <th>Executive</th>
                         <th>Team Lead</th>
                         <th>Location</th>
-                        <th>Status</th>
+                        
                         <th>Tag</th>
                         <th></th>
                       </tr>
@@ -382,7 +343,7 @@ const ManagementDashboard = ({ user, logout }) => {
                                 {form.state && <div className="state">{form.state}</div>}
                               </div>
                             </td>
-                            <td>{getStatusBadge(form.status)}</td>
+                           
                             <td>{getTagBadge(form.tag)}</td>
                             <td>
                               <button 
@@ -458,7 +419,7 @@ const ManagementDashboard = ({ user, logout }) => {
             )}
 
             {/* Card View */}
-            {viewMode === 'card' && (
+            {/* {viewMode === 'card' && (
               <div className="card-grid">
                 {filteredForms.map(form => (
                   <div key={form.id} className="data-card">
@@ -570,7 +531,7 @@ const ManagementDashboard = ({ user, logout }) => {
                   </div>
                 )}
               </div>
-            )}
+            )} */}
           </>
         )}
       </div>

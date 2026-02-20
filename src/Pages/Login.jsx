@@ -244,7 +244,7 @@ const Login = ({ login }) => {
               <option value="manager">Manager</option>
               <option value="bpo">BPO</option>
               <option value="admin">Admin</option>
-              <option value="da">Data Analyst</option>
+              <option value="reporter">Data Analyst</option>
             </select>
           </div>
 
