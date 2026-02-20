@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import MainLayout from '../components/common/Layout/MainLayout';
 import ExecutiveWorkView from '../components/TeamLead/ExecutiveWorkView';
 import LocationForm from '../components/Executive/LocationForm';
-import axios from 'axios';
+import { teamLeadService } from '../Services/teamlead.service';
 import './TeamLeadDashboard.css'; // We'll create this CSS file
 
 const TeamLeadDashboard = ({ user, logout }) => {
@@ -18,7 +18,6 @@ const TeamLeadDashboard = ({ user, logout }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(null);
   const [selectedExecutiveForForm, setSelectedExecutiveForForm] = useState(null);
-
   // Fetch all forms for the team lead
   useEffect(() => {
     fetchTeamLeadForms();
@@ -29,19 +28,11 @@ const TeamLeadDashboard = ({ user, logout }) => {
       setLoading(true);
       console.log('Calling API');
       
-      const response = await axios.get(
-        "https://mft-zwy7.onrender.com/api/teamlead/forms",
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          withCredentials: true 
-        }
-      );
+      const data = await teamLeadService.getForms();
 
-      console.log("Team Lead Forms:", response.data);
+      console.log("Team Lead Forms:", data);
       
-      const formsData = Array.isArray(response.data) ? response.data : [];
+      const formsData = Array.isArray(data) ? data : [];
       setExecutiveForms(formsData);
       setError(null);
     } catch (error) {
@@ -184,10 +175,7 @@ const TeamLeadDashboard = ({ user, logout }) => {
                 <button onClick={handleBackToTeam} className="btn btn-secondary">
                   ← Back to Dashboard
                 </button>
-                <div className="form-title">
-                  <h2>Add New Entry for {selectedExecutiveForForm.name}</h2>
-                  <p className="text-muted">Executive ID: {selectedExecutiveForForm.id}</p>
-                </div>
+               
               </div>
             </div>
 
@@ -244,6 +232,19 @@ const TeamLeadDashboard = ({ user, logout }) => {
               </div>
             </div>
             <div className="header-actions">
+              <button
+                onClick={() => {
+                  // Pass the team lead themselves as the executive when adding entry from global button
+                  setSelectedExecutiveForForm({
+                    id: dashboardUser?.id || 19,
+                    name: dashboardUser?.userCode || 'Team Lead'
+                  });
+                  setViewMode('add-entry');
+                }}
+                className="btn btn-success"
+              >
+                + Add Entry
+              </button>
               <button 
                 onClick={handleRefresh}
                 disabled={loading}

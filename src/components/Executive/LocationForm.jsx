@@ -29,6 +29,7 @@ const LocationForm = ({
   // ── Autofill when geocodedAddress arrives ──────────────────────────────────
   useEffect(() => {
     if (!geocodedAddress) return;
+    console.log("geocodedAddress from location form", geocodedAddress);
     setFormData((prev) => ({
       ...prev,
       areaName:   geocodedAddress.areaName   || prev.areaName,
@@ -104,6 +105,7 @@ const LocationForm = ({
     if (validateForm()) {
       onSubmit(formData);
     }
+    handleReset();
   };
 
   const handleReset = () => {
