@@ -3,12 +3,8 @@ import MainLayout from '../components/common/Layout/MainLayout';
 import axios from 'axios';
 import './ManagementDashboard.css';
 
-const ManagementDashboard = ({ user, logout }) => {
-  const dashboardUser = user || JSON.parse(localStorage.getItem('user')) || {
-    name: "Vikram Singh",
-    email: "vikram@company.com",
-    role: "management"
-  };
+const AdminDashboard= ({ user, logout }) => {
+  const dashboardUser = user || JSON.parse(localStorage.getItem('user'));
 
   const [forms, setForms] = useState([]);
   const [filteredForms, setFilteredForms] = useState([]);
@@ -578,4 +574,4 @@ const ManagementDashboard = ({ user, logout }) => {
   );
 };
 
-export default ManagementDashboard;
+export default AdminDashboard;
