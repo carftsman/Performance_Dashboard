@@ -11,7 +11,7 @@ import Login from "./Pages/Login";
 import ExecutiveDashboard from "./Pages/ExecutiveDashboard";
 import TeamLeadDashboard from "./Pages/TeamLeadDashboard";
 import ManagementDashboard from "./Pages/ManagementDashboard";
-
+import BpoDashBoard from "./Pages/BpoDashboard";
 import { authService } from './Services/authservice';
 
 // ✅ Auth Hook
@@ -110,6 +110,15 @@ function AppContent() {
         element={
           <ProtectedRoute allowedRoles={["management"]}>
             <ManagementDashboard user={user} logout={logout} />
+          </ProtectedRoute>
+        }
+      />
+      {/* Bpo  */}
+      <Route
+        path="/bpo"
+        element={
+          <ProtectedRoute allowedRoles={["bpo"]}>
+            <BpoDashBoard user={user} logout={logout} />
           </ProtectedRoute>
         }
       />
