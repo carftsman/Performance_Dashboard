@@ -1,180 +1,3 @@
-// import React, { useState, useEffect } from "react";
-// import axios from "axios";
-// import MainLayout from "../components/common/Layout/MainLayout";
-// import "./BpoDashboard.css";
-
-// const BASE_URL = "https://mft-zwy7.onrender.com";
-
-// function BpoDashBoard() {
-//   const [forms, setForms] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState(null);
-//   const [selectedForm, setSelectedForm] = useState(null);
-//   const [searchTerm, setSearchTerm] = useState("");
-//   const [statusFilter, setStatusFilter] = useState("All Status");
-
-//   useEffect(() => {
-//     fetchForms();
-//   }, []);
-
-//   const fetchForms = async () => {
-//     try {
-//       setLoading(true);
-//       const response = await axios.get(
-//         `${BASE_URL}/api/bpo/forms`,
-//          {
-//           headers: {
-//             'Content-Type': 'application/json',
-//           },
-//           withCredentials: true 
-//         }
-//       );
-
-//       console.log("API Success:", response.data);
-
-//       setForms(response.data);
-//       setError(null);
-
-//     } catch (err) {
-//       console.error("Axios Error:", err);
-
-//       if (err.response) {
-//         // Backend returned error
-//         console.log("Backend error message:", err.response.data);
-//         setError(`Server Error: ${err.response.status}`);
-//       } else if (err.request) {
-//         setError("No response from server");
-//       } else {
-//         setError(err.message);
-//       }
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   // 🔍 Search + Filter
-//   const filteredForms = forms.filter((form) => {
-//     const matchesSearch =
-//       searchTerm === "" ||
-//       form.vendorShopName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//       form.vendorName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//       form.id?.toString().includes(searchTerm);
-
-//     const matchesStatus =
-//       statusFilter === "All Status" ||
-//       form.status?.toLowerCase() === statusFilter.toLowerCase();
-
-//     return matchesSearch && matchesStatus;
-//   });
-
-//   return (
-//     <MainLayout>
-//       <div className="bpo-dashboard">
-//         <div className="dashboard-header">
-//           <div>
-//             <h1>BPO Forms Management</h1>
-//             <p>Total Forms: {forms.length}</p>
-//           </div>
-//           <button className="refresh-btn" onClick={fetchForms}>
-//             Refresh
-//           </button>
-//         </div>
-
-//         <div className="filter-bar">
-//           <input
-//             type="text"
-//             placeholder="Search by Shop / Vendor / ID"
-//             value={searchTerm}
-//             onChange={(e) => setSearchTerm(e.target.value)}
-//           />
-
-//           <select
-//             value={statusFilter}
-//             onChange={(e) => setStatusFilter(e.target.value)}
-//           >
-//             <option>All Status</option>
-//             <option>INTERESTED</option>
-//             <option>NOT_INTERESTED</option>
-//             <option>ONBOARDED</option>
-//           </select>
-//         </div>
-
-//         {loading && <p>Loading forms...</p>}
-
-//         {error && (
-//           <div className="error-box">
-//             <p>{error}</p>
-//             <button onClick={fetchForms}>Retry</button>
-//           </div>
-//         )}
-
-//         {!loading && !error && (
-//           <div className="forms-grid">
-//             {filteredForms.length === 0 ? (
-//               <p>No forms found</p>
-//             ) : (
-//               filteredForms.map((form) => (
-//                 <div
-//                   key={form.id}
-//                   className="form-card"
-//                   onClick={() => setSelectedForm(form)}
-//                 >
-//                   <div className="card-header">
-//                     <span>ID: #{form.id}</span>
-//                     <span className={`status ${form.status}`}>
-//                       {form.status}
-//                     </span>
-//                   </div>
-
-//                   <h3>{form.vendorShopName}</h3>
-//                   <p><strong>Owner:</strong> {form.vendorName}</p>
-//                   <p><strong>Location:</strong> {form.vendorLocation}</p>
-//                   <p><strong>Executive:</strong> {form.executiveName}</p>
-//                   <p><strong>Team Lead:</strong> {form.teamleadName}</p>
-//                   <p>
-//                     <strong>Date:</strong>{" "}
-//                     {new Date(form.createdAt).toLocaleDateString()}
-//                   </p>
-//                 </div>
-//               ))
-//             )}
-//           </div>
-//         )}
-
-//         {selectedForm && (
-//           <div className="modal-overlay" onClick={() => setSelectedForm(null)}>
-//             <div
-//               className="modal-content"
-//               onClick={(e) => e.stopPropagation()}
-//             >
-//               <h2>Form Details - #{selectedForm.id}</h2>
-
-//               <p><strong>Shop:</strong> {selectedForm.vendorShopName}</p>
-//               <p><strong>Owner:</strong> {selectedForm.vendorName}</p>
-//               <p><strong>Contact:</strong> {selectedForm.contactNumber}</p>
-//               <p><strong>Email:</strong> {selectedForm.mailId}</p>
-
-//               <p>
-//                 <strong>Address:</strong><br />
-//                 {selectedForm.doorNumber}, {selectedForm.streetName},{" "}
-//                 {selectedForm.areaName}, {selectedForm.state} -{" "}
-//                 {selectedForm.pinCode}
-//               </p>
-
-//               <p><strong>Review:</strong> {selectedForm.review}</p>
-//               <p><strong>Status:</strong> {selectedForm.status}</p>
-//               <p><strong>Tag:</strong> {selectedForm.tag}</p>
-
-//               <button onClick={() => setSelectedForm(null)}>Close</button>
-//             </div>
-//           </div>
-//         )}
-//       </div>
-//     </MainLayout>
-//   );
-// }
-
-// export default BpoDashBoard;
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import MainLayout from "../components/common/Layout/MainLayout";
@@ -189,6 +12,16 @@ function BpoDashBoard() {
   const [selectedForm, setSelectedForm] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Status");
+  
+  // Review modal states
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [selectedFormForReview, setSelectedFormForReview] = useState(null);
+  const [executiveReview, setExecutiveReview] = useState("");
+  const [vendorReview, setVendorReview] = useState("");
+  const [selectedAction, setSelectedAction] = useState("SOLVED");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
+  const [submitSuccess, setSubmitSuccess] = useState(null);
 
   useEffect(() => {
     fetchForms();
@@ -225,6 +58,95 @@ function BpoDashBoard() {
     }
   };
 
+  // Handle review submission
+  const handleReviewSubmit = async () => {
+    if (!selectedFormForReview) return;
+    
+    // Validation
+    if (!executiveReview.trim()) {
+      setSubmitError("Please provide executive review");
+      return;
+    }
+    if (!vendorReview.trim()) {
+      setSubmitError("Please provide vendor review");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      setSubmitError(null);
+      
+      const payload = {
+        action: selectedAction,
+        executiveReview: executiveReview.trim(),
+        vendorReview: vendorReview.trim()
+      };
+
+      console.log("Submitting review:", payload);
+      
+      const response = await axios.post(
+        `${BASE_URL}/api/bpo/submit/${selectedFormForReview.id}`,
+        payload,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true
+        }
+      );
+
+      console.log("Review submitted successfully:", response.data);
+      
+      setSubmitSuccess("Review submitted successfully!");
+      
+      // Update the form in the list with new data
+      setForms(prevForms => 
+        prevForms.map(form => 
+          form.id === selectedFormForReview.id ? response.data : form
+        )
+      );
+      
+     
+    } catch (err) {
+      console.error("Error submitting review:", err);
+      setSubmitError(
+        err.response?.data?.message || 
+        "Failed to submit review. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Open review modal
+  const handleOpenReviewModal = (form, e)=> {
+    e.stopPropagation(); // Prevent card click
+    setSelectedFormForReview(form);
+    setExecutiveReview("");
+    setVendorReview("");
+    setSelectedAction("SOLVED");
+    setSubmitError(null);
+    setSubmitSuccess(null);
+    setShowReviewModal(true);
+  };
+
+  // Close review modal
+  const handleCloseReviewModal = () => {
+    setShowReviewModal(false);
+    setSelectedFormForReview(null);
+    setExecutiveReview("");
+    setVendorReview("");
+    setSelectedAction("SOLVED");
+    setSubmitError(null);
+    setSubmitSuccess(null);
+    setIsSubmitting(false);
+  };
+
+  // Open view details modal
+  const handleViewDetails = (form) => {
+    setSelectedForm(form);
+  };
+
   // Calculate statistics
   const stats = {
     total: forms.length,
@@ -249,7 +171,7 @@ function BpoDashBoard() {
     return matchesSearch && matchesStatus;
   });
 
-  // Icons (using emoji as fallback, but you can replace with actual icon library)
+  // Icons
   const Icons = {
     shop: "🏪",
     owner: "👤",
@@ -258,7 +180,9 @@ function BpoDashBoard() {
     teamlead: "👥",
     calendar: "📅",
     phone: "📞",
-    email: "✉️"
+    email: "✉️",
+    review: "✍️",
+    submit: "📤"
   };
 
   return (
@@ -330,7 +254,7 @@ function BpoDashBoard() {
                 <div
                   key={form.id}
                   className="form-card"
-                  onClick={() => setSelectedForm(form)}
+                  onClick={() => handleViewDetails(form)}
                 >
                   <div className="card-header">
                     <span>#{form.id}</span>
@@ -378,13 +302,21 @@ function BpoDashBoard() {
                       </span>
                     </div>
                   </div>
+
+                  {/* Review Button */}
+                  <button 
+                    className="review-btn"
+                    onClick={(e) => handleOpenReviewModal(form, e)}
+                  >
+                    {Icons.review} Add Review
+                  </button>
                 </div>
               ))
             )}
           </div>
         )}
 
-        {/* Modal */}
+        {/* View Details Modal */}
         {selectedForm && (
           <div className="modal-overlay" onClick={() => setSelectedForm(null)}>
             <div
@@ -448,8 +380,173 @@ function BpoDashBoard() {
               </div>
 
               <div className="modal-actions">
+
                 <button className="close-modal-btn" onClick={() => setSelectedForm(null)}>
                   Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Review Modal */}
+        {showReviewModal && selectedFormForReview && (
+          <div className="modal-overlay" onClick={handleCloseReviewModal}>
+            <div
+              className="modal-content review-modal"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="modal-header">
+                <div>
+                  <h2>Submit Review</h2>
+                  <p className="modal-subtitle">
+                    Form #{selectedFormForReview.id} - {selectedFormForReview.vendorShopName}
+                  </p>
+                   <div className="executive-info-badge">
+      <span className="executive-label">Executive:</span>
+      <span className="executive-name">{selectedFormForReview.executiveName || 'Not Assigned'}</span>
+    </div>
+                </div>
+                <button className="close-btn" onClick={handleCloseReviewModal}>×</button>
+              </div>
+
+              <div className="modal-body">
+                {/* Form Info Summary */}
+                <div className="form-info-summary">
+                  <div className="info-chip">
+                    <span className="info-label">Vendor:</span>
+                    <span className="info-value">{selectedFormForReview.vendorName}</span>
+                  </div>
+                  <div className="info-chip">
+                    <span className="info-label">Contact:</span>
+                    <span className="info-value">{selectedFormForReview.contactNumber}</span>
+                  </div>
+                  <div className="info-chip">
+                    <span className="info-label">Current Status:</span>
+                    <span className={`status ${selectedFormForReview.status}`}>
+                      {selectedFormForReview.status}
+                    </span>
+                  </div>
+                </div>
+                 
+                 
+
+                {/* Success Message */}
+                {submitSuccess && (
+                  <div className="alert alert-success">
+                    <span className="alert-icon">✅</span>
+                    {submitSuccess}
+                  </div>
+                )}
+
+                {/* Error Message */}
+                {submitError && (
+                  <div className="alert alert-error">
+                    <span className="alert-icon">⚠️</span>
+                    {submitError}
+                  </div>
+                )}
+
+                {/* Executive Review */}
+                <div className="form-group">
+                  <label className="form-label">
+                    Executive Review <span className="required">*</span>
+                  </label>
+                  <textarea
+                    className="form-textarea"
+                    rows="3"
+                    placeholder="Write your review about the executive's performance..."
+                    value={executiveReview}
+                    onChange={(e) => setExecutiveReview(e.target.value)}
+                    disabled={isSubmitting}
+                  />
+                  <div className="character-count">
+                    {executiveReview.length} characters
+                  </div>
+                </div>
+
+                {/* Vendor Review */}
+                <div className="form-group">
+                  <label className="form-label">
+                    Vendor Review <span className="required">*</span>
+                  </label>
+                  <textarea
+                    className="form-textarea"
+                    rows="3"
+                    placeholder="Write the vendor's feedback and response..."
+                    value={vendorReview}
+                    onChange={(e) => setVendorReview(e.target.value)}
+                    disabled={isSubmitting}
+                  />
+                  <div className="character-count">
+                    {vendorReview.length} characters
+                  </div>
+                </div>
+                   {/* Action Selection */}
+                <div className="form-group">
+                  <label className="form-label">
+                    Action <span className="required">*</span>
+                  </label>
+                  <div className="action-buttons">
+                    {["SOLVED","NOT SOLVED"].map((action) => (
+                      <button
+                        key={action}
+                        type="button"
+                        className={`action-btn ${selectedAction === action ? 'active' : ''}`}
+                        onClick={() => setSelectedAction(action)}
+                        disabled={isSubmitting}
+                      >
+                        {action}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Preview Section */}
+                {(executiveReview || vendorReview) && (
+                  <div className="review-preview">
+                    <h4>Preview</h4>
+                    <div className="preview-content">
+                      {executiveReview && (
+                        <div className="preview-item">
+                          <strong>Executive Review:</strong>
+                          <p>{executiveReview}</p>
+                        </div>
+                      )}
+                      {vendorReview && (
+                        <div className="preview-item">
+                          <strong>Vendor Review:</strong>
+                          <p>{vendorReview}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="modal-actions review-actions">
+                <button 
+                  className="btn-secondary"
+                  onClick={handleCloseReviewModal}
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </button>
+                <button 
+                  className="btn-primary submit-btn"
+                  onClick={handleReviewSubmit}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <span className="loading-spinner-small"></span>
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      {Icons.submit} Submit Review
+                    </>
+                  )}
                 </button>
               </div>
             </div>
