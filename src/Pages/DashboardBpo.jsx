@@ -1,7 +1,7 @@
 // import React, { useState, useEffect } from "react";
 // import axios from "axios";
 // import MainLayout from "../components/common/Layout/MainLayout";
-// import "./BpoDashboard.css";
+// import "./DashboardBpo.css";
 
 // const BASE_URL = "https://mft-zwy7.onrender.com";
 
@@ -178,7 +178,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import MainLayout from "../components/common/Layout/MainLayout";
-import "./BpoDashboard.css";
+import "./DashboardBpo.css";
 
 const BASE_URL = "https://mft-zwy7.onrender.com";
 

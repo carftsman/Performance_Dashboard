@@ -11,7 +11,7 @@ import Login from "./Pages/Login";
 import ExecutiveDashboard from "./Pages/ExecutiveDashboard";
 import TeamLeadDashboard from "./Pages/TeamLeadDashboard";
 import ManagementDashboard from "./Pages/ManagementDashboard";
-import BpoDashBoard from "./Pages/BpoDashboard";
+import BpoDashBoard from "./Pages/DashboardBpo"
 import { authService } from './Services/authservice';
 
 // ✅ Auth Hook
