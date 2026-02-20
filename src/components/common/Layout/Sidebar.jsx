@@ -5,11 +5,9 @@ const Sidebar = ({ user }) => {
   const location = useLocation();
   
   const menuItems = {
-    teamlead: [
-      { path: '/teamlead', icon: '👥', label: 'Team Overview' },
-      { path: '/teamlead/forms', icon: '📋', label: 'All Forms' },
-      { path: '/teamlead/analytics', icon: '📊', label: 'Analytics' }
-    ],
+    // teamlead: [
+    //   { path: '/teamlead', icon: '👥', label: 'Team Overview' },
+    // ],
     executive: [
       { path: '/executive', icon: '📝', label: 'Daily Entry' },
       { path: '/executive/history', icon: '📋', label: 'My History' }

@@ -9,6 +9,7 @@ const api = axios.create({
     "Content-Type": "application/json",
     Accept: "*/*",
   },
+  // withCredentials: true
 });
 
 /* =========================
