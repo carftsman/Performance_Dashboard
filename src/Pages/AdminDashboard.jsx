@@ -3,7 +3,7 @@ import MainLayout from '../components/common/Layout/MainLayout';
 import axios from 'axios';
 import './ManagementDashboard.css';
 
-const AdminDashboard= ({ user, logout }) => {
+const AdminDashboard = ({ user, logout }) => {
   const dashboardUser = user || JSON.parse(localStorage.getItem('user'));
 
   const [forms, setForms] = useState([]);
@@ -177,7 +177,7 @@ const AdminDashboard= ({ user, logout }) => {
         <div className="card header-card">
           <div className="header-content">
             <div>
-              <h1>Management Dashboard</h1>
+              <h1>Admin Dashboard</h1>
               <p className="text-muted">
                 Consolidated view of all field operations • {forms.length} total entries
               </p>
@@ -215,18 +215,6 @@ const AdminDashboard= ({ user, logout }) => {
                 <div className="stat-label">Total Entries</div>
               </div>
               <div className="stat-card">
-                <div className="stat-value" style={{ color: '#166534' }}>{stats.interested}</div>
-                <div className="stat-label">Interested</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-value" style={{ color: '#1e40af' }}>{stats.onboarded}</div>
-                <div className="stat-label">Onboarded</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-value" style={{ color: '#991b1b' }}>{stats.notInterested}</div>
-                <div className="stat-label">Not Interested</div>
-              </div>
-              <div className="stat-card">
                 <div className="stat-value">{stats.totalExecutives}</div>
                 <div className="stat-label">Executives</div>
               </div>
@@ -238,23 +226,6 @@ const AdminDashboard= ({ user, logout }) => {
 
             {/* Filters */}
             <div className="card filters-card">
-              <div className="filters-header">
-                <h3 className="card-title">Filters</h3>
-                <div className="view-toggle">
-                  <button 
-                    className={`view-toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
-                    onClick={() => setViewMode('table')}
-                  >
-                    Table View
-                  </button>
-                  <button 
-                    className={`view-toggle-btn ${viewMode === 'card' ? 'active' : ''}`}
-                    onClick={() => setViewMode('card')}
-                  >
-                    Card View
-                  </button>
-                </div>
-              </div>
               
               <div className="filters-grid">
                 <input
@@ -265,16 +236,6 @@ const AdminDashboard= ({ user, logout }) => {
                   className="filter-input"
                 />
 
-                <select 
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="all">All Status</option>
-                  <option value="INTERESTED">Interested</option>
-                  <option value="ONBOARDED">Onboarded</option>
-                  <option value="NOT_INTERESTED">Not Interested</option>
-                </select>
 
                 <select 
                   value={teamFilter}
@@ -286,6 +247,7 @@ const AdminDashboard= ({ user, logout }) => {
                     <option key={lead} value={lead}>{lead}</option>
                   ))}
                 </select>
+                
 
                 <select 
                   value={dateRange}
@@ -331,7 +293,7 @@ const AdminDashboard= ({ user, logout }) => {
                         <th>Executive</th>
                         <th>Team Lead</th>
                         <th>Location</th>
-                        <th>Status</th>
+                        
                         <th>Tag</th>
                         <th></th>
                       </tr>
@@ -378,7 +340,7 @@ const AdminDashboard= ({ user, logout }) => {
                                 {form.state && <div className="state">{form.state}</div>}
                               </div>
                             </td>
-                            <td>{getStatusBadge(form.status)}</td>
+                           
                             <td>{getTagBadge(form.tag)}</td>
                             <td>
                               <button 
@@ -454,7 +416,7 @@ const AdminDashboard= ({ user, logout }) => {
             )}
 
             {/* Card View */}
-            {viewMode === 'card' && (
+            {/* {viewMode === 'card' && (
               <div className="card-grid">
                 {filteredForms.map(form => (
                   <div key={form.id} className="data-card">
@@ -566,7 +528,7 @@ const AdminDashboard= ({ user, logout }) => {
                   </div>
                 )}
               </div>
-            )}
+            )} */}
           </>
         )}
       </div>

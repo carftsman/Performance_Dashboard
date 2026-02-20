@@ -14,6 +14,7 @@ import ManagementDashboard from "./Pages/ManagementDashboard";
 import BpoDashBoard from "./Pages/BpoDashboard";
 import { authService } from './Services/authservice';
 import AdminDashboard from "./Pages/AdminDashboard";
+import ReportDashboard from "./Pages/ReportDashboard";
 
 // ✅ Auth Hook
 const useAuth = () => {
@@ -120,6 +121,14 @@ function AppContent() {
         element={
           <ProtectedRoute allowedRoles={["admin"]}>
             <AdminDashboard user={user} logout={logout} />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/reporter"
+        element={
+          <ProtectedRoute allowedRoles={["reporter"]}>
+            <ReportDashboard user={user} logout={logout} />
           </ProtectedRoute>
         }
       />
