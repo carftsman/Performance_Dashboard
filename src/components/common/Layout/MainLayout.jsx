@@ -33,8 +33,6 @@ const MainLayout = ({ children, user, logout }) => {
 
   return (
     <div className="dashboard" style={{ display: 'flex', minHeight: '100vh' }}>
-      <Sidebar user={user} />
-      
       <div className="main-content" style={{
         flex: 1,
         marginLeft: '250px',
@@ -59,28 +57,7 @@ const MainLayout = ({ children, user, logout }) => {
           
           <div className="user-info" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div className="user-avatar" style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                backgroundColor: '#3498db',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '18px',
-                fontWeight: 'bold',
-                color: 'white'
-              }}>
-                {displayName?.charAt(0)?.toUpperCase() || 'U'}
-              </div>
-              <div>
-                <div style={{ fontWeight: 'bold', fontSize: '14px' }}>
-                  {displayName}
-                </div>
-                <div style={{ fontSize: '12px', color: '#666', textTransform: 'capitalize' }}>
-                  {userRole}
-                </div>
-              </div>
+             
             </div>
             
             <button 

@@ -1,189 +1,15 @@
-// import React, { useState } from 'react';
-// import LocationForm from '../Executive/LocationForm';
 
-// const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
-//   const [viewMode, setViewMode] = useState('list');
-//   const [selectedForm, setSelectedForm] = useState(null);
-//   const [isEditing, setIsEditing] = useState(false);
-
-//   const handleFormSubmit = async (formData) => {
-//     console.log('Submitting form:', formData);
-//     // API call would go here
-//     setViewMode('list');
-//     onRefresh();
-//   };
-
-//   const handleViewForm = (form) => {
-//     setSelectedForm(form);
-//     setViewMode('form');
-//     setIsEditing(false);
-//   };
-
-//   const handleEditForm = (form) => {
-//     setSelectedForm(form);
-//     setViewMode('form');
-//     setIsEditing(true);
-//   };
-
-//   const handleAddNew = () => {
-//     setSelectedForm(null);
-//     setViewMode('form');
-//     setIsEditing(false);
-//   };
-
-//   return (
-//     <div className="executive-work-view">
-//       {/* Header */}
-//       <div className="card">
-//         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-//           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-//             <button
-//               onClick={onBack}
-//               style={{
-//                 padding: '8px 16px',
-//                 backgroundColor: '#6c757d',
-//                 color: 'white',
-//                 border: 'none',
-//                 borderRadius: '4px',
-//                 cursor: 'pointer'
-//               }}
-//             >
-//               ← Back
-//             </button>
-//             <div>
-//               <h2>{executive.name}</h2>
-//               <p>ID: {executive.id} • Entries: {executive.forms?.length || 0}</p>
-//             </div>
-//           </div>
-          
-//           {viewMode === 'list' && (
-//             <button
-//               onClick={handleAddNew}
-//               style={{
-//                 padding: '10px 20px',
-//                 backgroundColor: '#28a745',
-//                 color: 'white',
-//                 border: 'none',
-//                 borderRadius: '4px',
-//                 cursor: 'pointer'
-//               }}
-//             >
-//               + Add Entry
-//             </button>
-//           )}
-//         </div>
-//       </div>
-
-//       {/* Content */}
-//       {viewMode === 'list' ? (
-//         <div className="card">
-//           <h3>All Entries</h3>
-//           <div style={{ overflowX: 'auto' }}>
-//             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-//               <thead>
-//                 <tr style={{ backgroundColor: '#f8f9fa' }}>
-//                   <th style={{ padding: '12px', textAlign: 'left' }}>Date</th>
-//                   <th style={{ padding: '12px', textAlign: 'left' }}>Shop Name</th>
-//                   <th style={{ padding: '12px', textAlign: 'left' }}>Vendor</th>
-//                   <th style={{ padding: '12px', textAlign: 'left' }}>Contact</th>
-//                   <th style={{ padding: '12px', textAlign: 'left' }}>Area</th>
-//                   <th style={{ padding: '12px', textAlign: 'left' }}>Status</th>
-//                   <th style={{ padding: '12px', textAlign: 'left' }}>Tag</th>
-//                   <th style={{ padding: '12px', textAlign: 'left' }}>Actions</th>
-//                 </tr>
-//               </thead>
-//               <tbody>
-//                 {executive.forms?.map(form => (
-//                   <tr key={form.id} style={{ borderBottom: '1px solid #dee2e6' }}>
-//                     <td style={{ padding: '12px' }}>
-//                       {new Date(form.createdAt).toLocaleDateString()}
-//                     </td>
-//                     <td style={{ padding: '12px' }}>{form.vendorShopName}</td>
-//                     <td style={{ padding: '12px' }}>{form.vendorName}</td>
-//                     <td style={{ padding: '12px' }}>{form.contactNumber}</td>
-//                     <td style={{ padding: '12px' }}>{form.areaName}</td>
-//                     <td style={{ padding: '12px' }}>{form.status}</td>
-//                     <td style={{ padding: '12px' }}>{form.tag || 'N/A'}</td>
-//                     <td style={{ padding: '12px' }}>
-//                       <div style={{ display: 'flex', gap: '5px' }}>
-//                         <button
-//                           onClick={() => handleViewForm(form)}
-//                           style={{
-//                             padding: '4px 8px',
-//                             backgroundColor: '#007bff',
-//                             color: 'white',
-//                             border: 'none',
-//                             borderRadius: '4px',
-//                             cursor: 'pointer'
-//                           }}
-//                         >
-//                           View
-//                         </button>
-//                         <button
-//                           onClick={() => handleEditForm(form)}
-//                           style={{
-//                             padding: '4px 8px',
-//                             backgroundColor: '#ffc107',
-//                             color: 'black',
-//                             border: 'none',
-//                             borderRadius: '4px',
-//                             cursor: 'pointer'
-//                           }}
-//                         >
-//                           Edit
-//                         </button>
-//                       </div>
-//                     </td>
-//                   </tr>
-//                 ))}
-//               </tbody>
-//             </table>
-//           </div>
-//         </div>
-//       ) : (
-//         <div className="card">
-//           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-//             <h3>{isEditing ? 'Edit Entry' : selectedForm ? 'View Entry' : 'Add New Entry'}</h3>
-//             <button
-//               onClick={() => setViewMode('list')}
-//               style={{
-//                 padding: '6px 12px',
-//                 backgroundColor: '#6c757d',
-//                 color: 'white',
-//                 border: 'none',
-//                 borderRadius: '4px',
-//                 cursor: 'pointer'
-//               }}
-//             >
-//               Back to List
-//             </button>
-//           </div>
-          
-//           <LocationForm
-//             onSubmit={handleFormSubmit}
-//             locationEnabled={true}
-//             isSubmitting={false}
-//             userCode={executive.name}
-//             initialData={selectedForm}
-//             readOnly={!isEditing && selectedForm}
-//           />
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default ExecutiveWorkView;
 import React, { useState } from 'react';
 import LocationForm from '../Executive/LocationForm';
+import './ExecutiveWorkView.css'; // We'll create this CSS file
 
 const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
-  const [viewMode, setViewMode] = useState('list'); // 'list' or 'form'
+  const [viewMode, setViewMode] = useState('list');
   const [selectedForm, setSelectedForm] = useState(null);
+  const [expandedRow, setExpandedRow] = useState(null);
 
   const handleFormSubmit = async (formData) => {
     console.log('Submitting form:', formData);
-    // API call would go here
     setViewMode('list');
     onRefresh();
   };
@@ -198,200 +24,264 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
     setViewMode('form');
   };
 
+  const toggleRowExpand = (id) => {
+    setExpandedRow(expandedRow === id ? null : id);
+  };
+
+  // Get status badge style
+  const getStatusBadge = (status) => {
+    const styles = {
+      'INTERESTED': { bg: '#d4edda', color: '#155724', label: 'Interested' },
+      'ONBOARDED': { bg: '#cce5ff', color: '#004085', label: 'Onboarded' },
+      'NOT_INTERESTED': { bg: '#f8d7da', color: '#721c24', label: 'Not Interested' },
+      'FOLLOW_UP': { bg: '#fff3cd', color: '#856404', label: 'Follow Up' }
+    };
+    const style = styles[status] || { bg: '#e2e3e5', color: '#383d41', label: status };
+    
+    return (
+      <span className="status-badge" style={{
+        backgroundColor: style.bg,
+        color: style.color
+      }}>
+        {style.label}
+      </span>
+    );
+  };
+
+  // Get tag badge style
+  const getTagBadge = (tag) => {
+    const styles = {
+      'GREEN': { bg: '#d4edda', color: '#155724' },
+      'ORANGE': { bg: '#fff3cd', color: '#856404' },
+      'YELLOW': { bg: '#fff3cd', color: '#856404' },
+      'RED': { bg: '#f8d7da', color: '#721c24' }
+    };
+    const style = styles[tag] || { bg: '#e2e3e5', color: '#383d41' };
+    
+    return (
+      <span className="tag-badge" style={{
+        backgroundColor: style.bg,
+        color: style.color
+      }}>
+        {tag || 'N/A'}
+      </span>
+    );
+  };
+
+  // Format date
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   return (
     <div className="executive-work-view">
-      {/* Header */}
-      <div className="card">
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '15px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-            <button
-              onClick={onBack}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#6c757d',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '14px'
-              }}
-            >
+      {/* Header Section */}
+      <div className="card header-card">
+        <div className="header-content">
+          <div className="header-left">
+            
+            <div className="executive-info">
+              <h2>{executive.name}'s Work</h2>
+              <p className="text-muted">
+                Executive ID: {executive.id}
+                <br/>
+                {/* Team Lead: {executive.forms?.[0]?.teamleadName || 'N/A'} */}
+              </p>
+              
+            </div>
+            <button onClick={onBack} className="btn btn-secondary">
               ← Back to List
             </button>
-            <div>
-              <h2 style={{ margin: 0 }}>{executive.name}'s Work</h2>
-              <p style={{ margin: '5px 0 0', color: '#666' }}>
-                Executive ID: {executive.id} • Total Entries: {executive.forms?.length || 0}
-              </p>
-            </div>
           </div>
-          
-          {viewMode === 'list' && (
-            <button
-              onClick={handleAddNew}
-              style={{
-                padding: '10px 20px',
-                backgroundColor: '#28a745',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: 'bold'
-              }}
-            >
-              + Add New Entry
-            </button>
-          )}
+         
         </div>
       </div>
 
-      {/* Content */}
+      {/* Content Section */}
       {viewMode === 'list' ? (
-        <div className="card">
-          <h3>All Entries by {executive.name}</h3>
-          
-          {/* Quick Stats */}
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(4, 1fr)', 
-            gap: '15px',
-            marginBottom: '30px',
-            backgroundColor: '#f8f9fa',
-            padding: '20px',
-            borderRadius: '8px'
-          }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#007bff' }}>
-                {executive.forms?.length || 0}
-              </div>
-              <div style={{ fontSize: '12px', color: '#666' }}>Total Entries</div>
+        <>
+          {/* Quick Stats Cards */}
+          <div className="stats-grid">
+            <div className="stat-card">
+              <div className="stat-value">{executive.forms?.length || 0}</div>
+              <div className="stat-label">Total Entries</div>
             </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#28a745' }}>
+            <div className="stat-card">
+              <div className="stat-value" style={{ color: '#28a745' }}>
                 {executive.forms?.filter(f => f.status === 'INTERESTED').length || 0}
               </div>
-              <div style={{ fontSize: '12px', color: '#666' }}>Interested</div>
+              <div className="stat-label">Interested</div>
             </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#17a2b8' }}>
+            <div className="stat-card">
+              <div className="stat-value" style={{ color: '#007bff' }}>
                 {executive.forms?.filter(f => f.status === 'ONBOARDED').length || 0}
               </div>
-              <div style={{ fontSize: '12px', color: '#666' }}>Onboarded</div>
+              <div className="stat-label">Onboarded</div>
             </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#dc3545' }}>
+            <div className="stat-card">
+              <div className="stat-value" style={{ color: '#dc3545' }}>
                 {executive.forms?.filter(f => f.status === 'NOT_INTERESTED').length || 0}
               </div>
-              <div style={{ fontSize: '12px', color: '#666' }}>Not Interested</div>
+              <div className="stat-label">Not Interested</div>
             </div>
           </div>
 
-          {/* Forms Table */}
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ backgroundColor: '#f8f9fa' }}>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Date</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Shop Name</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Vendor</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Contact</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Area</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Status</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Tag</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {executive.forms?.map(form => (
-                  <tr key={form.id} style={{ borderBottom: '1px solid #dee2e6' }}>
-                    <td style={{ padding: '12px' }}>
-                      {new Date(form.createdAt).toLocaleDateString()}
-                    </td>
-                    <td style={{ padding: '12px' }}>{form.vendorShopName}</td>
-                    <td style={{ padding: '12px' }}>{form.vendorName}</td>
-                    <td style={{ padding: '12px' }}>{form.contactNumber}</td>
-                    <td style={{ padding: '12px' }}>{form.areaName}</td>
-                    <td style={{ padding: '12px' }}>
-                      <span style={{
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        backgroundColor: 
-                          form.status === 'INTERESTED' ? '#d4edda' :
-                          form.status === 'ONBOARDED' ? '#cce5ff' :
-                          form.status === 'NOT_INTERESTED' ? '#f8d7da' : '#e2e3e5',
-                        color: 
-                          form.status === 'INTERESTED' ? '#155724' :
-                          form.status === 'ONBOARDED' ? '#004085' :
-                          form.status === 'NOT_INTERESTED' ? '#721c24' : '#383d41'
-                      }}>
-                        {form.status?.replace('_', ' ')}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px' }}>
-                      <span style={{
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        backgroundColor: 
-                          form.tag === 'GREEN' ? '#d4edda' :
-                          form.tag === 'ORANGE' ? '#fff3cd' :
-                          form.tag === 'YELLOW' ? '#fff3cd' :
-                          form.tag === 'RED' ? '#f8d7da' : '#e2e3e5',
-                        color: 
-                          form.tag === 'GREEN' ? '#155724' :
-                          form.tag === 'ORANGE' ? '#856404' :
-                          form.tag === 'YELLOW' ? '#856404' :
-                          form.tag === 'RED' ? '#721c24' : '#383d41',
-                        fontWeight: 'bold'
-                      }}>
-                        {form.tag || 'N/A'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px' }}>
-                      <button
-                        onClick={() => handleViewForm(form)}
-                        style={{
-                          padding: '6px 12px',
-                          backgroundColor: '#007bff',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          fontSize: '12px'
-                        }}
-                      >
-                        View Details
-                      </button>
-                    </td>
+          {/* Forms List - Desktop View */}
+          <div className="card">
+            <h3 className="card-title">All Entries</h3>
+            
+            {/* Desktop Table View */}
+            <div className="table-container desktop-view">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Date & Time</th>
+                    <th>Shop Name</th>
+                    <th>Vendor Info</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                    <th>Tag</th>
+                    <th>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {executive.forms?.map(form => (
+                    <tr key={form.id}>
+                      <td>
+                        <div className="date-cell">
+                          {formatDate(form.createdAt)}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="shop-details">
+                          <strong>{form.vendorShopName}</strong>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="vendor-info">
+                          <div><strong>{form.vendorName}</strong></div>
+                          <div className="contact-info">
+                            <span>📞 {form.contactNumber}</span>
+                            {form.mailId && <span>✉️{form.mailId}</span>}
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="location-info">
+                          <div>{form.areaName}, {form.state}</div>
+                          {form.pinCode && <div>PIN: {form.pinCode}</div>}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="shop-details">
+                          {form.review && (
+                            <div className="review-text" title={form.review}>
+                              {form.review.substring(0, 30)}
+                              {form.review.length > 30 ? '...' : ''}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td>{getStatusBadge(form.status)}</td>
+                      <td>{getTagBadge(form.tag)}</td>
+                      {/* <td>
+                        <button 
+                          onClick={() => handleViewForm(form)}
+                          className="btn btn-view"
+                        >
+                          View
+                        </button>
+                      </td> */}
+
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="mobile-view">
+              {executive.forms?.map(form => (
+                <div key={form.id} className="mobile-card">
+                  <div className="mobile-card-header" onClick={() => toggleRowExpand(form.id)}>
+                    <div className="mobile-card-title">
+                      <h4>{form.vendorShopName}</h4>
+                      <span className="expand-icon">
+                        {expandedRow === form.id ? '▼' : '▶'}
+                      </span>
+                    </div>
+                    <div className="mobile-card-subtitle">
+                      {form.vendorName} • {formatDate(form.createdAt)}
+                    </div>
+                  </div>
+                  
+                  <div className="mobile-card-badges">
+                    {getStatusBadge(form.status)}
+                    {getTagBadge(form.tag)}
+                  </div>
+
+                  {expandedRow === form.id && (
+                    <div className="mobile-card-details">
+                      <div className="detail-row">
+                        <span className="detail-label">Contact:</span>
+                        <span className="detail-value">{form.contactNumber}</span>
+                      </div>
+                      {form.mailId && (
+                        <div className="detail-row">
+                          <span className="detail-label">Email:</span>
+                          <span className="detail-value">{form.mailId}</span>
+                        </div>
+                      )}
+                      <div className="detail-row">
+                        <span className="detail-label">Location:</span>
+                        <span className="detail-value">{form.areaName}, {form.state}</span>
+                      </div>
+                      {form.review && (
+                        <div className="detail-row">
+                          <span className="detail-label">Review:</span>
+                          <span className="detail-value">{form.review}</span>
+                        </div>
+                      )}
+                      <div className="detail-row">
+                        <span className="detail-label">Team Lead:</span>
+                        <span className="detail-value">{form.teamleadName}</span>
+                      </div>
+                      
+                      {/* <div className="mobile-card-actions">
+                        <button 
+                          onClick={() => handleViewForm(form)}
+                          className="btn btn-view btn-block"
+                        >
+                          View Full Details
+                        </button>
+                      </div> */}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {(!executive.forms || executive.forms.length === 0) && (
+              <div className="empty-state">
+                <p>No entries found for this executive</p>
+                <button onClick={handleAddNew} className="btn btn-primary">
+                  Add First Entry
+                </button>
+              </div>
+            )}
           </div>
-        </div>
+        </>
       ) : (
         <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+          <div className="form-header">
             <h3>{selectedForm ? 'View Entry' : 'Add New Entry'}</h3>
-            <button
-              onClick={() => setViewMode('list')}
-              style={{
-                padding: '6px 12px',
-                backgroundColor: '#6c757d',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              Back to List
-            </button>
           </div>
           
           <LocationForm
@@ -400,8 +290,11 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
             isSubmitting={false}
             userCode={executive.name}
             initialData={selectedForm}
-            readOnly={!!selectedForm} // Read-only if viewing existing form
+            readOnly={!!selectedForm}
           />
+           <button onClick={() => setViewMode('list')} className="btn btn-secondary">
+              Back to List
+            </button>
         </div>
       )}
     </div>
