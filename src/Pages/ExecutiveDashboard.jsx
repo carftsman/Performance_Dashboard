@@ -21,82 +21,66 @@ const ExecutiveDashboard = ({ user, logout }) => {
 
   // ─── One-shot GPS + reverse geocode ────────────────────────────────────────
   const handleGetLocation = () => {
-    if (!navigator.geolocation) {
-      setLocationError("Geolocation is not supported by your browser.");
-      return;
-    }
+  if (!navigator.geolocation) {
+    setLocationError("Geolocation is not supported by your browser.");
+    return;
+  }
 
-    setIsGettingLocation(true);
-    setLocationError("");
-    setCurrentLocation(null);
-    setGeocodedAddress(null);
+  setIsGettingLocation(true);
+  setLocationError("");
+  setCurrentLocation(null);
+  setGeocodedAddress(null);
 
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude, accuracy } = position.coords;
-        setCurrentLocation({ latitude, longitude, accuracy });
-        console.log("[Location] GPS acquired:", { latitude, longitude, accuracy });
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      const { latitude, longitude, accuracy } = position.coords;
+      setCurrentLocation({ latitude, longitude, accuracy });
 
-        // ── Reverse geocode with BigDataCloud (free, no API key required) ──
-        try {
-          const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`;
-          const res = await fetch(url);
+      try {
+        const apiKey = "AIzaSyAt59NjjnVtI5PfvhkQKFDLeBFfCTW-mxg";
+        const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`;
 
-          if (!res.ok) throw new Error(`Geocode API error: ${res.status}`);
+        const res = await fetch(url);
+        const data = await res.json();
 
-          const data = await res.json();
-          console.log("[Geocode] Raw response:", data);
+        if (data.status === "OK") {
+          const result = data.results[0];
 
-          // Extract fields with multiple fallbacks for Indian addresses
+          // Extract address components
+          const components = result.address_components;
+
+          const getComponent = (type) =>
+            components.find((c) => c.types.includes(type))?.long_name || "";
+
           const address = {
-            areaName:
-              data.locality ||
-              data.localityInfo?.administrative?.find(a => a.adminLevel === 8)?.name ||
-              data.city ||
-              "",
-            streetName:
-              data.localityInfo?.informational?.find(i =>
-                i.description?.toLowerCase().includes("road") ||
-                i.description?.toLowerCase().includes("street")
-              )?.name ||
-              data.principalSubdivision?.split(",")[0] ||
-              "",
-            pinCode:
-              data.postcode || "",
-            state:
-              data.principalSubdivision || "",
+            streetName: result.formatted_address || "",
+            areaName: getComponent("sublocality") || getComponent("locality"),
+            pinCode: getComponent("postal_code"),
+            state: getComponent("administrative_area_level_1"),
           };
 
-          console.log("[Geocode] Parsed address:", address);
           setGeocodedAddress(address);
-        } catch (geocodeErr) {
-          console.error("[Geocode] Failed:", geocodeErr);
-          // GPS still worked — location is captured, autofill just won't happen
-          setLocationError(
-            "Location captured ✓ but address lookup failed. Please fill address fields manually."
-          );
-        } finally {
-          setIsGettingLocation(false);
+        } else {
+          setLocationError("Location captured ✓ but address lookup failed.");
         }
-      },
-      (error) => {
-        // GPS failure codes
-        const messages = {
-          1: "Location access denied. Please allow location permission in your browser and try again.",
-          2: "Location unavailable. Please check your GPS or network and try again.",
-          3: "Location request timed out. Please try again.",
-        };
-        setLocationError(messages[error.code] || "Unable to get location. Please try again.");
-        console.error("[Location] GPS error:", error);
+      } catch (error) {
+        setLocationError("Address lookup failed.");
+      } finally {
         setIsGettingLocation(false);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 0,
       }
-    );
-  };
+    },
+    (error) => {
+      setLocationError("Location permission denied or unavailable.");
+      setIsGettingLocation(false);
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 0,
+    }
+  );
+};
+
 
   // ─── Form submission ────────────────────────────────────────────────────────
   const handleSubmitDailyLog = async (formData) => {
