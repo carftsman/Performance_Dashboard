@@ -5,6 +5,7 @@ import { BASE_URL } from "../config/env";
 const api = axios.create({
   baseURL: BASE_URL,
   timeout: 15000,
+  withCredentials: true, // ⭐ REQUIRED FOR SESSION AUTH
   headers: {
     "Content-Type": "application/json",
     Accept: "*/*",
@@ -17,13 +18,8 @@ const api = axios.create({
 ========================= */
 api.interceptors.request.use(
   (config) => {
-    const user = localStorage.getItem("user"); // future-ready
-    if (user) {
-      const parsed = JSON.parse(user);
-      if (parsed?.token) {
-        config.headers.Authorization = `Bearer ${parsed.token}`;
-      }
-    }
+    // ❌ DO NOT attach Authorization header
+    // ✅ Cookies are automatically attached by browser
     return config;
   },
   (error) => Promise.reject(error)
@@ -33,39 +29,38 @@ api.interceptors.request.use(
    RESPONSE INTERCEPTOR
 ========================= */
 api.interceptors.response.use(
-  (response) => {
-    console.log("Response:", response.data);
-    return response.data
-},
+  (response) => response.data,
   (error) => {
-    // Network error
-    console.log("Error from api.service.js:", error.response);
     if (!error.response) {
       return Promise.reject({
-        message: "Network error. Please check internet connection.",
+        message: "Network error. Please check your internet connection.",
       });
     }
 
     const { status, data } = error.response;
 
-    switch (status) {
-      case 401:
-        localStorage.clear();
-        return Promise.reject({ message: "Unauthorized. Please login again." });
-
-      case 403:
-        return Promise.reject({ message: "Access denied." });
-
-      case 500:
-        return Promise.reject({
-          message: data?.error || "Internal server error",
-        });
-
-      default:
-        return Promise.reject({
-          message: data?.message || "Something went wrong",
-        });
+    if (status === 401) {
+      // session expired or invalid
+      return Promise.reject({
+        message: "Session expired. Please login again.",
+      });
     }
+
+    if (status === 403) {
+      return Promise.reject({
+        message: "You are not allowed to access this resource.",
+      });
+    }
+
+    if (status >= 500) {
+      return Promise.reject({
+        message: data?.error || "Server error. Try again later.",
+      });
+    }
+
+    return Promise.reject({
+      message: data?.message || "Something went wrong.",
+    });
   }
 );
 
