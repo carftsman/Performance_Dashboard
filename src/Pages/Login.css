@@ -1,0 +1,288 @@
+/* =====================================================
+   Login Page — Full Responsive CSS
+   ===================================================== */
+
+/* Layout */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.login-box {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  box-sizing: border-box;
+}
+
+/* ── Header ─────────────────────────────────────── */
+.login-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.login-logo {
+  font-size: 2.4rem;
+  margin-bottom: 10px;
+  line-height: 1;
+}
+
+.login-header h1 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 6px;
+  line-height: 1.3;
+}
+
+.login-subtitle {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* ── Alert messages ─────────────────────────────── */
+.login-alert {
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.login-alert--error {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.login-alert--success {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+/* ── Form groups ─────────────────────────────────── */
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 6px;
+  letter-spacing: 0.02em;
+}
+
+.input-field {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #1e293b;
+  background: #f9fafb;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  box-sizing: border-box;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.input-field:focus {
+  border-color: #4f46e5;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+}
+
+.input-field::placeholder {
+  color: #9ca3af;
+}
+
+/* ── Password wrapper (eye icon) ─────────────────── */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper .input-field {
+  padding-right: 42px; /* space for the eye button */
+}
+
+.eye-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.eye-btn:hover {
+  color: #4f46e5;
+}
+
+/* ── Primary (Login) button ──────────────────────── */
+.btn-primary-action {
+  width: 100%;
+  padding: 12px;
+  background: #4f46e5;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  margin-top: 4px;
+}
+
+.btn-primary-action:hover:not(:disabled) {
+  background: #4338ca;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.38);
+}
+
+.btn-primary-action:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-primary-action:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* ── Activate Account button ─────────────────────── */
+.btn-activate-action {
+  width: 100%;
+  padding: 12px;
+  background: #0891b2;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 12px rgba(8, 145, 178, 0.3);
+  margin-top: 4px;
+}
+
+.btn-activate-action:hover:not(:disabled) {
+  background: #0e7490;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(8, 145, 178, 0.38);
+}
+
+.btn-activate-action:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-activate-action:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* ── Loading spinner inside buttons ──────────────── */
+.btn-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.login-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Footer toggle link ───────────────────────────── */
+.login-footer {
+  text-align: center;
+  margin-top: 22px;
+}
+
+.login-footer p {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: #4f46e5;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  transition: color 0.2s;
+}
+
+.link-btn:hover {
+  color: #4338ca;
+  text-decoration-style: solid;
+}
+
+/* ── Responsive: Mobile ───────────────────────────── */
+@media (max-width: 480px) {
+  .login-box {
+    padding: 30px 22px;
+    border-radius: 14px;
+  }
+
+  .login-header h1 {
+    font-size: 1.15rem;
+  }
+
+  .login-logo {
+    font-size: 2rem;
+  }
+
+  .input-field {
+    font-size: 0.875rem;
+    padding: 10px 12px;
+  }
+
+  .password-wrapper .input-field {
+    padding-right: 40px;
+  }
+
+  .btn-primary-action,
+  .btn-activate-action {
+    padding: 11px;
+    font-size: 0.9rem;
+  }
+}
