@@ -193,6 +193,7 @@
   margin: 0;
   font-size: 1.3rem;
   color: #333;
+  text-align: center;
 }
 
 /* Executive List */
@@ -297,12 +298,14 @@
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 20px;
   text-align: center;
+  
 }
 
 .summary-item {
   padding: 15px;
-  background: #f8f9fa;
   border-radius: 8px;
+  /* background: #35b3e6; */
+background: linear-gradient(90deg, rgba(53, 179, 230, 1) 0%, rgba(59, 183, 213, 1) 17%, rgba(66, 187, 193, 1) 36%, rgba(77, 193, 162, 1) 65%, rgba(87, 199, 133, 1) 93%, rgba(237, 221, 83, 1) 100%);
 }
 
 .summary-value {
@@ -549,5 +552,137 @@
 
   .empty-state {
     color: #aaa;
+  }
+}
+/* ===================================
+   Date Filter Container
+=================================== */
+
+.date-filter-container {
+  background: #ffffff;
+  padding: 18px 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.05);
+  margin-bottom: 18px;
+  transition: box-shadow 0.2s ease;
+}
+
+.date-filter-container:hover {
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+}
+
+/* Layout */
+.date-filter-inputs {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+/* Group */
+.date-filter-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+}
+
+/* Label */
+.date-filter-group label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #4b5563;
+  margin-bottom: 6px;
+}
+
+/* Date Input */
+.date-input {
+  padding: 8px 10px;
+  font-size: 14px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background-color: #f9fafb;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.date-input:focus {
+  border-color: #2563eb;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Filter Info */
+.filter-info {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* Small Button */
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 6px;
+}
+
+/* Secondary Button (Refined) */
+.btn-secondary {
+  background-color: #f3f4f6;
+  color: #374151;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #e5e7eb;
+  transform: translateY(-1px);
+}
+
+/* ===================================
+   Responsive Design
+=================================== */
+
+/* Tablet */
+@media (max-width: 768px) {
+  .date-filter-inputs {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .date-filter-group {
+    width: 100%;
+  }
+
+  .date-input {
+    width: 100%;
+  }
+
+  .btn-sm {
+    align-self: flex-start;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .date-filter-container {
+    padding: 14px;
+  }
+
+  .date-filter-group label {
+    font-size: 12px;
+  }
+
+  .date-input {
+    font-size: 13px;
+  }
+
+  .filter-info {
+    font-size: 12px;
+  }
+
+  .btn-sm {
+    width: 100%;
+    text-align: center;
   }
 }
