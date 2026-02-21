@@ -3,7 +3,7 @@ import MainLayout from '../components/common/Layout/MainLayout';
 import axios from 'axios';
 import './ManagementDashboard.css';
 
-const ManagementDashboard = ({ user, logout }) => {
+const AdminDashboard = ({ user, logout }) => {
   const dashboardUser = user || JSON.parse(localStorage.getItem('user'));
 
   const [forms, setForms] = useState([]);
@@ -177,7 +177,7 @@ const ManagementDashboard = ({ user, logout }) => {
         <div className="card header-card">
           <div className="header-content">
             <div>
-              <h1>Management Dashboard</h1>
+              <h1>Admin Dashboard</h1>
               <p className="text-muted">
                 Consolidated view of all field operations • {forms.length} total entries
               </p>
@@ -247,6 +247,7 @@ const ManagementDashboard = ({ user, logout }) => {
                     <option key={lead} value={lead}>{lead}</option>
                   ))}
                 </select>
+                
 
                 <select 
                   value={dateRange}
@@ -535,4 +536,4 @@ const ManagementDashboard = ({ user, logout }) => {
   );
 };
 
-export default ManagementDashboard;
+export default AdminDashboard;
