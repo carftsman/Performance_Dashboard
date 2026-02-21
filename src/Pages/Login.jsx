@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../Services/authservice";
 import "./Login.css";
+import logo from "../assets/logo.png";
 
 /* ─── Eye Icon ─────────────────────────────────────────── */
 const EyeIcon = ({ visible }) =>
@@ -216,7 +217,7 @@ const Login = ({ login }) => {
 
         {/* Header */}
         <div className="login-header">
-          <div className="login-logo">📊</div>
+          <img src={logo} alt="Dhatvi Business Solutions" className="login-logo" />
           <h1>Performance Tracking System</h1>
           <p className="login-subtitle">
             {isActivateMode ? "Activate your account to get started." : "Sign in to your account."}

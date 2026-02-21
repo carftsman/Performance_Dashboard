@@ -30,9 +30,13 @@
 }
 
 .login-logo {
-  font-size: 2.4rem;
-  margin-bottom: 10px;
-  line-height: 1;
+  width: min(160px, 40vw);  /* scales down on very narrow screens */
+  height: auto;
+  object-fit: contain;
+  margin-bottom: 12px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .login-header h1 {
@@ -268,7 +272,7 @@
   }
 
   .login-logo {
-    font-size: 2rem;
+    width: min(130px, 36vw);
   }
 
   .input-field {
