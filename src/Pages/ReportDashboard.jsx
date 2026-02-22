@@ -8,10 +8,11 @@ import {
   PolarRadiusAxis, ComposedChart, Scatter,ScatterChart
 } from 'recharts';
 import './ReportDashboard.css';
+import ReportModal from '../components/Management/ReportModal';
 
 const ReportDashboard = ({ user, logout }) => {
   const dashboardUser = user || JSON.parse(localStorage.getItem('user'));
-
+  const [showReportModal, setShowReportModal] = useState(false);
   const [forms, setForms] = useState([]);
   const [filteredForms, setFilteredForms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -366,6 +367,13 @@ const ReportDashboard = ({ user, logout }) => {
                   >
                     🃏 Cards
                   </button>
+                   <button 
+        className="btn btn-success" 
+        onClick={() => setShowReportModal(true)}
+        disabled={loading}
+      >
+        📊 Generate Report
+      </button>
                 </div>
                 
                 {(searchTerm || statusFilter !== 'all' || teamFilter !== 'all' || dateRange !== 'all') && (
@@ -788,6 +796,16 @@ const ReportDashboard = ({ user, logout }) => {
             )}
           </>
         )}
+         {/* Report Generation Modal */}
+<ReportModal
+  isOpen={showReportModal}
+  onClose={() => setShowReportModal(false)}
+  forms={forms}
+  onGenerate={() => {
+    // Optional: Show success message or refresh data
+    console.log('Report generated successfully');
+  }}
+/>
       </div>
     </MainLayout>
   );
