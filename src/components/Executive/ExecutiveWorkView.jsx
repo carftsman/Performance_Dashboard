@@ -1,12 +1,11 @@
-
-import React, { useState } from 'react';
-import VendorForm from '../Executive/VendorForm';
-import './ExecutiveWorkView.css'; // We'll create this CSS file
+import React, { useState, useMemo } from 'react';
+import LocationForm from '../Executive/VendorForm';
+import HeaderSection from '../Executive/HeaderSection';
+import FilterSection from '../Executive/FilterSection';
 
 const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
   const [viewMode, setViewMode] = useState('list');
   const [selectedForm, setSelectedForm] = useState(null);
-  const [expandedRow, setExpandedRow] = useState(null);
   const [filterType, setFilterType] = useState('all'); // 'all', 'day', 'week', 'month'
   const [customDate, setCustomDate] = useState('');
 
@@ -75,19 +74,11 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
     onRefresh();
   };
 
-  const handleViewForm = (form) => {
-    setSelectedForm(form);
-    setViewMode('form');
-  };
-
   const handleAddNew = () => {
     setSelectedForm(null);
     setViewMode('form');
   };
 
-  const toggleRowExpand = (id) => {
-    setExpandedRow(expandedRow === id ? null : id);
-  };
 
   const handleFilterChange = (type) => {
     setFilterType(type);
@@ -153,73 +144,20 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
   return (
     <div className="executive-work-view">
       {/* Header Section */}
-      <div className="card header-card">
-        <div className="header-content">
-          <div className="header-left">
-            <div className="executive-info">
-              <h2>{executive.name}'s Work</h2>
-              <p className="text-muted">
-                Executive ID: {executive.id}
-              </p>
-            </div>
-            <button onClick={onBack} className="btn btn-secondary">
-              ← Back to List
-            </button>
-          </div>
-        </div>
-      </div>
+      <HeaderSection executive={executive} onBack={onBack} />
 
       {/* Content Section */}
       {viewMode === 'list' ? (
         <>
           {/* Filter Section */}
-          <div className="card filter-card">
-            <div className="filter-container">
-              <div className="filter-buttons">
-                <button
-                  className={`filter-btn ${filterType === 'all' ? 'active' : ''}`}
-                  onClick={() => handleFilterChange('all')}
-                >
-                  All
-                </button>
-                <button
-                  className={`filter-btn ${filterType === 'day' ? 'active' : ''}`}
-                  onClick={() => handleFilterChange('day')}
-                >
-                  Day
-                </button>
-                <button
-                  className={`filter-btn ${filterType === 'week' ? 'active' : ''}`}
-                  onClick={() => handleFilterChange('week')}
-                >
-                  Week
-                </button>
-                <button
-                  className={`filter-btn ${filterType === 'month' ? 'active' : ''}`}
-                  onClick={() => handleFilterChange('month')}
-                >
-                  Month
-                </button>
-              </div>
-              
-              {filterType !== 'all' && (
-                <div className="date-picker-container">
-                  <input
-                    type="date"
-                    value={customDate}
-                    onChange={(e) => setCustomDate(e.target.value)}
-                    className="date-picker"
-                    max={getTodayDate()}
-                  />
-                  {filteredForms.length > 0 && (
-                    <span className="filter-results-count">
-                      {filteredForms.length} entries found
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
+          <FilterSection
+  filterType={filterType}
+  onFilterChange={handleFilterChange}
+  customDate={customDate}
+  onDateChange={setCustomDate}
+  getTodayDate={getTodayDate}
+  filteredCount={filteredForms.length}
+/>
 
           {/* Quick Stats Cards */}
           <div className="stats-grid">
@@ -320,64 +258,7 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
               </table>
             </div>
 
-            {/* Mobile Card View */}
-            <div className="mobile-view">
-              {filteredForms.map(form => (
-                <div key={form.id} className="mobile-card">
-                  <div className="mobile-card-header" onClick={() => toggleRowExpand(form.id)}>
-                    <div className="mobile-card-title">
-                      <h4>{form.vendorShopName}</h4>
-                      <span className="expand-icon">
-                        {expandedRow === form.id ? '▼' : '▶'}
-                      </span>
-                    </div>
-                    <div className="mobile-card-subtitle">
-                      {form.vendorName} • {formatDate(form.createdAt)}
-                    </div>
-                  </div>
-                  
-                  <div className="mobile-card-badges">
-                    {getStatusBadge(form.status)}
-                    {getTagBadge(form.tag)}
-                  </div>
-
-                  {expandedRow === form.id && (
-                    <div className="mobile-card-details">
-                      <div className="detail-row">
-                        <span className="detail-label">Contact:</span>
-                        <span className="detail-value">{form.contactNumber}</span>
-                      </div>
-                      {form.mailId && (
-                        <div className="detail-row">
-                          <span className="detail-label">Email:</span>
-                          <span className="detail-value">{form.mailId}</span>
-                        </div>
-                      )}
-                      <div className="detail-row">
-                        <span className="detail-label">Location:</span>
-                        <span className="detail-value">{form.areaName}, {form.state}</span>
-                      </div>
-                      {form.pinCode && (
-                        <div className="detail-row">
-                          <span className="detail-label">PIN:</span>
-                          <span className="detail-value">{form.pinCode}</span>
-                        </div>
-                      )}
-                      {form.review && (
-                        <div className="detail-row">
-                          <span className="detail-label">Review:</span>
-                          <span className="detail-value">{form.review}</span>
-                        </div>
-                      )}
-                      <div className="detail-row">
-                        <span className="detail-label">Team Lead:</span>
-                        <span className="detail-value">{form.teamleadName}</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+         
 
             {filteredForms.length === 0 && (
               <div className="empty-state">
@@ -386,6 +267,9 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
                     ? `No entries found for the selected ${filterType}`
                     : 'No entries found for this executive'}
                 </p>
+                <button onClick={handleAddNew} className="btn btn-primary">
+                  Add First Entry
+                </button>
               </div>
             )}
           </div>
@@ -396,7 +280,7 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
             <h3>{selectedForm ? 'View Entry' : 'Add New Entry'}</h3>
           </div>
           
-          <VendorForm
+          <LocationForm
             onSubmit={handleFormSubmit}
             locationEnabled={true}
             isSubmitting={false}
