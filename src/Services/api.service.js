@@ -31,6 +31,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response.data,
   (error) => {
+    console.log("response from activation account",response);
     // No response at all — network issue
     if (!error.response) {
       return Promise.reject({
@@ -41,7 +42,7 @@ api.interceptors.response.use(
     }
 
     const { status, data } = error.response;
-    console.log("response from activation account",response);
+    
 
     // Extract the most descriptive message the server sent
     const serverMessage =

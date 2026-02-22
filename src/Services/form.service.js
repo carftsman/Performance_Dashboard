@@ -13,4 +13,7 @@ export const formService = {
 
    getMyHistory: () => 
     api.get("/api/form/my-history"), 
+
+  resendRequest: (payload) =>
+    api.post("/api/request/resend", payload),
 };
