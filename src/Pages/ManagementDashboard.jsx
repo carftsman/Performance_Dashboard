@@ -16,7 +16,6 @@ const ManagementDashboard = ({ user, logout }) => {
   const [teamFilter, setTeamFilter] = useState('all');
   const [dateRange, setDateRange] = useState('all');
   const [expandedRow, setExpandedRow] = useState(null);
-  const [viewMode, setViewMode] = useState('table'); // 'table' or 'card'
 
   // ── Requests Feature State ────────────────────────────────────────────────
   const [editRequests, setEditRequests] = useState([]);
@@ -353,256 +352,186 @@ const ManagementDashboard = ({ user, logout }) => {
               </div>
             </div>
 
-            {/* Table View */}
-            {viewMode === 'table' && (
-              <div className="card">
-                <div className="table-container">
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>Date & Time</th>
-                        <th>Shop Details</th>
-                        <th>Vendor Info</th>
-                        <th>Executive</th>
-                        <th>Team Lead</th>
-                        <th>Location</th>
-                        
-                        <th>Tag</th>
-                        <th></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredForms.map(form => (
-                        <React.Fragment key={form.id}>
-                          <tr>
-                            <td>
-                              <div className="date-cell">{formatDate(form.createdAt)}</div>
-                            </td>
-                            <td>
-                              <div className="shop-details">
-                                <strong>{form.vendorShopName || 'N/A'}</strong>
-                                {form.review && (
-                                  <div className="review-text" title={form.review}>
-                                    {form.review.length > 30 ? form.review.substring(0, 30) + '...' : form.review}
-                                  </div>
-                                )}
-                              </div>
-                            </td>
-                            <td>
-                              <div className="vendor-info">
-                                <strong>{form.vendorName || 'N/A'}</strong>
-                                <div className="contact-info">
-                                  <div>{form.contactNumber}</div>
-                                  {form.mailId && <div className="email">{form.mailId}</div>}
-                                </div>
-                              </div>
-                            </td>
-                            <td>
-                              <div className="executive-info">
-                                <strong>{form.executiveName || `ID: ${form.executiveId}`}</strong>
-                              </div>
-                            </td>
-                            <td>
-                              <div className="teamlead-info">
-                                <strong>{form.teamleadName || `ID: ${form.teamleadId}`}</strong>
-                              </div>
-                            </td>
-                            <td>
-                              <div className="location-info">
-                                <div>{form.areaName || 'N/A'}</div>
-                                {form.state && <div className="state">{form.state}</div>}
-                              </div>
-                            </td>
-                           
-                            <td>{getTagBadge(form.tag)}</td>
-                            <td>
-                              <button 
-                                onClick={() => toggleRowExpand(form.id)}
-                                className="btn-icon"
-                              >
-                                {expandedRow === form.id ? '−' : '+'}
-                              </button>
-                            </td>
-                          </tr>
-                          {expandedRow === form.id && (
-                            <tr className="expanded-row">
-                              <td colSpan="9">
-                                <div className="expanded-content">
-                                  <div className="details-grid">
-                                    <div className="detail-item">
-                                      <span className="detail-label">Door Number:</span>
-                                      <span>{form.doorNumber || 'N/A'}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                      <span className="detail-label">Street:</span>
-                                      <span>{form.streetName || 'N/A'}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                      <span className="detail-label">PIN Code:</span>
-                                      <span>{form.pinCode || 'N/A'}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                      <span className="detail-label">Vendor Location:</span>
-                                      <span>{form.vendorLocation || 'N/A'}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                      <span className="detail-label">Assigned BPO:</span>
-                                      <span>{form.assignedBpoName || form.assignedBpoId || 'Not Assigned'}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                      <span className="detail-label">Executive Review:</span>
-                                      <span>{form.executiveReview || 'N/A'}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                      <span className="detail-label">Vendor Review:</span>
-                                      <span>{form.vendorReview || 'N/A'}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                      <span className="detail-label">BPO Action Date:</span>
-                                      <span>{form.bpoActionDate ? formatDate(form.bpoActionDate) : 'N/A'}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                      <span className="detail-label">Reappear Date:</span>
-                                      <span>{form.reappearDate ? formatDate(form.reappearDate) : 'N/A'}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                      <span className="detail-label">Solved:</span>
-                                      <span>{form.solved !== null ? (form.solved ? 'Yes' : 'No') : 'N/A'}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                              </td>
-                            </tr>
-                          )}
-                        </React.Fragment>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {filteredForms.length === 0 && (
-                  <div className="empty-state">
-                    <p>No entries found matching your filters</p>
+            {/* Unified Card View */}
+            <div className="mgmt-grid">
+              {filteredForms.map(form => (
+                <div 
+                  key={form.id} 
+                  className="mgmt-card"
+                  onClick={() => toggleRowExpand(form.id)}
+                >
+                  <div className="mgmt-card-header">
+                    <h3 className="mgmt-shop-name">{form.vendorShopName || 'Unnamed Shop'}</h3>
+                    <div className="mgmt-badges">
+                      {getStatusBadge(form.status)}
+                      {getTagBadge(form.tag)}
+                    </div>
                   </div>
-                )}
-              </div>
-            )}
+                  
+                  <div className="mgmt-card-body">
+                    <p className="mgmt-vendor-name">{form.vendorName || 'No Vendor Name'}</p>
+                    <div className="mgmt-card-meta">
+                      <span>👤 {form.executiveName || `ID: ${form.executiveId}`}</span>
+                      <span>📍 {form.areaName || 'N/A'}, {form.state}</span>
+                      <span>📅 {formatDate(form.createdAt)}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="mgmt-card-footer">
+                    <span className="mgmt-view-btn">View Details &rarr;</span>
+                  </div>
+                </div>
+              ))}
 
-            {/* Card View */}
-            {/* {viewMode === 'card' && (
-              <div className="card-grid">
-                {filteredForms.map(form => (
-                  <div key={form.id} className="data-card">
-                    <div className="card-header">
-                      <div className="card-title">
-                        <h4>{form.vendorShopName || 'Unnamed Shop'}</h4>
-                        <div className="card-badges">
-                          {getStatusBadge(form.status)}
-                          {getTagBadge(form.tag)}
-                        </div>
+              {filteredForms.length === 0 && (
+                <div className="empty-state">
+                  <div className="empty-icon">📊</div>
+                  <h3>No Forms Found</h3>
+                  <p>Try adjusting your search or filters to find what you're looking for.</p>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* ── DETAIL MODAL (Manager View) ── */}
+        {expandedRow && (
+          <div className="mgmt-detail-modal-overlay" onClick={() => setExpandedRow(null)}>
+            <div className="mgmt-detail-modal-content" onClick={e => e.stopPropagation()}>
+              
+              {/* Detail Header */}
+              {forms.filter(f => f.id === expandedRow).map(form => (
+                <React.Fragment key={`detail-${form.id}`}>
+                  <div className="mgmt-detail-header">
+                    <div>
+                      <h2>{form.vendorShopName || 'Unnamed Shop'}</h2>
+                      <p className="text-muted">ID: {form.id} • Submitted: {formatDate(form.createdAt)}</p>
+                    </div>
+                    <button className="mgr-close-btn" onClick={() => setExpandedRow(null)}>×</button>
+                  </div>
+
+                  {/* Detail Body */}
+                  <div className="mgmt-detail-body">
+                    
+                    {/* Status & Tags Strip */}
+                    <div className="mgmt-detail-strip">
+                      <div className="strip-item">
+                        <span className="strip-label">Status</span>
+                        {getStatusBadge(form.status)}
                       </div>
-                      <div className="card-subtitle">
-                        {form.vendorName} • {formatDate(form.createdAt)}
+                      <div className="strip-item">
+                        <span className="strip-label">Priority Tag</span>
+                        {getTagBadge(form.tag)}
+                      </div>
+                      <div className="strip-item">
+                        <span className="strip-label">Solved</span>
+                        <span className="info-value">{form.solved !== null ? (form.solved ? '✅ Yes' : '❌ No') : 'N/A'}</span>
                       </div>
                     </div>
 
-                    <div className="card-body">
-                      <div className="card-info-row">
-                        <span className="info-label">Executive:</span>
-                        <span className="info-value">{form.executiveName || `ID: ${form.executiveId}`}</span>
-                      </div>
-                      <div className="card-info-row">
-                        <span className="info-label">Team Lead:</span>
-                        <span className="info-value">{form.teamleadName || `ID: ${form.teamleadId}`}</span>
-                      </div>
-                      <div className="card-info-row">
-                        <span className="info-label">Contact:</span>
-                        <span className="info-value">{form.contactNumber}</span>
-                      </div>
-                      {form.mailId && (
-                        <div className="card-info-row">
-                          <span className="info-label">Email:</span>
-                          <span className="info-value">{form.mailId}</span>
+                    <div className="mgmt-detail-grid">
+                      {/* Left Column: Vendor & Contact */}
+                      <div className="mgmt-detail-section">
+                        <h3>Vendor Information</h3>
+                        <div className="detail-row">
+                          <span className="detail-label">Owner Name</span>
+                          <span className="detail-value">{form.vendorName || 'N/A'}</span>
                         </div>
-                      )}
-                      <div className="card-info-row">
-                        <span className="info-label">Location:</span>
-                        <span className="info-value">{form.areaName}, {form.state}</span>
-                      </div>
-                      {form.review && (
-                        <div className="card-review">
-                          <span className="info-label">Review:</span>
-                          <p>{form.review}</p>
+                        <div className="detail-row">
+                          <span className="detail-label">Contact Number</span>
+                          <span className="detail-value">{form.contactNumber || 'N/A'}</span>
                         </div>
-                      )}
-                    </div>
+                        <div className="detail-row">
+                          <span className="detail-label">Email Address</span>
+                          <span className="detail-value">{form.mailId || 'N/A'}</span>
+                        </div>
+                      </div>
 
-                    <button 
-                      onClick={() => toggleRowExpand(form.id)}
-                      className="btn-expand"
-                    >
-                      {expandedRow === form.id ? 'Show Less' : 'Show More'}
-                    </button>
+                      {/* Right Column: Hierarchy */}
+                      <div className="mgmt-detail-section">
+                        <h3>Executive & Team</h3>
+                        <div className="detail-row">
+                          <span className="detail-label">Executive</span>
+                          <span className="detail-value">{form.executiveName || `ID: ${form.executiveId}`}</span>
+                        </div>
+                        <div className="detail-row">
+                          <span className="detail-label">Team Lead</span>
+                          <span className="detail-value">{form.teamleadName || `ID: ${form.teamleadId}`}</span>
+                        </div>
+                        <div className="detail-row">
+                          <span className="detail-label">Assigned BPO</span>
+                          <span className="detail-value">{form.assignedBpoName || form.assignedBpoId || 'Not Assigned'}</span>
+                        </div>
+                      </div>
 
-                    {expandedRow === form.id && (
-                      <div className="card-expanded">
-                        <div className="card-info-row">
-                          <span className="info-label">Door Number:</span>
-                          <span className="info-value">{form.doorNumber || 'N/A'}</span>
+                      {/* Full Width: Location */}
+                      <div className="mgmt-detail-section full-width">
+                        <h3>Location Details</h3>
+                        <div className="detail-row-inline">
+                          <span className="detail-label">Door No:</span>
+                          <span className="detail-value">{form.doorNumber || 'N/A'}</span>
                         </div>
-                        <div className="card-info-row">
-                          <span className="info-label">Street:</span>
-                          <span className="info-value">{form.streetName || 'N/A'}</span>
+                        <div className="detail-row-inline">
+                          <span className="detail-label">Street:</span>
+                          <span className="detail-value">{form.streetName || 'N/A'}</span>
                         </div>
-                        <div className="card-info-row">
-                          <span className="info-label">PIN Code:</span>
-                          <span className="info-value">{form.pinCode || 'N/A'}</span>
+                        <div className="detail-row-inline">
+                          <span className="detail-label">Area/City:</span>
+                          <span className="detail-value">{form.areaName || 'N/A'}</span>
                         </div>
-                        <div className="card-info-row">
-                          <span className="info-label">Vendor Location:</span>
-                          <span className="info-value">{form.vendorLocation || 'N/A'}</span>
+                        <div className="detail-row-inline">
+                          <span className="detail-label">State:</span>
+                          <span className="detail-value">{form.state || 'N/A'}</span>
                         </div>
-                        <div className="card-info-row">
-                          <span className="info-label">Assigned BPO:</span>
-                          <span className="info-value">{form.assignedBpoName || form.assignedBpoId || 'Not Assigned'}</span>
+                        <div className="detail-row-inline">
+                          <span className="detail-label">PIN:</span>
+                          <span className="detail-value">{form.pinCode || 'N/A'}</span>
                         </div>
+                        <div className="detail-row-inline location-link">
+                          <span className="detail-label">GPS:</span>
+                          <span className="detail-value">{form.vendorLocation || 'N/A'}</span>
+                        </div>
+                      </div>
+
+                      {/* Full Width: Reviews & Dates */}
+                      <div className="mgmt-detail-section full-width">
+                        <h3>Reviews & Actions</h3>
+                        {form.review && (
+                          <div className="review-box">
+                            <strong>General Review:</strong>
+                            <p>{form.review}</p>
+                          </div>
+                        )}
                         {form.executiveReview && (
-                          <div className="card-review">
-                            <span className="info-label">Executive Review:</span>
+                          <div className="review-box">
+                            <strong>Executive Review:</strong>
                             <p>{form.executiveReview}</p>
                           </div>
                         )}
                         {form.vendorReview && (
-                          <div className="card-review">
-                            <span className="info-label">Vendor Review:</span>
+                          <div className="review-box">
+                            <strong>Vendor Review:</strong>
                             <p>{form.vendorReview}</p>
                           </div>
                         )}
-                        <div className="card-info-row">
-                          <span className="info-label">BPO Action Date:</span>
-                          <span className="info-value">{form.bpoActionDate ? formatDate(form.bpoActionDate) : 'N/A'}</span>
-                        </div>
-                        <div className="card-info-row">
-                          <span className="info-label">Reappear Date:</span>
-                          <span className="info-value">{form.reappearDate ? formatDate(form.reappearDate) : 'N/A'}</span>
-                        </div>
-                        <div className="card-info-row">
-                          <span className="info-label">Solved:</span>
-                          <span className="info-value">{form.solved !== null ? (form.solved ? 'Yes' : 'No') : 'N/A'}</span>
+                        
+                        <div className="action-dates">
+                          <div className="date-badge">
+                            <span className="date-label">BPO Action Date:</span>
+                            <span>{form.bpoActionDate ? formatDate(form.bpoActionDate) : 'Pending'}</span>
+                          </div>
+                          <div className="date-badge">
+                            <span className="date-label">Reappear Date:</span>
+                            <span>{form.reappearDate ? formatDate(form.reappearDate) : 'Not Set'}</span>
+                          </div>
                         </div>
                       </div>
-                    )}
+                    </div>
                   </div>
-                ))}
-
-                {filteredForms.length === 0 && (
-                  <div className="empty-state">
-                    <p>No entries found matching your filters</p>
-                  </div>
-                )}
-              </div>
-            )} */}
-          </>
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
         )}
 
         {/* ── MODAL 1: REQUESTS LIST ── */}
