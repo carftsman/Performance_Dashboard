@@ -1,6 +1,7 @@
-
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import "./VendorForm.css";
+
 const VendorForm = ({
   onSubmit,
   locationCaptured,   // true once GPS coords have been captured
@@ -145,307 +146,264 @@ const VendorForm = ({
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="card">
-      <h3 className="card-title">📝 New Vendor Entry</h3>
-
-      {/* ── Get Location button ── */}
-      <div style={{ marginBottom: "20px" }}>
+    <div className="vendor-form-container">
+      {/* ── LOCATION CAPTURE STRIP ── */}
+      <div className="vendor-location-strip">
+        <div className="vendor-location-info">
+          <h3 className="vendor-location-title">
+            <span role="img" aria-label="pin">📍</span> Location Check-in
+          </h3>
+          <p className="vendor-location-desc">
+            {locationCaptured 
+              ? "Location successfully captured. Address fields are auto-filled below."
+              : "You must capture your current location before filling out this form."}
+          </p>
+        </div>
+        
         <button
           type="button"
           onClick={onGetLocation}
           disabled={isGettingLocation || isSubmitting}
-          style={{
-            padding:         "12px 24px",
-            backgroundColor: locationCaptured ? "#28a745" : "#007bff",
-            color:           "white",
-            border:          "none",
-            borderRadius:    "6px",
-            cursor:          isGettingLocation || isSubmitting ? "not-allowed" : "pointer",
-            fontSize:        "15px",
-            fontWeight:      "bold",
-            display:         "flex",
-            alignItems:      "center",
-            gap:             "8px",
-          }}
+          className={`vendor-btn-location ${locationCaptured ? "vendor-btn-location--success" : ""}`}
         >
           {isGettingLocation ? (
-            <>
-              <span
-                style={{
-                  display:      "inline-block",
-                  width:        "15px",
-                  height:       "15px",
-                  border:       "2px solid white",
-                  borderTop:    "2px solid transparent",
-                  borderRadius: "50%",
-                  animation:    "spin 0.8s linear infinite",
-                }}
-              />
-              Getting Location…
-            </>
+            <><span className="vendor-spinner" /> Getting Location…</>
           ) : locationCaptured ? (
-            "✅ Location Captured — Click to Refresh"
+            "✓ Refresh Location"
           ) : (
-            "📍 Get Current Location"
+            "Capture Location"
           )}
         </button>
-
-        {!locationCaptured && !isGettingLocation && (
-          <p style={{ margin: "8px 0 0", fontSize: "13px", color: "#666" }}>
-            ⚠️ Click the button above to capture your location before filling the form.
-          </p>
-        )}
-
-        {locationCaptured && geocodedAddress && (
-          <p style={{ margin: "8px 0 0", fontSize: "13px", color: "#28a745" }}>
-            ✓ Address fields auto-filled from your location. You can edit them if needed.
-          </p>
-        )}
       </div>
 
-      {/* spin keyframe injected inline once */}
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <form onSubmit={handleSubmit} className="vendor-form-body">
+        
+        {/* ── SECTION 1: VENDOR INFO ── */}
+        <section className="vendor-section">
+          <h4 className="vendor-section-header">
+            <span role="img" aria-label="store">🏪</span> Vendor Details
+          </h4>
+          <div className="vendor-grid">
+            
+            <div className="vendor-group">
+              <label htmlFor="vendorShopName" className="vendor-label">
+                Shop Name <span className="vendor-label-required">*</span>
+              </label>
+              <input
+                type="text" id="vendorShopName" name="vendorShopName"
+                value={formData.vendorShopName} onChange={handleChange}
+                className={`vendor-input ${errors.vendorShopName ? "vendor-input--error" : ""}`}
+                placeholder="Enter shop name" disabled={isDisabled} required
+              />
+              {errors.vendorShopName && <p className="vendor-error-text">⚠ {errors.vendorShopName}</p>}
+            </div>
 
-      <form onSubmit={handleSubmit} className="location-form">
-        <div
-          className="form-grid"
-          style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "20px" }}
-        >
-          {/* Vendor Shop Name */}
-          <div className="form-group">
-            <label htmlFor="vendorShopName">Vendor Shop Name *</label>
-            <input
-              type="text" id="vendorShopName" name="vendorShopName"
-              value={formData.vendorShopName} onChange={handleChange}
-              className={`input-field ${errors.vendorShopName ? "error" : ""}`}
-              placeholder="Enter shop name" disabled={isDisabled} required
-            />
-            {errors.vendorShopName && (
-              <small className="error-text" style={{ color: "red" }}>{errors.vendorShopName}</small>
-            )}
+            <div className="vendor-group">
+              <label htmlFor="vendorType" className="vendor-label">
+                Vendor Type <span className="vendor-label-required">*</span>
+              </label>
+              <select
+                id="vendorType" name="vendorType"
+                value={formData.vendorType} onChange={handleChange}
+                className={`vendor-input ${errors.vendorType ? "vendor-input--error" : ""}`}
+                disabled={isDisabled} required
+              >
+                <option value="">Select Vendor Type</option>
+                <option value="RESTAURANT">Restaurant</option>
+                <option value="GROCERY">Grocery</option>
+              </select>
+              {errors.vendorType && <p className="vendor-error-text">⚠ {errors.vendorType}</p>}
+            </div>
+
+            <div className="vendor-group">
+              <label htmlFor="vendorName" className="vendor-label">
+                Owner Name <span className="vendor-label-required">*</span>
+              </label>
+              <input
+                type="text" id="vendorName" name="vendorName"
+                value={formData.vendorName} onChange={handleChange}
+                className={`vendor-input ${errors.vendorName ? "vendor-input--error" : ""}`}
+                placeholder="Enter owner name" disabled={isDisabled} required
+              />
+              {errors.vendorName && <p className="vendor-error-text">⚠ {errors.vendorName}</p>}
+            </div>
+
+            <div className="vendor-group">
+              <label htmlFor="contactNumber" className="vendor-label">
+                Contact Number <span className="vendor-label-required">*</span>
+              </label>
+              <input
+                type="tel" id="contactNumber" name="contactNumber"
+                value={formData.contactNumber} onChange={handleChange}
+                className={`vendor-input ${errors.contactNumber ? "vendor-input--error" : ""}`}
+                placeholder="10 digit mobile number" maxLength="10"
+                disabled={isDisabled} required
+              />
+              {errors.contactNumber && <p className="vendor-error-text">⚠ {errors.contactNumber}</p>}
+            </div>
+
+            <div className="vendor-group vendor-group--full">
+              <label htmlFor="mailId" className="vendor-label">
+                Email ID
+              </label>
+              <input
+                type="email" id="mailId" name="mailId"
+                value={formData.mailId} onChange={handleChange}
+                className={`vendor-input ${errors.mailId ? "vendor-input--error" : ""}`}
+                placeholder="vendor@email.com" disabled={isDisabled}
+              />
+              {errors.mailId && <p className="vendor-error-text">⚠ {errors.mailId}</p>}
+            </div>
+            
           </div>
+        </section>
 
-          {/* Vendor Name */}
-          <div className="form-group">
-            <label htmlFor="vendorName">Vendor Name *</label>
-            <input
-              type="text" id="vendorName" name="vendorName"
-              value={formData.vendorName} onChange={handleChange}
-              className={`input-field ${errors.vendorName ? "error" : ""}`}
-              placeholder="Enter vendor name" disabled={isDisabled} required
-            />
-            {errors.vendorName && (
-              <small className="error-text" style={{ color: "red" }}>{errors.vendorName}</small>
-            )}
+        {/* ── SECTION 2: ADDRESS ── */}
+        <section className="vendor-section">
+          <h4 className="vendor-section-header">
+            <span role="img" aria-label="map">🗺</span> Address Details
+          </h4>
+          <div className="vendor-grid">
+
+            <div className="vendor-group">
+              <label htmlFor="doorNumber" className="vendor-label">
+                Door Number <span className="vendor-label-required">*</span>
+              </label>
+              <input
+                type="text" id="doorNumber" name="doorNumber"
+                value={formData.doorNumber} onChange={handleChange}
+                className={`vendor-input ${errors.doorNumber ? "vendor-input--error" : ""}`}
+                placeholder="e.g. 1A / Flat 204" disabled={isDisabled} required
+              />
+              {errors.doorNumber && <p className="vendor-error-text">⚠ {errors.doorNumber}</p>}
+            </div>
+
+            <div className="vendor-group">
+              <label htmlFor="streetName" className="vendor-label">
+                Street Name <span className="vendor-label-required">*</span>
+                {geocodedAddress?.streetName && <span className="vendor-label-auto">Auto-filled</span>}
+              </label>
+              <input
+                type="text" id="streetName" name="streetName"
+                value={formData.streetName} onChange={handleChange}
+                className={`vendor-input ${errors.streetName ? "vendor-input--error" : ""}`}
+                placeholder="Enter street name" disabled={isDisabled} required
+              />
+              {errors.streetName && <p className="vendor-error-text">⚠ {errors.streetName}</p>}
+            </div>
+
+            <div className="vendor-group">
+              <label htmlFor="areaName" className="vendor-label">
+                Area Name <span className="vendor-label-required">*</span>
+                {geocodedAddress?.areaName && <span className="vendor-label-auto">Auto-filled</span>}
+              </label>
+              <input
+                type="text" id="areaName" name="areaName"
+                value={formData.areaName} onChange={handleChange}
+                className={`vendor-input ${errors.areaName ? "vendor-input--error" : ""}`}
+                placeholder="Enter area name" disabled={isDisabled} required
+              />
+              {errors.areaName && <p className="vendor-error-text">⚠ {errors.areaName}</p>}
+            </div>
+
+            <div className="vendor-group">
+              <label htmlFor="pinCode" className="vendor-label">
+                Pin Code <span className="vendor-label-required">*</span>
+                {geocodedAddress?.pinCode && <span className="vendor-label-auto">Auto-filled</span>}
+              </label>
+              <input
+                type="text" id="pinCode" name="pinCode"
+                value={formData.pinCode} onChange={handleChange}
+                className={`vendor-input ${errors.pinCode ? "vendor-input--error" : ""}`}
+                placeholder="6 digit pin code" maxLength="6"
+                disabled={isDisabled} required
+              />
+              {errors.pinCode && <p className="vendor-error-text">⚠ {errors.pinCode}</p>}
+            </div>
+
+            <div className="vendor-group vendor-group--full">
+              <label htmlFor="state" className="vendor-label">
+                State <span className="vendor-label-required">*</span>
+                {geocodedAddress?.state && <span className="vendor-label-auto">Auto-filled</span>}
+              </label>
+              <input
+                type="text" id="state" name="state"
+                value={formData.state} onChange={handleChange}
+                className={`vendor-input ${errors.state ? "vendor-input--error" : ""}`}
+                placeholder="Enter state" disabled={isDisabled} required
+              />
+              {errors.state && <p className="vendor-error-text">⚠ {errors.state}</p>}
+            </div>
+
           </div>
-          {/* Vendor Type */}
-<div className="form-group">
-  <label htmlFor="vendorType">Vendor Type *</label>
-  <select
-  id="vendorType"
-  name="vendorType"
-  value={formData.vendorType}
-  onChange={handleChange}
-  required
->
-  <option value="">Select Vendor Type</option>
-  <option value="RESTAURANT">Restaurant</option>
-  <option value="GROCERY">Grocery</option>
-</select>
+        </section>
 
-  {errors.vendorType && (
-    <small style={{ color: "red" }}>
-      {errors.vendorType}
-    </small>
-  )}
-</div>
-          {/* Contact Number */}
-          <div className="form-group">
-            <label htmlFor="contactNumber">Contact Number *</label>
-            <input
-              type="tel" id="contactNumber" name="contactNumber"
-              value={formData.contactNumber} onChange={handleChange}
-              className={`input-field ${errors.contactNumber ? "error" : ""}`}
-              placeholder="10 digit mobile number" maxLength="10"
-              disabled={isDisabled} required
-            />
-            {errors.contactNumber && (
-              <small className="error-text" style={{ color: "red" }}>{errors.contactNumber}</small>
-            )}
+        {/* ── SECTION 3: VISIT DETAILS ── */}
+        <section className="vendor-section">
+          <h4 className="vendor-section-header">
+            <span role="img" aria-label="clipboard">📋</span> Visit Details
+          </h4>
+          <div className="vendor-grid">
+            
+            <div className="vendor-group vendor-group--full">
+              <label htmlFor="status" className="vendor-label">
+                Vendor Status <span className="vendor-label-required">*</span>
+              </label>
+              <select
+                id="status" name="status"
+                value={formData.status} onChange={handleChange}
+                className={`vendor-input ${errors.status ? "vendor-input--error" : ""}`}
+                disabled={isDisabled} required
+              >
+                {statusOptions.map((opt) => (
+                  <option key={opt} value={opt}>{opt.replace("_", " ")}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="vendor-group vendor-group--full">
+              <label htmlFor="review" className="vendor-label">
+                Review / Comments
+              </label>
+              <textarea
+                id="review" name="review"
+                value={formData.review} onChange={handleChange}
+                className="vendor-input"
+                placeholder="Add any additional notes about the visit..."
+                disabled={isDisabled}
+              />
+            </div>
+
           </div>
+        </section>
 
-          {/* Email */}
-          <div className="form-group">
-            <label htmlFor="mailId">Email ID</label>
-            <input
-              type="email" id="mailId" name="mailId"
-              value={formData.mailId} onChange={handleChange}
-              className={`input-field ${errors.mailId ? "error" : ""}`}
-              placeholder="vendor@email.com" disabled={isDisabled}
-            />
-            {errors.mailId && (
-              <small className="error-text" style={{ color: "red" }}>{errors.mailId}</small>
-            )}
+        {/* ── WARNING & ACTIONS ── */}
+        {!locationCaptured && (
+          <div className="vendor-warning-box">
+            <span role="img" aria-label="warning">⚠️</span>
+            Please capture your location using the button at the top to enable form submission.
           </div>
+        )}
 
-          {/* Door Number */}
-          <div className="form-group">
-            <label htmlFor="doorNumber">Door Number *</label>
-            <input
-              type="text" id="doorNumber" name="doorNumber"
-              value={formData.doorNumber} onChange={handleChange}
-              className={`input-field ${errors.doorNumber ? "error" : ""}`}
-              placeholder="Enter door number" disabled={isDisabled} required
-            />
-            {errors.doorNumber && (
-              <small className="error-text" style={{ color: "red" }}>{errors.doorNumber}</small>
-            )}
-          </div>
-
-          {/* Street Name — can be autofilled */}
-          <div className="form-group">
-            <label htmlFor="streetName">
-              Street Name *{" "}
-              {geocodedAddress?.streetName && (
-                <span style={{ fontSize: "11px", color: "#28a745", fontWeight: "normal" }}>
-                  (auto-filled)
-                </span>
-              )}
-            </label>
-            <input
-              type="text" id="streetName" name="streetName"
-              value={formData.streetName} onChange={handleChange}
-              className={`input-field ${errors.streetName ? "error" : ""}`}
-              placeholder="Enter street name" disabled={isDisabled} required
-            />
-            {errors.streetName && (
-              <small className="error-text" style={{ color: "red" }}>{errors.streetName}</small>
-            )}
-          </div>
-
-          {/* Area Name — autofilled */}
-          <div className="form-group">
-            <label htmlFor="areaName">
-              Area Name *{" "}
-              {geocodedAddress?.areaName && (
-                <span style={{ fontSize: "11px", color: "#28a745", fontWeight: "normal" }}>
-                  (auto-filled)
-                </span>
-              )}
-            </label>
-            <input
-              type="text" id="areaName" name="areaName"
-              value={formData.areaName} onChange={handleChange}
-              className={`input-field ${errors.areaName ? "error" : ""}`}
-              placeholder="Enter area name" disabled={isDisabled} required
-            />
-            {errors.areaName && (
-              <small className="error-text" style={{ color: "red" }}>{errors.areaName}</small>
-            )}
-          </div>
-
-          {/* Pin Code — autofilled */}
-          <div className="form-group">
-            <label htmlFor="pinCode">
-              Pin Code *{" "}
-              {geocodedAddress?.pinCode && (
-                <span style={{ fontSize: "11px", color: "#28a745", fontWeight: "normal" }}>
-                  (auto-filled)
-                </span>
-              )}
-            </label>
-            <input
-              type="text" id="pinCode" name="pinCode"
-              value={formData.pinCode} onChange={handleChange}
-              className={`input-field ${errors.pinCode ? "error" : ""}`}
-              placeholder="6 digit pin code" maxLength="6"
-              disabled={isDisabled} required
-            />
-            {errors.pinCode && (
-              <small className="error-text" style={{ color: "red" }}>{errors.pinCode}</small>
-            )}
-          </div>
-
-          {/* State — autofilled */}
-          <div className="form-group">
-            <label htmlFor="state">
-              State *{" "}
-              {geocodedAddress?.state && (
-                <span style={{ fontSize: "11px", color: "#28a745", fontWeight: "normal" }}>
-                  (auto-filled)
-                </span>
-              )}
-            </label>
-            <input
-              type="text" id="state" name="state"
-              value={formData.state} onChange={handleChange}
-              className={`input-field ${errors.state ? "error" : ""}`}
-              placeholder="Enter state" disabled={isDisabled} required
-            />
-            {errors.state && (
-              <small className="error-text" style={{ color: "red" }}>{errors.state}</small>
-            )}
-          </div>
-
-          {/* Status */}
-          <div className="form-group">
-            <label htmlFor="status">Status *</label>
-            <select
-              id="status" name="status"
-              value={formData.status} onChange={handleChange}
-              className={`input-field ${errors.status ? "error" : ""}`}
-              disabled={isDisabled} required
-            >
-              {statusOptions.map((opt) => (
-                <option key={opt} value={opt}>{opt.replace("_", " ")}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Review — full width */}
-          <div className="form-group" style={{ gridColumn: "span 2" }}>
-            <label htmlFor="review">Review / Comments</label>
-            <textarea
-              id="review" name="review"
-              value={formData.review} onChange={handleChange}
-              className="input-field"
-              placeholder="Enter your review or comments about the visit"
-              rows="4" disabled={isDisabled}
-              style={{ width: "100%", resize: "vertical" }}
-            />
-          </div>
-        </div>
-
-        {/* Action buttons */}
-        <div style={{ display: "flex", gap: "15px", marginTop: "30px", justifyContent: "flex-end" }}>
+        <div className="vendor-actions">
           <button
-            type="button" onClick={handleReset}
+            type="button" 
+            onClick={handleReset}
             disabled={isSubmitting}
-            style={btnStyle("#6c757d", isSubmitting)}
+            className="vendor-btn vendor-btn--secondary"
           >
             Reset Form
           </button>
 
           <button
             type="submit"
-            disabled={!locationCaptured || isSubmitting}
-            style={btnStyle("#007bff", !locationCaptured || isSubmitting)}
+            disabled={isDisabled}
+            className="vendor-btn vendor-btn--primary"
           >
-            {isSubmitting ? "📤 Submitting…" : "📍 Submit"}
+            {isSubmitting ? "Submitting…" : "Submit Record"}
           </button>
         </div>
 
-        {/* Location not yet captured warning under submit */}
-        {!locationCaptured && (
-          <p style={{
-            marginTop: "12px", textAlign: "center",
-            fontSize: "13px", color: "#856404",
-            backgroundColor: "#fff3cd", padding: "8px",
-            borderRadius: "4px", border: "1px solid #ffeeba",
-          }}>
-            ⚠️ You must capture your location before submitting this form.
-          </p>
-        )}
       </form>
     </div>
   );

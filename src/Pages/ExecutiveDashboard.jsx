@@ -269,6 +269,9 @@ const ExecutiveDashboard = ({ user, logout }) => {
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // ── Modal state ───────────────────────────────────────────────────────────
+  const [selectedForm, setSelectedForm] = useState(null);
+
   // ── Search state ──────────────────────────────────────────────────────────
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -631,12 +634,14 @@ const ExecutiveDashboard = ({ user, logout }) => {
                 </p>
               </div>
             ) : (
-              /* Cards grid */
+              /* Compact Cards grid */
               <div className="exec-cards-grid">
                 {filteredHistory.map((form) => (
-                  <div key={form.id} className="exec-card">
-
-                    {/* Card Header */}
+                  <div 
+                    key={form.id} 
+                    className="exec-card exec-card--clickable"
+                    onClick={() => setSelectedForm(form)}
+                  >
                     <div className="exec-card-header">
                       <span className="exec-card-id">#{form.id}</span>
                       <span className={getStatusBadgeClass(form.status)}>
@@ -644,53 +649,23 @@ const ExecutiveDashboard = ({ user, logout }) => {
                       </span>
                     </div>
 
-                    {/* Shop Name */}
                     <h3 className="exec-card-shop">
                       🏪 {form.vendorShopName || "Unnamed Shop"}
                     </h3>
 
-                    {/* Details */}
                     <div className="exec-card-body">
                       <div className="exec-card-row">
-                        <span className="exec-card-row-icon">👤</span>
-                        <span><span className="exec-card-row-label">Owner:</span> {form.vendorName || "—"}</span>
-                      </div>
-                      <div className="exec-card-row">
-                        <span className="exec-card-row-icon">📞</span>
-                        <span><span className="exec-card-row-label">Contact:</span> {form.contactNumber || "—"}</span>
-                      </div>
-                      <div className="exec-card-row">
                         <span className="exec-card-row-icon">📍</span>
-                        <span>
-                          <span className="exec-card-row-label">Location:</span>{" "}
+                        <span className="exec-card-truncate">
                           {[form.areaName, form.state].filter(Boolean).join(", ") || "—"}
                         </span>
                       </div>
-                      {form.teamleadName && (
-                        <div className="exec-card-row">
-                          <span className="exec-card-row-icon">👨‍💼</span>
-                          <span><span className="exec-card-row-label">Team Lead:</span> {form.teamleadName}</span>
-                        </div>
-                      )}
                     </div>
 
-                    {/* Review */}
-                    {form.review && (
-                      <div className="exec-card-review">
-                        "{form.review}"
-                      </div>
-                    )}
-
-                    {/* Footer */}
                     <div className="exec-card-footer">
                       <span>📅 {formatDate(form.createdAt)}</span>
-                      {form.tag && (
-                        <span className={`exec-badge ${form.tag === "YELLOW" ? "exec-badge--yellow" : "exec-badge--default"}`}>
-                          🏷 {form.tag}
-                        </span>
-                      )}
+                      <span className="exec-card-action-text">View Details →</span>
                     </div>
-
                   </div>
                 ))}
               </div>
@@ -699,6 +674,114 @@ const ExecutiveDashboard = ({ user, logout }) => {
         )}
 
       </main>
+
+      {/* ── DETAIL MODAL ── */}
+      {selectedForm && (
+        <div className="exec-modal-overlay" onClick={() => setSelectedForm(null)}>
+          <div className="exec-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="exec-modal-header">
+              <h3 className="exec-modal-title">Vendor Visit Details</h3>
+              <button 
+                className="exec-modal-close" 
+                onClick={() => setSelectedForm(null)}
+                aria-label="Close modal"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="exec-modal-body">
+              {/* Top Banner */}
+              <div className="exec-modal-banner">
+                <div className="exec-modal-banner-main">
+                  <h4>{selectedForm.vendorShopName || "Unnamed Shop"}</h4>
+                  <span className="exec-modal-id">#{selectedForm.id}</span>
+                </div>
+                <span className={getStatusBadgeClass(selectedForm.status)}>
+                  {selectedForm.status?.replace(/_/g, " ") || "—"}
+                </span>
+              </div>
+
+              {/* Grid Details */}
+              <div className="exec-modal-grid">
+                <div className="exec-modal-field">
+                  <label>Owner Name</label>
+                  <p>{selectedForm.vendorName || "—"}</p>
+                </div>
+                <div className="exec-modal-field">
+                  <label>Contact Number</label>
+                  <p>{selectedForm.contactNumber || "—"}</p>
+                </div>
+                <div className="exec-modal-field">
+                  <label>Email ID</label>
+                  <p>{selectedForm.mailId || "—"}</p>
+                </div>
+                <div className="exec-modal-field">
+                  <label>Visit Date</label>
+                  <p>{formatDate(selectedForm.createdAt)}</p>
+                </div>
+              </div>
+
+              {/* divider */}
+              <div className="exec-modal-divider" />
+
+              <div className="exec-modal-grid">
+                <div className="exec-modal-field exec-modal-field--full">
+                  <label>Full Address</label>
+                  <p>
+                    {[
+                      selectedForm.doorNumber, 
+                      selectedForm.streetName, 
+                      selectedForm.areaName, 
+                      selectedForm.state, 
+                      selectedForm.pinCode
+                    ].filter(Boolean).join(", ") || "—"}
+                  </p>
+                </div>
+
+                <div className="exec-modal-field">
+                  <label>Team Lead</label>
+                  <p>{selectedForm.teamleadName || "—"}</p>
+                </div>
+                <div className="exec-modal-field">
+                  <label>Tag</label>
+                  <p>
+                    {selectedForm.tag ? (
+                      <span className={`exec-badge ${selectedForm.tag === "YELLOW" ? "exec-badge--yellow" : "exec-badge--default"}`}>
+                        {selectedForm.tag}
+                      </span>
+                    ) : "—"}
+                  </p>
+                </div>
+              </div>
+
+              {selectedForm.review && (
+                <>
+                  <div className="exec-modal-divider" />
+                  <div className="exec-modal-field exec-modal-field--full">
+                    <label>Review / Comments</label>
+                    <div className="exec-card-review">
+                      "{selectedForm.review}"
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="exec-modal-footer">
+              <button 
+                className="exec-btn exec-btn--request"
+                onClick={() => {
+                  alert("Request to Manager functionality to be implemented.");
+                }}
+              >
+                📤 Request to Manager
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
