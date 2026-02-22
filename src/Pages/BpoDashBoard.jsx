@@ -12,7 +12,7 @@ function BpoDashBoard() {
   const [selectedForm, setSelectedForm] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Status");
-  
+  const [locationFilter, setLocationFilter] = useState("All Locations");
   // Review modal states
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [selectedFormForReview, setSelectedFormForReview] = useState(null);
@@ -154,22 +154,36 @@ function BpoDashBoard() {
     onboarded: forms.filter(f => f.status === 'ONBOARDED').length,
     notInterested: forms.filter(f => f.status === 'NOT_INTERESTED').length
   };
-
+  // Generate unique locations (Alphabetical Order)
+const uniqueLocations = [
+  ...new Set(
+    forms
+      .map(form => form.vendorLocation)
+      .filter(location => location && location.trim() !== "")
+  )
+].sort((a, b) => a.localeCompare(b));
   // Filter forms
   const filteredForms = forms.filter((form) => {
-    const matchesSearch =
-      searchTerm === "" ||
-      form.vendorShopName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      form.vendorName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      form.id?.toString().includes(searchTerm) ||
-      form.executiveName?.toLowerCase().includes(searchTerm.toLowerCase());
+  const searchValue = searchTerm.toLowerCase();
 
-    const matchesStatus =
-      statusFilter === "All Status" ||
-      form.status?.toLowerCase() === statusFilter.toLowerCase();
+  const matchesSearch =
+    searchTerm === "" ||
+    form.vendorShopName?.toLowerCase().includes(searchValue) ||
+    form.vendorName?.toLowerCase().includes(searchValue) ||
+    form.executiveName?.toLowerCase().includes(searchValue) ||
+    form.vendorLocation?.toLowerCase().includes(searchValue) ||  // ✅ Added location here
+    form.id?.toString().includes(searchTerm);
 
-    return matchesSearch && matchesStatus;
-  });
+  const matchesStatus =
+    statusFilter === "All Status" ||
+    form.status?.toLowerCase() === statusFilter.toLowerCase();
+
+  const matchesLocation =
+    locationFilter === "All Locations" ||
+    form.vendorLocation === locationFilter;
+
+  return matchesSearch && matchesStatus && matchesLocation;
+});
 
   // Icons
   const Icons = {
@@ -205,24 +219,41 @@ function BpoDashBoard() {
         </div>
 
         {/* Search and Filter */}
-        <div className="filter-bar">
-          <input
-            type="text"
-            placeholder="🔍 Search by Shop, Vendor, ID, or Executive..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option>All Status</option>
-            <option>INTERESTED</option>
-            <option>NOT_INTERESTED</option>
-            <option>ONBOARDED</option>
-          </select>
-        </div>
+       <div className="filter-bar">
 
+  {/* Global Search */}
+  <input
+    type="text"
+    placeholder="🔍 Search by Shop, Vendor, Location, ID, or Executive..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+  />
+
+  {/* Status Filter */}
+  <select
+    value={statusFilter}
+    onChange={(e) => setStatusFilter(e.target.value)}
+  >
+    <option>All Status</option>
+    <option>INTERESTED</option>
+    <option>NOT_INTERESTED</option>
+    <option>ONBOARDED</option>
+  </select>
+
+  {/* Location Dropdown */}
+  <select
+    value={locationFilter}
+    onChange={(e) => setLocationFilter(e.target.value)}
+  >
+    <option>All Locations</option>
+    {uniqueLocations.map((location, index) => (
+      <option key={index} value={location}>
+        {location}
+      </option>
+    ))}
+  </select>
+
+</div>
         {/* Loading State */}
         {loading && (
           <div className="loading-container">

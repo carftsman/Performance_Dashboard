@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import LocationForm from '../Executive/LocationForm';
+import VendorForm from '../Executive/VendorForm';
 import './ExecutiveWorkView.css'; // We'll create this CSS file
 
 const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
@@ -284,7 +284,7 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
             <h3>{selectedForm ? 'View Entry' : 'Add New Entry'}</h3>
           </div>
           
-          <LocationForm
+          <VendorForm
             onSubmit={handleFormSubmit}
             locationEnabled={true}
             isSubmitting={false}
