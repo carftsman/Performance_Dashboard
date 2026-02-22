@@ -1,5 +1,4 @@
-import React from 'react';
-// import './ExecutiveCard.css';
+
 
 const ExecutiveCard = ({ executive, onClick }) => {
   const getInitials = (name) => {

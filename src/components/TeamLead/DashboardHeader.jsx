@@ -1,18 +1,23 @@
 import React from "react";
 
-const DashboardHeader = ({ user, onAddExecutive, onAddEntry, onRefresh, loading, selectedExecutive  }) => {
+const DashboardHeader = ({
+  dashboardUser,
+  loading,
+  onAddExecutive,
+  onAddEntry,
+  onRefresh,
+}) => {
   return (
     <>
       {/* CSS INSIDE COMPONENT */}
       <style>{`
-        .dashboard-header {
+        .header-card {
           background: white;
-          border-radius: 16px;
-          box-shadow: 0 4px 6px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.1);
-          padding: 24px;
-          margin-bottom: 24px;
-          transition: 0.3s;
-          border: 1px solid rgba(0,0,0,0.05);
+          border-radius: 12px;
+          padding: 20px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+          border: 1px solid #eee;
+          margin-bottom: 20px;
         }
 
         .header-content {
@@ -20,67 +25,48 @@ const DashboardHeader = ({ user, onAddExecutive, onAddEntry, onRefresh, loading,
           justify-content: space-between;
           align-items: center;
           flex-wrap: wrap;
-          gap: 20px;
+          gap: 15px;
         }
 
-        .header-title {
-          font-size: 28px;
+        .header-left h1 {
+          font-size: 24px;
           font-weight: 700;
-          background: linear-gradient(135deg, #667eea, #764ba2);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
+          margin: 0;
         }
 
-        .header-subtitle {
-          font-size: 16px;
-          color: #666;
-        }
-
-        .highlight {
-          font-weight: 600;
-          color: #4a90e2;
-          background: rgba(74,144,226,0.1);
-          padding: 4px 8px;
-          border-radius: 20px;
+        .text-muted {
+          color: #777;
+          font-size: 14px;
         }
 
         .header-actions {
           display: flex;
-          gap: 12px;
+          gap: 10px;
           flex-wrap: wrap;
         }
 
         .btn {
-          padding: 10px 20px;
+          padding: 8px 14px;
+          border-radius: 6px;
           border: none;
-          border-radius: 12px;
-          font-size: 14px;
           cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          transition: 0.3s;
-          min-width: 120px;
-        }
-
-        .btn-primary {
-          background: linear-gradient(135deg, #667eea, #764ba2);
-          color: white;
+          font-size: 14px;
+          font-weight: 500;
         }
 
         .btn-success {
-          background: linear-gradient(135deg, #28a745, #20c997);
+          background: #28a745;
           color: white;
         }
 
-        .btn-outline {
-          background: white;
-          border: 2px solid #ddd;
-          color: #666;
+        .btn-secondary {
+          background: #6c757d;
+          color: white;
         }
 
-        .btn:hover {
-          transform: translateY(-2px);
+        .btn-primary {
+          background: #007bff;
+          color: white;
         }
 
         .btn:disabled {
@@ -88,16 +74,6 @@ const DashboardHeader = ({ user, onAddExecutive, onAddEntry, onRefresh, loading,
           cursor: not-allowed;
         }
 
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-
-        .spin {
-          animation: spin 1s linear infinite;
-        }
-
-        /* Responsive */
         @media (max-width: 768px) {
           .header-content {
             flex-direction: column;
@@ -115,38 +91,33 @@ const DashboardHeader = ({ user, onAddExecutive, onAddEntry, onRefresh, loading,
         }
       `}</style>
 
-      {/* YOUR UI CODE (NOT CHANGED) */}
-      <div className="dashboard-header">
+      {/* HEADER UI */}
+      <div className="card header-card">
         <div className="header-content">
           <div className="header-left">
-            <h1 className="header-title">Team Lead Dashboard</h1>
-            <p className="header-subtitle">
-              Welcome back, <span className="highlight">{user?.userCode || "Team Lead"}</span>
-            </p>
+            <div>
+              <h1>Team Lead Dashboard</h1>
+              <p className="text-muted">
+                Welcome back {dashboardUser?.userCode || "Team Lead"}
+              </p>
+            </div>
           </div>
 
           <div className="header-actions">
             <button onClick={onAddExecutive} className="btn btn-primary">
-              <span>+</span> Add Executive
+              Add Executive
             </button>
 
             <button onClick={onAddEntry} className="btn btn-success">
-              <span>+</span> Add Entry
+              + Add Entry
             </button>
-          
-           {selectedExecutive && (
-            <button
-              onClick={onAddEntry}
-              className="btn btn-success"
-            >
-              <span className="btn-icon">+</span>
-              Add Entry for {selectedExecutive.name}
-            </button>
-          )}
 
-            <button onClick={onRefresh} disabled={loading} className="btn btn-outline">
-              <span className={loading ? "spin" : ""}>↻</span>
-              {loading ? "Refreshing..." : "Refresh"}
+            <button
+              onClick={onRefresh}
+              disabled={loading}
+              className="btn btn-secondary"
+            >
+              {loading ? "Refreshing..." : "Refresh Data"}
             </button>
           </div>
         </div>

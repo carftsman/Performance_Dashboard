@@ -1,67 +1,108 @@
-const FilterSection = ({ filterType, setFilterType, customDate, setCustomDate, filteredCount, getTodayDate }) => {
+
+const FilterSection = ({
+  filterType,
+  onFilterChange,
+  customDate,
+  onDateChange,
+  getTodayDate,
+}) => {
   return (
-
     <>
-   <style>{`
-   .filter-card {
-  padding: 12px 16px;
-  border-radius: 8px;
-  background: white;
-  border: 1px solid #e5e7eb;
-}
+      <style>
+        {`
+        .filter-card {
+          padding: 14px;
+          background: white;
+          border-radius: 10px;
+          border: 1px solid #e5e7eb;
+          margin-bottom: 16px;
+        }
 
-.calendar-filter {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
+        .filter-container {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 12px;
+          justify-content: space-between;
+          align-items: center;
+        }
 
-.calendar-filter label {
-  font-size: 14px;
-  font-weight: 500;
-  color: #374151;
-}
+        .filter-buttons {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
 
-.calendar-filter input {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid #d1d5db;
-  font-size: 14px;
-}
+        .filter-btn {
+          padding: 6px 12px;
+          border-radius: 6px;
+          border: 1px solid #d1d5db;
+          background: white;
+          font-size: 13px;
+          cursor: pointer;
+        }
 
-.result-count {
-  font-size: 13px;
-  color: #2563eb;
-  font-weight: 500;
-}
+        .filter-btn.active {
+          background: #2563eb;
+          color: white;
+          border-color: #2563eb;
+        }
 
-/* Mobile responsive */
-@media (max-width: 600px) {
-  .calendar-filter {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+        .date-picker-container {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          flex-wrap: wrap;
+        }
 
-  .calendar-filter input {
-    width: 100%;
-  }
-}`}</style>
-   <div className="card filter-card">
-      <div className="calendar-filter">
-        <label>Select Date:</label>
+        .date-picker {
+          padding: 6px 10px;
+          border-radius: 6px;
+          border: 1px solid #d1d5db;
+          font-size: 13px;
+        }
 
-        <input
-          type="date"
-          value={customDate}
-          max={getTodayDate()}
-          onChange={(e) => setCustomDate(e.target.value)}
-        />
+        .filter-results-count {
+          font-size: 13px;
+          color: #6b7280;
+        }
 
-      
+        @media (max-width: 768px) {
+          .filter-container {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+        }
+        `}
+      </style>
+
+      <div className="card filter-card">
+        <div className="filter-container">
+          <div className="filter-buttons">
+            {["all", "day", "week", "month"].map((type) => (
+              <button
+                key={type}
+                className={`filter-btn ${filterType === type ? "active" : ""}`}
+                onClick={() => onFilterChange(type)}
+              >
+                {type.toUpperCase()}
+              </button>
+            ))}
+          </div>
+
+          {filterType !== "all" && (
+            <div className="date-picker-container">
+              <input
+                type="date"
+                value={customDate}
+                onChange={(e) => onDateChange(e.target.value)}
+                className="date-picker"
+                max={getTodayDate()}
+              />
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-      </>
+    </>
   );
 };
 

@@ -1,34 +1,4 @@
-// const FormsTable = ({ forms }) => {
-//   return (
-//     <div className="desktop-view">
-//       <table className="data-table">
-//         <thead>
-//           <tr>
-//             <th>Date</th>
-//             <th>Shop</th>
-//             <th>Vendor</th>
-//             <th>Status</th>
-//           </tr>
-//         </thead>
-//         <tbody>
-//           {forms.map(f => (
-//             <tr key={f.id}>
-//               <td>{new Date(f.createdAt).toLocaleDateString()}</td>
-//               <td>{f.vendorShopName}</td>
-//               <td>{f.vendorName}</td>
-//               <td>{f.status}</td>
-//             </tr>
-//           ))}
-//         </tbody>
-//       </table>
-//     </div>
-//   );
-// };
 
-// export default FormsTable;
-import React from "react";
-
-// Status Badge Component
 const StatusBadge = ({ status }) => {
   const styles = {
     INTERESTED: { bg: "#d4edda", color: "#155724", label: "Interested" },

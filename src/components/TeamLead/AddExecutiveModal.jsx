@@ -1,17 +1,34 @@
-import React, { useState } from 'react';
-import  teamLeadService  from '../../Services/teamlead.service';
-// import './AddExecutiveModal.css';
+import React, { useState, useEffect } from "react";
+import teamLeadService from "../../Services/teamlead.service";
 
-const AddExecutiveModal = ({ isOpen, onClose, onExecutiveAdded }) => {
+const AddExecutiveModal = ({ 
+  isOpen, 
+  onClose, 
+  onExecutiveAdded 
+}) => {
+
   const [newExecutive, setNewExecutive] = useState({
-    executiveCode: '',
-    name: '',
-    phone: ''
+    executiveCode: "",
+    name: "",
+    phone: ""
   });
-  const [isAdding, setIsAdding] = useState(false);
-  const [message, setMessage] = useState(null);
 
-  const handleInputChange = (e) => {
+  const [isAddingExecutive, setIsAddingExecutive] = useState(false);
+  const [executiveAddSuccess, setExecutiveAddSuccess] = useState(null);
+
+  // Reset form when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setNewExecutive({
+        executiveCode: "",
+        name: "",
+        phone: ""
+      });
+      setExecutiveAddSuccess(null);
+    }
+  }, [isOpen]);
+
+  const handleExecutiveInputChange = (e) => {
     const { name, value } = e.target;
     setNewExecutive(prev => ({
       ...prev,
@@ -19,48 +36,51 @@ const AddExecutiveModal = ({ isOpen, onClose, onExecutiveAdded }) => {
     }));
   };
 
-  const validateForm = () => {
-    if (!newExecutive.executiveCode || !newExecutive.name || !newExecutive.phone) {
-      setMessage({ type: 'error', text: 'Please fill in all fields' });
-      return false;
-    }
-    if (!/^\d{10}$/.test(newExecutive.phone)) {
-      setMessage({ type: 'error', text: 'Please enter a valid 10-digit phone number' });
-      return false;
-    }
-    return true;
-  };
-
-  const handleSubmit = async (e) => {
+  const handleAddExecutive = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) return;
+
+    if (!newExecutive.executiveCode || !newExecutive.name || !newExecutive.phone) {
+      setExecutiveAddSuccess({
+        type: "error",
+        message: "All fields are required"
+      });
+      return;
+    }
+
+    if (!/^\d{10}$/.test(newExecutive.phone)) {
+      setExecutiveAddSuccess({
+        type: "error",
+        message: "Phone must be 10 digits"
+      });
+      return;
+    }
 
     try {
-      setIsAdding(true);
-      setMessage(null);
-      
+      setIsAddingExecutive(true);
+      setExecutiveAddSuccess(null);
+
       await teamLeadService.createExecutive(newExecutive);
-      
-      setMessage({ 
-        type: 'success', 
-        text: 'Executive created successfully!' 
+
+      setExecutiveAddSuccess({
+        type: "success",
+        message: "Executive added successfully!"
       });
 
+      // Refresh list
+      onExecutiveAdded && onExecutiveAdded();
+
+      // Auto close after 2s
       setTimeout(() => {
         onClose();
-        setNewExecutive({ executiveCode: '', name: '', phone: '' });
-        setMessage(null);
-        onExecutiveAdded();
       }, 2000);
 
     } catch (error) {
-      setMessage({ 
-        type: 'error', 
-        text: error.response?.data?.message || 'Failed to create executive. Please try again.' 
+      setExecutiveAddSuccess({
+        type: "error",
+        message: error.response?.data?.message || "Failed to add executive"
       });
     } finally {
-      setIsAdding(false);
+      setIsAddingExecutive(false);
     }
   };
 
@@ -68,25 +88,30 @@ const AddExecutiveModal = ({ isOpen, onClose, onExecutiveAdded }) => {
 
   return (
     <div className="modal-overlay">
-      <div className="modal-container">
+      <div className="modal-content">
+
+        {/* Header */}
         <div className="modal-header">
-          <h2 className="modal-title">Add New Executive</h2>
-          <button 
+          <h2>Add New Executive</h2>
+          <button
             onClick={onClose}
-            className="modal-close"
-            disabled={isAdding}
+            className="btn-close"
+            disabled={isAddingExecutive}
           >
             ×
           </button>
         </div>
 
-        {message && (
-          <div className={`alert alert-${message.type}`}>
-            {message.text}
+        {/* Success/Error Message */}
+        {executiveAddSuccess && (
+          <div className={`alert ${executiveAddSuccess.type === "success" ? "alert-success" : "alert-error"}`}>
+            {executiveAddSuccess.message}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="modal-form">
+        {/* Form */}
+        <form onSubmit={handleAddExecutive}>
+
           <div className="form-group">
             <label htmlFor="executiveCode">Executive Code *</label>
             <input
@@ -94,24 +119,24 @@ const AddExecutiveModal = ({ isOpen, onClose, onExecutiveAdded }) => {
               id="executiveCode"
               name="executiveCode"
               value={newExecutive.executiveCode}
-              onChange={handleInputChange}
+              onChange={handleExecutiveInputChange}
               placeholder="Enter executive code"
-              disabled={isAdding}
-              className="form-input"
+              required
+              disabled={isAddingExecutive}
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="name">Full Name *</label>
+            <label htmlFor="name">Name *</label>
             <input
               type="text"
               id="name"
               name="name"
               value={newExecutive.name}
-              onChange={handleInputChange}
+              onChange={handleExecutiveInputChange}
               placeholder="Enter executive name"
-              disabled={isAdding}
-              className="form-input"
+              required
+              disabled={isAddingExecutive}
             />
           </div>
 
@@ -122,32 +147,35 @@ const AddExecutiveModal = ({ isOpen, onClose, onExecutiveAdded }) => {
               id="phone"
               name="phone"
               value={newExecutive.phone}
-              onChange={handleInputChange}
+              onChange={handleExecutiveInputChange}
               placeholder="Enter 10-digit phone number"
               pattern="[0-9]{10}"
               maxLength="10"
-              disabled={isAdding}
-              className="form-input"
+              required
+              disabled={isAddingExecutive}
             />
           </div>
 
+          {/* Buttons */}
           <div className="modal-actions">
             <button
               type="button"
               onClick={onClose}
               className="btn btn-secondary"
-              disabled={isAdding}
+              disabled={isAddingExecutive}
             >
               Cancel
             </button>
+
             <button
               type="submit"
               className="btn btn-primary"
-              disabled={isAdding}
+              disabled={isAddingExecutive}
             >
-              {isAdding ? 'Adding...' : 'Add Executive'}
+              {isAddingExecutive ? "Adding..." : "Add Executive"}
             </button>
           </div>
+
         </form>
       </div>
     </div>

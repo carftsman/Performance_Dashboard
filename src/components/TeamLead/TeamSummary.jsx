@@ -1,6 +1,6 @@
-import React from 'react';
+
 import DateFilter from './DateFilter';
-// import './TeamSummary.css';
+
 
 const TeamSummary = ({ 
   executives, 
@@ -273,7 +273,7 @@ const TeamSummary = ({
     </style>
         <div className="summary-section card">
       <div className="summary-header">
-        <h3 className="summary-title">Team Performance</h3>
+        <h3 className="summary-title">Team Summary</h3>
         <DateFilter
           dateFilter={dateFilter}
           onDateFilterChange={onDateFilterChange}
