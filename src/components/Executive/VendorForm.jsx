@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-const LocationForm = ({
+const VendorForm = ({
   onSubmit,
   locationCaptured,   // true once GPS coords have been captured
   isSubmitting,
@@ -14,6 +14,7 @@ const LocationForm = ({
     vendorShopName: "",
     vendorName:     "",
     contactNumber:  "",
+    vendorType: "",
     mailId:         "",
     doorNumber:     "",
     streetName:     "",
@@ -69,7 +70,8 @@ const LocationForm = ({
       newErrors.contactNumber = "Contact number is required";
     else if (!/^\d{10}$/.test(formData.contactNumber))
       newErrors.contactNumber = "Contact number must be 10 digits";
-
+    if (!formData.vendorType.trim())
+  newErrors.vendorType = "Vendor type is required";
     if (formData.mailId && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.mailId))
       newErrors.mailId = "Invalid email format";
 
@@ -112,6 +114,7 @@ const LocationForm = ({
     setFormData({
       vendorShopName: "",
       vendorName:     "",
+      vendorType: "",
       contactNumber:  "",
       mailId:         "",
       doorNumber:     "",
@@ -235,7 +238,27 @@ const LocationForm = ({
               <small className="error-text" style={{ color: "red" }}>{errors.vendorName}</small>
             )}
           </div>
+          {/* Vendor Type */}
+<div className="form-group">
+  <label htmlFor="vendorType">Vendor Type *</label>
+  <select
+  id="vendorType"
+  name="vendorType"
+  value={formData.vendorType}
+  onChange={handleChange}
+  required
+>
+  <option value="">Select Vendor Type</option>
+  <option value="RESTAURANT">Restaurant</option>
+  <option value="GROCERY">Grocery</option>
+</select>
 
+  {errors.vendorType && (
+    <small style={{ color: "red" }}>
+      {errors.vendorType}
+    </small>
+  )}
+</div>
           {/* Contact Number */}
           <div className="form-group">
             <label htmlFor="contactNumber">Contact Number *</label>
@@ -428,4 +451,4 @@ const LocationForm = ({
   );
 };
 
-export default LocationForm;
+export default VendorForm;

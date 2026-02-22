@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import MainLayout from '../components/common/Layout/MainLayout';
 import ExecutiveWorkView from '../components/TeamLead/ExecutiveWorkView';
-import LocationForm from '../components/Executive/LocationForm';
+import VendorForm from '../components/Executive/VendorForm';
 import { teamLeadService } from '../Services/teamlead.service';
 import './TeamLeadDashboard.css'; // We'll create this CSS file
 
@@ -328,7 +328,7 @@ const TeamLeadDashboard = ({ user, logout }) => {
               </div>
             )}
 
-            <LocationForm
+            <VendorForm
               onSubmit={handleFormSubmit}
               locationEnabled={true}
               isSubmitting={isSubmitting}

@@ -1,6 +1,7 @@
-// import React, { useState, useMemo } from 'react';
-// import LocationForm from '../Executive/LocationForm';
-// import './ExecutiveWorkView.css';
+
+import React, { useState } from 'react';
+import VendorForm from '../Executive/VendorForm';
+import './ExecutiveWorkView.css'; // We'll create this CSS file
 
 // const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
 //   const [viewMode, setViewMode] = useState('list');
@@ -395,21 +396,21 @@
 //             <h3>{selectedForm ? 'View Entry' : 'Add New Entry'}</h3>
 //           </div>
           
-//           <LocationForm
-//             onSubmit={handleFormSubmit}
-//             locationEnabled={true}
-//             isSubmitting={false}
-//             userCode={executive.name}
-//             initialData={selectedForm}
-//             readOnly={!!selectedForm}
-//           />
-//           <button onClick={() => setViewMode('list')} className="btn btn-secondary">
-//             Back to List
-//           </button>
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
+          <VendorForm
+            onSubmit={handleFormSubmit}
+            locationEnabled={true}
+            isSubmitting={false}
+            userCode={executive.name}
+            initialData={selectedForm}
+            readOnly={!!selectedForm}
+          />
+          <button onClick={() => setViewMode('list')} className="btn btn-secondary">
+            Back to List
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
 
 // export default ExecutiveWorkView;
