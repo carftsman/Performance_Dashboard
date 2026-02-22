@@ -247,10 +247,10 @@
 
 
 
-
 import React, { useEffect, useState } from "react";
 import VendorForm from "../components/Executive/VendorForm";
 import { formService } from "../Services/form.service";
+import "./ExecutiveDashboard.css";
 
 const ExecutiveDashboard = ({ user, logout }) => {
 
@@ -268,6 +268,9 @@ const ExecutiveDashboard = ({ user, logout }) => {
 
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // ── Search state ──────────────────────────────────────────────────────────
+  const [searchQuery, setSearchQuery] = useState("");
 
   if (!user) return <h2>No User Found. Please Login Again.</h2>;
 
@@ -420,207 +423,282 @@ const ExecutiveDashboard = ({ user, logout }) => {
     }
   };
 
+  /* =========================================
+     DERIVED: Filtered history for search
+  ========================================== */
+  const trimmedQuery = searchQuery.trim().toLowerCase();
+  const filteredHistory = trimmedQuery
+    ? history.filter((form) => {
+        return (
+          form.vendorShopName?.toLowerCase().includes(trimmedQuery) ||
+          form.vendorName?.toLowerCase().includes(trimmedQuery) ||
+          form.areaName?.toLowerCase().includes(trimmedQuery) ||
+          form.state?.toLowerCase().includes(trimmedQuery) ||
+          form.status?.toLowerCase().includes(trimmedQuery) ||
+          form.contactNumber?.includes(trimmedQuery) ||
+          form.teamleadName?.toLowerCase().includes(trimmedQuery) ||
+          String(form.id).includes(trimmedQuery)
+        );
+      })
+    : history;
+
+  /* =========================================
+     HELPERS
+  ========================================== */
+  const getStatusBadgeClass = (status) => {
+    if (status === "INTERESTED") return "exec-badge exec-badge--interested";
+    if (status === "NOT_INTERESTED") return "exec-badge exec-badge--not-interested";
+    if (status === "FOLLOW_UP") return "exec-badge exec-badge--followup";
+    return "exec-badge exec-badge--default";
+  };
+
+  const formatDate = (iso) => {
+    if (!iso) return "—";
+    return new Date(iso).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  /* =========================================
+     RENDER
+  ========================================== */
   return (
-    <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "20px" }}>
+    <div className="exec-page">
 
-      {/* HEADER */}
-      <div style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        background: "#fff",
-        padding: "15px 20px",
-        borderRadius: "10px",
-        boxShadow: "0 2px 6px rgba(0,0,0,0.1)"
-      }}>
-        <h2>Welcome, {user.name}</h2>
+      {/* ── TOP NAVBAR ── */}
+      <nav className="exec-navbar">
+        <div className="exec-navbar-brand">
+          <div className="exec-navbar-brand-icon">👤</div>
+          <div>
+            <div className="exec-navbar-brand-text">{user.userCode || user.name || "Executive"}</div>
+            <div className="exec-navbar-brand-sub">Field Executive</div>
+          </div>
+        </div>
 
-        <div style={{ display: "flex", gap: "10px" }}>
-
+        <div className="exec-navbar-actions">
           {!locationAllowed && (
-            <button onClick={handleEnableLocation}
-              style={{ padding: "8px 18px", background: "#007bff", color: "#fff", border: "none", borderRadius: "6px" }}>
-              Enable Location
+            <button className="exec-btn exec-btn--location" onClick={handleEnableLocation}>
+              📍 Enable Location
             </button>
           )}
 
           {!workStarted && (
             <button
+              className="exec-btn exec-btn--start"
               disabled={!locationAllowed}
               onClick={handleStartWork}
-              style={{
-                padding: "8px 18px",
-                background: locationAllowed ? "#28a745" : "#ccc",
-                color: "#fff",
-                border: "none",
-                borderRadius: "6px"
-              }}>
+              title={!locationAllowed ? "Enable location first" : "Start your work session"}
+            >
               ▶ Start Work
             </button>
           )}
 
-          <button
-            onClick={logout}
-            style={{
-              padding: "8px 18px",
-              background: "#dc3545",
-              color: "#fff",
-              border: "none",
-              borderRadius: "6px"
-            }}>
+          {workStarted && !showForm && (
+            <button
+              className="exec-btn exec-btn--new-entry"
+              onClick={() => setShowForm(true)}
+            >
+              + New Entry
+            </button>
+          )}
+
+          <button className="exec-btn exec-btn--logout" onClick={logout}>
             Logout
           </button>
         </div>
+      </nav>
+
+      {/* ── STATUS BAR ── */}
+      <div className="exec-status-bar">
+        <span>Status:</span>
+        {workStarted ? (
+          <span className="exec-status-pill exec-status-pill--active">
+            <span className="exec-status-dot" />
+            Work In Progress
+          </span>
+        ) : locationAllowed ? (
+          <span className="exec-status-pill exec-status-pill--inactive">
+            <span className="exec-status-dot" />
+            Location Ready — Start Work to Begin
+          </span>
+        ) : (
+          <span className="exec-status-pill exec-status-pill--inactive">
+            <span className="exec-status-dot" />
+            Enable Location to Get Started
+          </span>
+        )}
       </div>
 
-      {/* FORM SECTION */}
-      {showForm && (
-        <VendorForm
-          onSubmit={handleSubmitDailyLog}
-          locationCaptured={!!vendorLocation}
-          onGetLocation={captureVendorLocation}
-          isGettingLocation={isGettingLocation}
-          isSubmitting={isSubmitting}
-          geocodedAddress={geocodedAddress}
-          onBack={() => setShowForm(false)}
-        />
-      )}
+      {/* ── MAIN CONTENT ── */}
+      <main className="exec-main">
 
-      {/* HISTORY SECTION (RESTORED) */}
-     {/* HISTORY SECTION */}
-{!showForm && (
-  <div style={{ marginTop: "30px" }}>
-
-    <h3 style={{ marginBottom: "20px" }}>📋 My Submitted Forms</h3>
-
-    {loadingHistory ? (
-      <p>Loading...</p>
-    ) : history.length === 0 ? (
-      <p>No forms submitted yet.</p>
-    ) : (
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-          gap: "20px"
-        }}
-      >
-
-        {history.map((form) => (
-
-          <div
-            key={form.id}
-            style={{
-              background: "#fff",
-              padding: "18px",
-              borderRadius: "12px",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-              cursor: "pointer",
-              transition: "0.3s"
-            }}
-          >
-
-            {/* CARD HEADER */}
-            <div style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "12px"
-            }}>
-              <span style={{ fontWeight: "600" }}>#{form.id}</span>
-
-              <span style={{
-                padding: "4px 10px",
-                borderRadius: "20px",
-                fontSize: "12px",
-                fontWeight: "600",
-                background:
-                  form.status === "INTERESTED"
-                    ? "#d4edda"
-                    : form.status === "NOT_INTERESTED"
-                    ? "#f8d7da"
-                    : "#cce5ff",
-                color:
-                  form.status === "INTERESTED"
-                    ? "#155724"
-                    : form.status === "NOT_INTERESTED"
-                    ? "#721c24"
-                    : "#004085"
-              }}>
-                {form.status}
-              </span>
+        {/* ── VENDOR FORM ── */}
+        {showForm && (
+          <div className="exec-form-wrapper">
+            <div className="exec-form-header">
+              <h2 className="exec-form-title">
+                📝 New Vendor Entry
+              </h2>
+              <button
+                className="exec-btn--back"
+                onClick={() => setShowForm(false)}
+              >
+                ← Back to History
+              </button>
             </div>
-
-            {/* SHOP NAME */}
-            <h3 style={{ marginBottom: "10px" }}>
-              🏪 {form.vendorShopName || "Unnamed Shop"}
-            </h3>
-
-            {/* DETAILS */}
-            <div style={{ fontSize: "14px", lineHeight: "1.6" }}>
-
-              <div>👤 <strong>Owner:</strong> {form.vendorName}</div>
-
-              <div>📞 <strong>Contact:</strong> {form.contactNumber}</div>
-
-              <div>📍 <strong>Location:</strong> {form.areaName}, {form.state}</div>
-
-              <div>📅 <strong>Date:</strong>{" "}
-                {new Date(form.createdAt).toLocaleDateString("en-IN", {
-                  day: "2-digit",
-                  month: "short",
-                  year: "numeric"
-                })}
-              </div>
-
-              <div>👨‍💼 <strong>Team Lead:</strong> {form.teamleadName}</div>
-
-              {form.tag && (
-                <div style={{ marginTop: "6px" }}>
-                  🏷 <strong>Tag:</strong>{" "}
-                  <span style={{
-                    padding: "3px 8px",
-                    borderRadius: "12px",
-                    background:
-                      form.tag === "YELLOW"
-                        ? "#fff3cd"
-                        : "#e2e3e5",
-                    color:
-                      form.tag === "YELLOW"
-                        ? "#856404"
-                        : "#383d41",
-                    fontSize: "12px",
-                    fontWeight: "600"
-                  }}>
-                    {form.tag}
-                  </span>
-                </div>
-              )}
-
-              {form.review && (
-                <div style={{
-                  marginTop: "10px",
-                  background: "#f8f9fa",
-                  padding: "8px",
-                  borderRadius: "6px"
-                }}>
-                  ✍ <strong>Review:</strong> {form.review}
-                </div>
-              )}
-
-            </div>
-
+            <VendorForm
+              onSubmit={handleSubmitDailyLog}
+              locationCaptured={!!vendorLocation}
+              onGetLocation={captureVendorLocation}
+              isGettingLocation={isGettingLocation}
+              isSubmitting={isSubmitting}
+              geocodedAddress={geocodedAddress}
+              onBack={() => setShowForm(false)}
+            />
           </div>
+        )}
 
-        ))}
+        {/* ── HISTORY SECTION ── */}
+        {!showForm && (
+          <section className="exec-history-section">
+            <div className="exec-history-header">
+              <h2 className="exec-history-title">
+                Submission History
+                {!loadingHistory && (
+                  <span className="exec-history-count">
+                    {filteredHistory.length}
+                    {trimmedQuery && ` of ${history.length}`}
+                  </span>
+                )}
+              </h2>
 
-      </div>
-    )}
+              {/* Search */}
+              {history.length > 0 && (
+                <div className="exec-search-wrapper">
+                  <span className="exec-search-icon">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                  </span>
+                  <input
+                    className="exec-search-input"
+                    type="text"
+                    placeholder="Search by shop, vendor, area, status…"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    aria-label="Search history"
+                  />
+                  {searchQuery && (
+                    <button
+                      className="exec-search-clear"
+                      onClick={() => setSearchQuery("")}
+                      aria-label="Clear search"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
 
-  </div>
-)}
+            {/* Loading */}
+            {loadingHistory ? (
+              <div className="exec-loading">
+                <span className="exec-spinner" />
+                Loading history…
+              </div>
+            ) : history.length === 0 ? (
+              /* Empty — no data at all */
+              <div className="exec-empty-state">
+                <span className="exec-empty-state-icon">📋</span>
+                <p className="exec-empty-state-title">No submissions yet</p>
+                <p className="exec-empty-state-sub">
+                  {workStarted
+                    ? "Click \"+ New Entry\" to log your first vendor visit."
+                    : "Start work to begin logging vendor visits."}
+                </p>
+              </div>
+            ) : filteredHistory.length === 0 ? (
+              /* Empty — search with no results */
+              <div className="exec-empty-state">
+                <span className="exec-empty-state-icon">🔍</span>
+                <p className="exec-empty-state-title">No results found</p>
+                <p className="exec-empty-state-sub">
+                  No records match "<strong>{searchQuery}</strong>". Try a different keyword.
+                </p>
+              </div>
+            ) : (
+              /* Cards grid */
+              <div className="exec-cards-grid">
+                {filteredHistory.map((form) => (
+                  <div key={form.id} className="exec-card">
 
+                    {/* Card Header */}
+                    <div className="exec-card-header">
+                      <span className="exec-card-id">#{form.id}</span>
+                      <span className={getStatusBadgeClass(form.status)}>
+                        {form.status?.replace(/_/g, " ") || "—"}
+                      </span>
+                    </div>
+
+                    {/* Shop Name */}
+                    <h3 className="exec-card-shop">
+                      🏪 {form.vendorShopName || "Unnamed Shop"}
+                    </h3>
+
+                    {/* Details */}
+                    <div className="exec-card-body">
+                      <div className="exec-card-row">
+                        <span className="exec-card-row-icon">👤</span>
+                        <span><span className="exec-card-row-label">Owner:</span> {form.vendorName || "—"}</span>
+                      </div>
+                      <div className="exec-card-row">
+                        <span className="exec-card-row-icon">📞</span>
+                        <span><span className="exec-card-row-label">Contact:</span> {form.contactNumber || "—"}</span>
+                      </div>
+                      <div className="exec-card-row">
+                        <span className="exec-card-row-icon">📍</span>
+                        <span>
+                          <span className="exec-card-row-label">Location:</span>{" "}
+                          {[form.areaName, form.state].filter(Boolean).join(", ") || "—"}
+                        </span>
+                      </div>
+                      {form.teamleadName && (
+                        <div className="exec-card-row">
+                          <span className="exec-card-row-icon">👨‍💼</span>
+                          <span><span className="exec-card-row-label">Team Lead:</span> {form.teamleadName}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Review */}
+                    {form.review && (
+                      <div className="exec-card-review">
+                        "{form.review}"
+                      </div>
+                    )}
+
+                    {/* Footer */}
+                    <div className="exec-card-footer">
+                      <span>📅 {formatDate(form.createdAt)}</span>
+                      {form.tag && (
+                        <span className={`exec-badge ${form.tag === "YELLOW" ? "exec-badge--yellow" : "exec-badge--default"}`}>
+                          🏷 {form.tag}
+                        </span>
+                      )}
+                    </div>
+
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
+      </main>
     </div>
   );
 };
