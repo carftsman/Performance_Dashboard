@@ -1,12 +1,72 @@
-
-import React, { useState } from 'react';
-import VendorForm from '../Executive/VendorForm';
-import './ExecutiveWorkView.css'; // We'll create this CSS file
+import React, { useState, useMemo } from 'react';
+import LocationForm from '../Executive/LocationForm';
+import './ExecutiveWorkView.css';
 
 const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
   const [viewMode, setViewMode] = useState('list');
   const [selectedForm, setSelectedForm] = useState(null);
   const [expandedRow, setExpandedRow] = useState(null);
+  const [filterType, setFilterType] = useState('all'); // 'all', 'day', 'week', 'month'
+  const [customDate, setCustomDate] = useState('');
+
+  // Get today's date in YYYY-MM-DD format
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
+
+  // Filter forms based on selected filter type
+  const getFilteredForms = () => {
+    if (!executive.forms) return [];
+    
+    if (filterType === 'all' || !customDate) {
+      return executive.forms;
+    }
+
+    const filterDate = new Date(customDate);
+    filterDate.setHours(0, 0, 0, 0);
+
+    return executive.forms.filter(form => {
+      const formDate = new Date(form.createdAt || form.date || new Date());
+      formDate.setHours(0, 0, 0, 0);
+
+      switch (filterType) {
+        case 'day':
+          // Show forms from the selected day
+          return formDate.getTime() === filterDate.getTime();
+
+        case 'week':
+          // Show forms from the week containing the selected date
+          const weekStart = new Date(filterDate);
+          weekStart.setDate(filterDate.getDate() - filterDate.getDay()); // Start of week (Sunday)
+          
+          const weekEnd = new Date(weekStart);
+          weekEnd.setDate(weekStart.getDate() + 6); // End of week (Saturday)
+          weekEnd.setHours(23, 59, 59, 999);
+          
+          return formDate >= weekStart && formDate <= weekEnd;
+
+        case 'month':
+          // Show forms from the month of selected date
+          return formDate.getMonth() === filterDate.getMonth() && 
+                 formDate.getFullYear() === filterDate.getFullYear();
+
+        default:
+          return true;
+      }
+    });
+  };
+
+  // Get stats for filtered forms
+  const filteredForms = useMemo(() => getFilteredForms(), [executive.forms, filterType, customDate]);
+  
+  // Calculate stats based on filtered forms
+  const stats = useMemo(() => ({
+    total: filteredForms.length,
+    interested: filteredForms.filter(f => f.status === 'INTERESTED').length,
+    onboarded: filteredForms.filter(f => f.status === 'ONBOARDED').length,
+    notInterested: filteredForms.filter(f => f.status === 'NOT_INTERESTED').length
+  }), [filteredForms]);
 
   const handleFormSubmit = async (formData) => {
     console.log('Submitting form:', formData);
@@ -26,6 +86,15 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
 
   const toggleRowExpand = (id) => {
     setExpandedRow(expandedRow === id ? null : id);
+  };
+
+  const handleFilterChange = (type) => {
+    setFilterType(type);
+    if (type === 'all') {
+      setCustomDate('');
+    } else if (!customDate) {
+      setCustomDate(getTodayDate());
+    }
   };
 
   // Get status badge style
@@ -86,48 +155,92 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
       <div className="card header-card">
         <div className="header-content">
           <div className="header-left">
-            
             <div className="executive-info">
               <h2>{executive.name}'s Work</h2>
               <p className="text-muted">
                 Executive ID: {executive.id}
-                <br/>
-                {/* Team Lead: {executive.forms?.[0]?.teamleadName || 'N/A'} */}
               </p>
-              
             </div>
             <button onClick={onBack} className="btn btn-secondary">
               ← Back to List
             </button>
           </div>
-         
         </div>
       </div>
 
       {/* Content Section */}
       {viewMode === 'list' ? (
         <>
+          {/* Filter Section */}
+          <div className="card filter-card">
+            <div className="filter-container">
+              <div className="filter-buttons">
+                <button
+                  className={`filter-btn ${filterType === 'all' ? 'active' : ''}`}
+                  onClick={() => handleFilterChange('all')}
+                >
+                  All
+                </button>
+                <button
+                  className={`filter-btn ${filterType === 'day' ? 'active' : ''}`}
+                  onClick={() => handleFilterChange('day')}
+                >
+                  Day
+                </button>
+                <button
+                  className={`filter-btn ${filterType === 'week' ? 'active' : ''}`}
+                  onClick={() => handleFilterChange('week')}
+                >
+                  Week
+                </button>
+                <button
+                  className={`filter-btn ${filterType === 'month' ? 'active' : ''}`}
+                  onClick={() => handleFilterChange('month')}
+                >
+                  Month
+                </button>
+              </div>
+              
+              {filterType !== 'all' && (
+                <div className="date-picker-container">
+                  <input
+                    type="date"
+                    value={customDate}
+                    onChange={(e) => setCustomDate(e.target.value)}
+                    className="date-picker"
+                    max={getTodayDate()}
+                  />
+                  {filteredForms.length > 0 && (
+                    <span className="filter-results-count">
+                      {filteredForms.length} entries found
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Quick Stats Cards */}
           <div className="stats-grid">
             <div className="stat-card">
-              <div className="stat-value">{executive.forms?.length || 0}</div>
+              <div className="stat-value">{stats.total}</div>
               <div className="stat-label">Total Entries</div>
             </div>
             <div className="stat-card">
               <div className="stat-value" style={{ color: '#28a745' }}>
-                {executive.forms?.filter(f => f.status === 'INTERESTED').length || 0}
+                {stats.interested}
               </div>
               <div className="stat-label">Interested</div>
             </div>
             <div className="stat-card">
               <div className="stat-value" style={{ color: '#007bff' }}>
-                {executive.forms?.filter(f => f.status === 'ONBOARDED').length || 0}
+                {stats.onboarded}
               </div>
               <div className="stat-label">Onboarded</div>
             </div>
             <div className="stat-card">
               <div className="stat-value" style={{ color: '#dc3545' }}>
-                {executive.forms?.filter(f => f.status === 'NOT_INTERESTED').length || 0}
+                {stats.notInterested}
               </div>
               <div className="stat-label">Not Interested</div>
             </div>
@@ -135,7 +248,16 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
 
           {/* Forms List - Desktop View */}
           <div className="card">
-            <h3 className="card-title">All Entries</h3>
+            <h3 className="card-title">
+              All Entries
+              {filterType !== 'all' && customDate && (
+                <span className="filter-subtitle">
+                  {filterType === 'day' && ` - ${new Date(customDate).toLocaleDateString('en-IN')}`}
+                  {filterType === 'week' && ` - Week of ${new Date(customDate).toLocaleDateString('en-IN')}`}
+                  {filterType === 'month' && ` - ${new Date(customDate).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}`}
+                </span>
+              )}
+            </h3>
             
             {/* Desktop Table View */}
             <div className="table-container desktop-view">
@@ -146,13 +268,13 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
                     <th>Shop Name</th>
                     <th>Vendor Info</th>
                     <th>Location</th>
+                    <th>Review</th>
                     <th>Status</th>
                     <th>Tag</th>
-                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {executive.forms?.map(form => (
+                  {filteredForms.map(form => (
                     <tr key={form.id}>
                       <td>
                         <div className="date-cell">
@@ -169,7 +291,7 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
                           <div><strong>{form.vendorName}</strong></div>
                           <div className="contact-info">
                             <span>📞 {form.contactNumber}</span>
-                            {form.mailId && <span>✉️{form.mailId}</span>}
+                            {form.mailId && <span>✉️ {form.mailId}</span>}
                           </div>
                         </div>
                       </td>
@@ -180,7 +302,7 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
                         </div>
                       </td>
                       <td>
-                        <div className="shop-details">
+                        <div className="review-cell">
                           {form.review && (
                             <div className="review-text" title={form.review}>
                               {form.review.substring(0, 30)}
@@ -191,15 +313,6 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
                       </td>
                       <td>{getStatusBadge(form.status)}</td>
                       <td>{getTagBadge(form.tag)}</td>
-                      {/* <td>
-                        <button 
-                          onClick={() => handleViewForm(form)}
-                          className="btn btn-view"
-                        >
-                          View
-                        </button>
-                      </td> */}
-
                     </tr>
                   ))}
                 </tbody>
@@ -208,7 +321,7 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
 
             {/* Mobile Card View */}
             <div className="mobile-view">
-              {executive.forms?.map(form => (
+              {filteredForms.map(form => (
                 <div key={form.id} className="mobile-card">
                   <div className="mobile-card-header" onClick={() => toggleRowExpand(form.id)}>
                     <div className="mobile-card-title">
@@ -243,6 +356,12 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
                         <span className="detail-label">Location:</span>
                         <span className="detail-value">{form.areaName}, {form.state}</span>
                       </div>
+                      {form.pinCode && (
+                        <div className="detail-row">
+                          <span className="detail-label">PIN:</span>
+                          <span className="detail-value">{form.pinCode}</span>
+                        </div>
+                      )}
                       {form.review && (
                         <div className="detail-row">
                           <span className="detail-label">Review:</span>
@@ -253,27 +372,19 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
                         <span className="detail-label">Team Lead:</span>
                         <span className="detail-value">{form.teamleadName}</span>
                       </div>
-                      
-                      {/* <div className="mobile-card-actions">
-                        <button 
-                          onClick={() => handleViewForm(form)}
-                          className="btn btn-view btn-block"
-                        >
-                          View Full Details
-                        </button>
-                      </div> */}
                     </div>
                   )}
                 </div>
               ))}
             </div>
 
-            {(!executive.forms || executive.forms.length === 0) && (
+            {filteredForms.length === 0 && (
               <div className="empty-state">
-                <p>No entries found for this executive</p>
-                <button onClick={handleAddNew} className="btn btn-primary">
-                  Add First Entry
-                </button>
+                <p>
+                  {filterType !== 'all' && customDate 
+                    ? `No entries found for the selected ${filterType}`
+                    : 'No entries found for this executive'}
+                </p>
               </div>
             )}
           </div>
@@ -292,9 +403,9 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
             initialData={selectedForm}
             readOnly={!!selectedForm}
           />
-           <button onClick={() => setViewMode('list')} className="btn btn-secondary">
-              Back to List
-            </button>
+          <button onClick={() => setViewMode('list')} className="btn btn-secondary">
+            Back to List
+          </button>
         </div>
       )}
     </div>

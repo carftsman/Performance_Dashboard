@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import MainLayout from '../components/common/Layout/MainLayout';
 import ExecutiveWorkView from '../components/TeamLead/ExecutiveWorkView';
@@ -18,10 +17,33 @@ const TeamLeadDashboard = ({ user, logout }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(null);
   const [selectedExecutiveForForm, setSelectedExecutiveForForm] = useState(null);
+  
+  // New state for add executive modal
+  const [showAddExecutiveModal, setShowAddExecutiveModal] = useState(false);
+  const [newExecutive, setNewExecutive] = useState({
+    executiveCode: '',
+    name: '',
+    phone: ''
+  });
+  const [isAddingExecutive, setIsAddingExecutive] = useState(false);
+  const [executiveAddSuccess, setExecutiveAddSuccess] = useState(null);
+  
+  // New state for date filters
+  const [dateFilter, setDateFilter] = useState({
+    startDate: '',
+    endDate: ''
+  });
+  const [filteredForms, setFilteredForms] = useState([]);
+
   // Fetch all forms for the team lead
   useEffect(() => {
     fetchTeamLeadForms();
   }, []);
+
+  // Update filtered forms when executiveForms or dateFilter changes
+  useEffect(() => {
+    filterFormsByDate();
+  }, [executiveForms, dateFilter]);
 
   const fetchTeamLeadForms = async () => {
     try {
@@ -34,13 +56,133 @@ const TeamLeadDashboard = ({ user, logout }) => {
       
       const formsData = Array.isArray(data) ? data : [];
       setExecutiveForms(formsData);
+      setFilteredForms(formsData);
       setError(null);
     } catch (error) {
       console.error("Error fetching team lead forms:", error);
       setError("Failed to load team data. Please try again.");
       setExecutiveForms([]);
+      setFilteredForms([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Filter forms by date
+  const filterFormsByDate = () => {
+    if (!dateFilter.startDate && !dateFilter.endDate) {
+      setFilteredForms(executiveForms);
+      return;
+    }
+
+    const filtered = executiveForms.filter(form => {
+      // Assuming form has a createdAt or date field
+      const formDate = new Date(form.createdAt || form.date || new Date());
+      
+      if (dateFilter.startDate && dateFilter.endDate) {
+        const start = new Date(dateFilter.startDate);
+        const end = new Date(dateFilter.endDate);
+        end.setHours(23, 59, 59, 999); // Include the entire end date
+        return formDate >= start && formDate <= end;
+      } else if (dateFilter.startDate) {
+        const start = new Date(dateFilter.startDate);
+        return formDate >= start;
+      } else if (dateFilter.endDate) {
+        const end = new Date(dateFilter.endDate);
+        end.setHours(23, 59, 59, 999);
+        return formDate <= end;
+      }
+      
+      return true;
+    });
+
+    setFilteredForms(filtered);
+  };
+
+  // Handle date filter change
+  const handleDateFilterChange = (e) => {
+    const { name, value } = e.target;
+    setDateFilter(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Clear date filters
+  const clearDateFilters = () => {
+    setDateFilter({
+      startDate: '',
+      endDate: ''
+    });
+  };
+
+  // Handle add executive form input change
+  const handleExecutiveInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewExecutive(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Handle add executive submit
+  const handleAddExecutive = async (e) => {
+    e.preventDefault();
+    
+    // Validate form
+    if (!newExecutive.executiveCode || !newExecutive.name || !newExecutive.phone) {
+      setExecutiveAddSuccess({ 
+        type: 'error', 
+        message: 'Please fill in all fields' 
+      });
+      return;
+    }
+
+    // Validate phone number (10 digits)
+    if (!/^\d{10}$/.test(newExecutive.phone)) {
+      setExecutiveAddSuccess({ 
+        type: 'error', 
+        message: 'Please enter a valid 10-digit phone number' 
+      });
+      return;
+    }
+
+    try {
+      setIsAddingExecutive(true);
+      setExecutiveAddSuccess(null);
+
+      // API call to create executive
+      const response = await teamLeadService.createExecutive(newExecutive);
+
+      console.log('Executive created:', response);
+
+      setExecutiveAddSuccess({ 
+        type: 'success', 
+        message: response.message || 'Executive created successfully!' 
+      });
+
+      // Reset form and close modal after 2 seconds
+      setTimeout(() => {
+        setShowAddExecutiveModal(false);
+        setNewExecutive({
+          executiveCode: '',
+          name: '',
+          phone: ''
+        });
+        setExecutiveAddSuccess(null);
+        
+        // Refresh the team data to show the new executive
+        fetchTeamLeadForms();
+      }, 2000);
+
+    } catch (error) {
+      console.error("Error creating executive:", error);
+      setExecutiveAddSuccess({ 
+        type: 'error', 
+        message: error.response?.data?.message || 'Failed to create executive. Please try again.' 
+      });
+    } finally {
+      setIsAddingExecutive(false);
     }
   };
 
@@ -97,11 +239,11 @@ const TeamLeadDashboard = ({ user, logout }) => {
     }
   };
 
-  // Group forms by executive
+  // Group forms by executive (using filteredForms instead of executiveForms)
   const getExecutivesWithForms = () => {
     const execMap = new Map();
     
-    executiveForms.forEach(form => {
+    filteredForms.forEach(form => {
       const execId = form.executiveId;
       if (!execMap.has(execId)) {
         execMap.set(execId, {
@@ -175,7 +317,6 @@ const TeamLeadDashboard = ({ user, logout }) => {
                 <button onClick={handleBackToTeam} className="btn btn-secondary">
                   ← Back to Dashboard
                 </button>
-               
               </div>
             </div>
 
@@ -220,21 +361,27 @@ const TeamLeadDashboard = ({ user, logout }) => {
   return (
     <MainLayout user={dashboardUser} logout={logout}>
       <div className="teamlead-dashboard">
-        {/* Header */}
+        {/* Header with Add Executive Button */}
         <div className="card header-card">
           <div className="header-content">
             <div className="header-left">
               <div>
                 <h1>Team Lead Dashboard</h1>
                 <p className="text-muted">
-                  Welcome back  {dashboardUser?.userCode || 'Team Lead'} 
+                  Welcome back {dashboardUser?.userCode || 'Team Lead'} 
                 </p>
               </div>
             </div>
             <div className="header-actions">
               <button
+                onClick={() => setShowAddExecutiveModal(true)}
+                className="btn btn-primary"
+                style={{ marginRight: '10px' }}
+              >
+                + Add Executive
+              </button>
+              <button
                 onClick={() => {
-                  // Pass the team lead themselves as the executive when adding entry from global button
                   setSelectedExecutiveForForm({
                     id: dashboardUser?.id || 19,
                     name: dashboardUser?.userCode || 'Team Lead'
@@ -248,13 +395,117 @@ const TeamLeadDashboard = ({ user, logout }) => {
               <button 
                 onClick={handleRefresh}
                 disabled={loading}
-                className="btn btn-primary"
+                className="btn btn-secondary"
               >
                 {loading ? 'Refreshing...' : 'Refresh Data'}
               </button>
             </div>
           </div>
         </div>
+
+        {/* Add Executive Modal */}
+        {showAddExecutiveModal && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h2>Add New Executive</h2>
+                <button 
+                  onClick={() => {
+                    setShowAddExecutiveModal(false);
+                    setNewExecutive({
+                      executiveCode: '',
+                      name: '',
+                      phone: ''
+                    });
+                    setExecutiveAddSuccess(null);
+                  }}
+                  className="btn-close"
+                >
+                  ×
+                </button>
+              </div>
+
+              {/* Success/Error Message */}
+              {executiveAddSuccess && (
+                <div className={`alert ${executiveAddSuccess.type === 'success' ? 'alert-success' : 'alert-error'}`}>
+                  {executiveAddSuccess.message}
+                </div>
+              )}
+
+              <form onSubmit={handleAddExecutive}>
+                <div className="form-group">
+                  <label htmlFor="executiveCode">Executive Code *</label>
+                  <input
+                    type="text"
+                    id="executiveCode"
+                    name="executiveCode"
+                    value={newExecutive.executiveCode}
+                    onChange={handleExecutiveInputChange}
+                    placeholder="Enter executive code"
+                    required
+                    disabled={isAddingExecutive}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="name">Name *</label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={newExecutive.name}
+                    onChange={handleExecutiveInputChange}
+                    placeholder="Enter executive name"
+                    required
+                    disabled={isAddingExecutive}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="phone">Phone Number *</label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={newExecutive.phone}
+                    onChange={handleExecutiveInputChange}
+                    placeholder="Enter 10-digit phone number"
+                    pattern="[0-9]{10}"
+                    maxLength="10"
+                    required
+                    disabled={isAddingExecutive}
+                  />
+                </div>
+
+                <div className="modal-actions">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAddExecutiveModal(false);
+                      setNewExecutive({
+                        executiveCode: '',
+                        name: '',
+                        phone: ''
+                      });
+                      setExecutiveAddSuccess(null);
+                    }}
+                    className="btn btn-secondary"
+                    disabled={isAddingExecutive}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    disabled={isAddingExecutive}
+                  >
+                    {isAddingExecutive ? 'Adding...' : 'Add Executive'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
         {/* Search Bar */}
         <div className="card">
@@ -303,8 +554,7 @@ const TeamLeadDashboard = ({ user, logout }) => {
           <div className="card">
             <div className="card-header">
               <h2 className="card-title">
-                List of Execuitves
-                {/* List of Executives ({getFilteredExecutives().length}) */}
+                List of Executives ({getFilteredExecutives().length})
               </h2>
             </div>
             
@@ -356,32 +606,62 @@ const TeamLeadDashboard = ({ user, logout }) => {
           </div>
         )}
 
-        {/* Quick Stats Summary */}
+        {/* Quick Stats Summary with Date Filter */}
         {!loading && !error && executiveForms.length > 0 && (
           <div className="card summary-card">
-            <h3 className="card-title">Team Summary</h3>
+            <div className="summary-header">
+              <h3 className="card-title">Team Summary</h3>
+              
+              {/* Date Filter Controls */}
+              <div className="date-filter-container">
+                <div className="date-filter-inputs">
+                  <div className="date-filter-group">
+                    <label htmlFor="startDate">Select Date</label>
+                    <input
+                      type="date"
+                      id="startDate"
+                      name="startDate"
+                      value={dateFilter.startDate}
+                      onChange={handleDateFilterChange}
+                      className="date-input"
+                    />
+                  </div>
+                  
+                  {(dateFilter.startDate || dateFilter.endDate) && (
+                    <button
+                      onClick={clearDateFilters}
+                      className="btn btn-secondary btn-sm"
+                    >
+                      Clear Filters
+                    </button>
+                  )}
+                </div>
+               
+              </div>
+            </div>
+
             <div className="summary-grid">
               <div className="summary-item">
                 <div className="summary-value">
                   {getExecutivesWithForms().length}
                 </div>
-                <div className="summary-label">Total Executives</div>
+                <div className="summary-label">Active Executives</div>
               </div>
               <div className="summary-item">
                 <div className="summary-value">
-                  {executiveForms.length}
+                  {filteredForms.length}
                 </div>
                 <div className="summary-label">Total Forms</div>
               </div>
               <div className="summary-item">
                 <div className="summary-value" style={{ color: '#28a745' }}>
-                  {executiveForms.filter(f => f.status === 'INTERESTED' || f.status === 'ONBOARDED').length}
+                  {filteredForms.filter(f => f.status === 'INTERESTED' || f.status === 'ONBOARDED').length}
                 </div>
                 <div className="summary-label">Successful</div>
               </div>
               <div className="summary-item">
                 <div className="summary-value" style={{ color: '#dc3545' }}>
-                  {executiveForms.filter(f => f.status === 'NOT_INTERESTED').length}
+                  {filteredForms.filter(f => f.status === 'NOT_INTERESTED').length}
                 </div>
                 <div className="summary-label">Not Interested</div>
               </div>
