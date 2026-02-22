@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../Services/authservice";
 import "./Login.css";
@@ -67,6 +67,33 @@ const Login = ({ login }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const roles = [
+    { value: "executive", label: "Executive" },
+    { value: "teamlead", label: "Team Lead" },
+    { value: "manager", label: "Manager" },
+    { value: "bpo", label: "BPO" },
+    { value: "admin", label: "Admin" },
+    { value: "reporter", label: "Data Analyst" },
+  ];
+
+  const currentRoleLabel =
+    role === "selectRole"
+      ? "Select Role"
+      : roles.find((r) => r.value === role.toLowerCase())?.label || "Select Role";
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   /* ──────────── Helpers ──────────── */
   const resetMessages = () => {
@@ -242,20 +269,56 @@ const Login = ({ login }) => {
             {/* Role */}
             <div className="form-group">
               <label htmlFor="role">Role</label>
-              <select
-                id="role"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className="input-field"
-              >
-                <option value="selectRole">Select Role</option>
-                <option value="executive">Executive</option>
-                <option value="teamlead">Team Lead</option>
-                <option value="manager">Manager</option>
-                <option value="bpo">BPO</option>
-                <option value="admin">Admin</option>
-                <option value="reporter">Data Analyst</option>
-              </select>
+              <div className="custom-dropdown" ref={dropdownRef}>
+                <div
+                  className={`custom-dropdown-trigger ${isDropdownOpen ? "is-open" : ""}`}
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                >
+                  <span className={role === "selectRole" ? "placeholder-text" : ""}>
+                    {currentRoleLabel}
+                  </span>
+                  <span className="dropdown-arrow">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </span>
+                </div>
+                {isDropdownOpen && (
+                  <div className="custom-dropdown-options">
+                    <div
+                      className="custom-dropdown-option placeholder"
+                      onClick={() => {
+                        setRole("selectRole");
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      Select Role
+                    </div>
+                    {roles.map((r) => (
+                      <div
+                        key={r.value}
+                        className={`custom-dropdown-option ${role.toLowerCase() === r.value ? "selected" : ""}`}
+                        onClick={() => {
+                          setRole(r.value);
+                          setIsDropdownOpen(false);
+                        }}
+                      >
+                        {r.label}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* User Code */}
