@@ -13,6 +13,7 @@ function BpoDashBoard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [locationFilter, setLocationFilter] = useState("All Locations");
+  const [vendorTypeFilter, setVendorTypeFilter] = useState("All Types");
   // Review modal states
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [selectedFormForReview, setSelectedFormForReview] = useState(null);
@@ -36,7 +37,7 @@ function BpoDashBoard() {
           headers: {
             'Content-Type': 'application/json',
           },
-          withCredentials: true 
+          withCredentials: true
         }
       );
 
@@ -61,7 +62,7 @@ function BpoDashBoard() {
   // Handle review submission
   const handleReviewSubmit = async () => {
     if (!selectedFormForReview) return;
-    
+
     // Validation
     if (!executiveReview.trim()) {
       setSubmitError("Please provide executive review");
@@ -75,7 +76,7 @@ function BpoDashBoard() {
     try {
       setIsSubmitting(true);
       setSubmitError(null);
-      
+
       const payload = {
         action: selectedAction,
         executiveReview: executiveReview.trim(),
@@ -83,7 +84,7 @@ function BpoDashBoard() {
       };
 
       console.log("Submitting review:", payload);
-      
+
       const response = await axios.post(
         `${BASE_URL}/api/bpo/submit/${selectedFormForReview.id}`,
         payload,
@@ -96,21 +97,21 @@ function BpoDashBoard() {
       );
 
       console.log("Review submitted successfully:", response.data);
-      
+
       setSubmitSuccess("Review submitted successfully!");
-      
+
       // Update the form in the list with new data
-      setForms(prevForms => 
-        prevForms.map(form => 
+      setForms(prevForms =>
+        prevForms.map(form =>
           form.id === selectedFormForReview.id ? response.data : form
         )
       );
-      
-     
+
+
     } catch (err) {
       console.error("Error submitting review:", err);
       setSubmitError(
-        err.response?.data?.message || 
+        err.response?.data?.message ||
         "Failed to submit review. Please try again."
       );
     } finally {
@@ -119,7 +120,7 @@ function BpoDashBoard() {
   };
 
   // Open review modal
-  const handleOpenReviewModal = (form, e)=> {
+  const handleOpenReviewModal = (form, e) => {
     e.stopPropagation(); // Prevent card click
     setSelectedFormForReview(form);
     setExecutiveReview("");
@@ -155,35 +156,47 @@ function BpoDashBoard() {
     notInterested: forms.filter(f => f.status === 'NOT_INTERESTED').length
   };
   // Generate unique locations (Alphabetical Order)
-const uniqueLocations = [
-  ...new Set(
-    forms
-      .map(form => form.vendorLocation)
-      .filter(location => location && location.trim() !== "")
-  )
-].sort((a, b) => a.localeCompare(b));
+  const uniqueLocations = [
+    ...new Set(
+      forms
+        .map(form => form.vendorLocation)
+        .filter(location => location && location.trim() !== "")
+    )
+  ].sort((a, b) => a.localeCompare(b));
+
+  // Generate unique vendor types
+  const uniqueVendorTypes = [
+    ...new Set(
+      forms
+        .map(form => form.vendorType)
+        .filter(type => type && type.trim() !== "")
+    )
+  ].sort((a, b) => a.localeCompare(b));
   // Filter forms
   const filteredForms = forms.filter((form) => {
-  const searchValue = searchTerm.toLowerCase();
+    const searchValue = searchTerm.toLowerCase();
 
-  const matchesSearch =
-    searchTerm === "" ||
-    form.vendorShopName?.toLowerCase().includes(searchValue) ||
-    form.vendorName?.toLowerCase().includes(searchValue) ||
-    form.executiveName?.toLowerCase().includes(searchValue) ||
-    form.vendorLocation?.toLowerCase().includes(searchValue) ||  // ✅ Added location here
-    form.id?.toString().includes(searchTerm);
+    const matchesSearch =
+      searchTerm === "" ||
+      form.vendorShopName?.toLowerCase().includes(searchValue) ||
+      form.vendorName?.toLowerCase().includes(searchValue) ||
+      form.executiveName?.toLowerCase().includes(searchValue) ||
+      form.vendorLocation?.toLowerCase().includes(searchValue) ||  // ✅ Added location here
+      form.id?.toString().includes(searchTerm);
 
-  const matchesStatus =
-    statusFilter === "All Status" ||
-    form.status?.toLowerCase() === statusFilter.toLowerCase();
+    const matchesStatus =
+      statusFilter === "All Status" ||
+      form.status?.toLowerCase() === statusFilter.toLowerCase();
 
-  const matchesLocation =
-    locationFilter === "All Locations" ||
-    form.vendorLocation === locationFilter;
+    const matchesLocation =
+      locationFilter === "All Locations" ||
+      form.vendorLocation === locationFilter;
 
-  return matchesSearch && matchesStatus && matchesLocation;
-});
+    const matchesVendorType =
+      vendorTypeFilter === "All Types" ||
+      form.vendorType === vendorTypeFilter;
+    return matchesSearch && matchesStatus && matchesLocation && matchesVendorType;
+  });
 
   // Icons
   const Icons = {
@@ -211,7 +224,6 @@ const uniqueLocations = [
           <div className="header-stats">
             <span className="stat-badge">Total: {stats.total}</span>
             <span className="stat-badge">Interested: {stats.interested}</span>
-            <span className="stat-badge">Onboarded: {stats.onboarded}</span>
           </div>
           <button className="refresh-btn" onClick={fetchForms}>
             ⟳ Refresh
@@ -219,41 +231,53 @@ const uniqueLocations = [
         </div>
 
         {/* Search and Filter */}
-       <div className="filter-bar">
+        <div className="filter-bar">
 
-  {/* Global Search */}
-  <input
-    type="text"
-    placeholder="🔍 Search by Shop, Vendor, Location, ID, or Executive..."
-    value={searchTerm}
-    onChange={(e) => setSearchTerm(e.target.value)}
-  />
+          {/* Global Search */}
+          <input
+            type="text"
+            placeholder="🔍 Search by Shop, Vendor, Location, ID, or Executive..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
 
-  {/* Status Filter */}
-  <select
-    value={statusFilter}
-    onChange={(e) => setStatusFilter(e.target.value)}
-  >
-    <option>All Status</option>
-    <option>INTERESTED</option>
-    <option>NOT_INTERESTED</option>
-    <option>ONBOARDED</option>
-  </select>
+          {/* Status Filter */}
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option>All Status</option>
+            <option>INTERESTED</option>
+            <option>NOT_INTERESTED</option>
+          </select>
 
-  {/* Location Dropdown */}
-  <select
-    value={locationFilter}
-    onChange={(e) => setLocationFilter(e.target.value)}
-  >
-    <option>All Locations</option>
-    {uniqueLocations.map((location, index) => (
-      <option key={index} value={location}>
-        {location}
-      </option>
-    ))}
-  </select>
+          {/* Location Dropdown */}
+          <select
+            value={locationFilter}
+            onChange={(e) => setLocationFilter(e.target.value)}
+          >
+            <option>All Locations</option>
+            {uniqueLocations.map((location, index) => (
+              <option key={index} value={location}>
+                {location}
+              </option>
+            ))}
+          </select>
 
-</div>
+          {/* Vendor Type Dropdown */}
+          <select
+            value={vendorTypeFilter}
+            onChange={(e) => setVendorTypeFilter(e.target.value)}
+          >
+            <option>All Types</option>
+            {uniqueVendorTypes.map((type, index) => (
+              <option key={index} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
+
+        </div>
         {/* Loading State */}
         {loading && (
           <div className="loading-container">
@@ -295,32 +319,36 @@ const uniqueLocations = [
                   </div>
 
                   <h3>{form.vendorShopName || "Unnamed Shop"}</h3>
-                  
+
                   <div className="form-details">
                     <div className="detail-row">
                       <span className="detail-icon">{Icons.owner}</span>
                       <span className="detail-label">Owner:</span>
                       <span className="detail-value">{form.vendorName}</span>
                     </div>
-                    
+
                     <div className="detail-row">
                       <span className="detail-icon">{Icons.location}</span>
                       <span className="detail-label">Location:</span>
                       <span className="detail-value">{form.vendorLocation}</span>
                     </div>
-                    
+                    <div className="detail-row">
+                      <span className="detail-icon">🏷️</span>
+                      <span className="detail-label">Type:</span>
+                      <span className="detail-value">{form.vendorType}</span>
+                    </div>
                     <div className="detail-row">
                       <span className="detail-icon">{Icons.executive}</span>
                       <span className="detail-label">Executive:</span>
                       <span className="detail-value">{form.executiveName}</span>
                     </div>
-                    
+
                     <div className="detail-row">
                       <span className="detail-icon">{Icons.teamlead}</span>
                       <span className="detail-label">Team Lead:</span>
                       <span className="detail-value">{form.teamleadName}</span>
                     </div>
-                    
+
                     <div className="detail-row">
                       <span className="detail-icon">{Icons.calendar}</span>
                       <span className="detail-label">Date:</span>
@@ -335,7 +363,7 @@ const uniqueLocations = [
                   </div>
 
                   {/* Review Button */}
-                  <button 
+                  <button
                     className="review-btn"
                     onClick={(e) => handleOpenReviewModal(form, e)}
                   >
@@ -433,10 +461,10 @@ const uniqueLocations = [
                   <p className="modal-subtitle">
                     Form #{selectedFormForReview.id} - {selectedFormForReview.vendorShopName}
                   </p>
-                   <div className="executive-info-badge">
-      <span className="executive-label">Executive:</span>
-      <span className="executive-name">{selectedFormForReview.executiveName || 'Not Assigned'}</span>
-    </div>
+                  <div className="executive-info-badge">
+                    <span className="executive-label">Executive:</span>
+                    <span className="executive-name">{selectedFormForReview.executiveName || 'Not Assigned'}</span>
+                  </div>
                 </div>
                 <button className="close-btn" onClick={handleCloseReviewModal}>×</button>
               </div>
@@ -459,8 +487,8 @@ const uniqueLocations = [
                     </span>
                   </div>
                 </div>
-                 
-                 
+
+
 
                 {/* Success Message */}
                 {submitSuccess && (
@@ -513,13 +541,13 @@ const uniqueLocations = [
                     {vendorReview.length} characters
                   </div>
                 </div>
-                   {/* Action Selection */}
+                {/* Action Selection */}
                 <div className="form-group">
                   <label className="form-label">
                     Action <span className="required">*</span>
                   </label>
                   <div className="action-buttons">
-                    {["SOLVED","NOT SOLVED"].map((action) => (
+                    {["SOLVED", "NOT SOLVED"].map((action) => (
                       <button
                         key={action}
                         type="button"
@@ -556,14 +584,14 @@ const uniqueLocations = [
               </div>
 
               <div className="modal-actions review-actions">
-                <button 
+                <button
                   className="btn-secondary"
                   onClick={handleCloseReviewModal}
                   disabled={isSubmitting}
                 >
                   Cancel
                 </button>
-                <button 
+                <button
                   className="btn-primary submit-btn"
                   onClick={handleReviewSubmit}
                   disabled={isSubmitting}

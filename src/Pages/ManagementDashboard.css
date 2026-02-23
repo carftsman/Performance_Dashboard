@@ -354,12 +354,32 @@
 .mgr-detail-modal {
   background: #fff;
   width: 100%;
-  max-width: 500px;
+  max-width: 800px;
   border-radius: 12px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+}
+
+.mgr-detail-section {
+  grid-column: 1 / -1;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 16px;
+  margin-top: 8px;
+}
+
+.mgr-detail-section:first-child {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+}
+
+.mgr-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
 .mgr-detail-group {
@@ -1016,6 +1036,9 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+  .mgr-detail-grid {
+    grid-template-columns: 1fr;
+  }
   .header-content {
     flex-direction: column;
     gap: 1rem;
