@@ -809,6 +809,115 @@
   transform: translateY(-1px);
 }
 
+/* ── Approved Requests Styling ───────────────────────── */
+.exec-btn--requests {
+  background: #f8fafc;
+  color: #1e293b;
+  position: relative;
+  border: 1px solid #e2e8f0;
+}
+
+.exec-btn--requests:hover {
+  background: #f1f5f9;
+}
+
+.exec-badge-count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #ef4444;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 12px;
+  border: 2px solid white;
+  line-height: 1;
+}
+
+.exec-approved-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.exec-approved-reasons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  background: #f1f5f9;
+  border-radius: 8px;
+  margin: 4px 0;
+}
+
+.reason-block strong {
+  display: block;
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.reason-block p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #1e293b;
+  line-height: 1.4;
+}
+
+.exec-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.exec-edit-section h4 {
+  margin: 0 0 12px 0;
+  font-size: 0.95rem;
+  color: #334155;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 6px;
+}
+
+.exec-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px 16px;
+}
+
+.exec-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.exec-form-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.exec-form-group input,
+.exec-form-group select,
+.exec-form-group textarea {
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #1e293b;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.exec-form-group input:focus,
+.exec-form-group select:focus,
+.exec-form-group textarea:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
 /* ── Responsive ──────────────────────────────────────── */
 @media (max-width: 1024px) {
   .exec-cards-grid {
@@ -890,5 +999,9 @@
   .exec-modal-grid {
     grid-template-columns: 1fr;
     gap: 16px;
+  }
+
+  .exec-edit-grid {
+    grid-template-columns: 1fr;
   }
 }
