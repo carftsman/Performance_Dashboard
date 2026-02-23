@@ -4,8 +4,7 @@ import axios from 'axios';
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  AreaChart, Area, RadarChart, Radar, PolarGrid, PolarAngleAxis,
-  PolarRadiusAxis, ComposedChart, Scatter,ScatterChart
+  AreaChart, Area, ComposedChart
 } from 'recharts';
 import './ReportDashboard.css';
 import ReportModal from '../components/Management/ReportModal';
@@ -17,12 +16,8 @@ const ReportDashboard = ({ user, logout }) => {
   const [filteredForms, setFilteredForms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [teamFilter, setTeamFilter] = useState('all');
-  const [dateRange, setDateRange] = useState('all');
   const [expandedRow, setExpandedRow] = useState(null);
-  const [viewMode, setViewMode] = useState('charts'); // 'charts', 'table', or 'cards'
+  const [viewMode, setViewMode] = useState('charts');
   const [chartType, setChartType] = useState('overview'); // 'overview', 'teams', 'executives', 'trends'
 
   // Fetch all forms
@@ -42,9 +37,6 @@ const ReportDashboard = ({ user, logout }) => {
           withCredentials: true 
         }
       );
-
-      console.log("All Forms:", response.data);
-      
       const formsData = Array.isArray(response.data) ? response.data : [];
       setForms(formsData);
       setFilteredForms(formsData);
@@ -58,56 +50,6 @@ const ReportDashboard = ({ user, logout }) => {
       setLoading(false);
     }
   };
-
-  // Apply filters
-  useEffect(() => {
-    let filtered = [...forms];
-
-    // Apply search filter
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(form => 
-        form.vendorShopName?.toLowerCase().includes(term) ||
-        form.vendorName?.toLowerCase().includes(term) ||
-        form.executiveName?.toLowerCase().includes(term) ||
-        form.teamleadName?.toLowerCase().includes(term) ||
-        form.areaName?.toLowerCase().includes(term) ||
-        form.contactNumber?.includes(term)
-      );
-    }
-
-    // Apply status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(form => form.status === statusFilter);
-    }
-
-    // Apply team filter (by teamlead)
-    if (teamFilter !== 'all') {
-      filtered = filtered.filter(form => form.teamleadName === teamFilter);
-    }
-
-    // Apply date range filter
-    if (dateRange !== 'all') {
-      const now = new Date();
-      const today = new Date(now.setHours(0, 0, 0, 0));
-      const weekAgo = new Date(now.setDate(now.getDate() - 7));
-      const monthAgo = new Date(now.setMonth(now.getMonth() - 1));
-
-      filtered = filtered.filter(form => {
-        const formDate = new Date(form.createdAt);
-        if (dateRange === 'today') {
-          return formDate >= today;
-        } else if (dateRange === 'week') {
-          return formDate >= weekAgo;
-        } else if (dateRange === 'month') {
-          return formDate >= monthAgo;
-        }
-        return true;
-      });
-    }
-
-    setFilteredForms(filtered);
-  }, [searchTerm, statusFilter, teamFilter, dateRange, forms]);
 
   // Get unique team leads
   const teamLeads = [...new Set(forms.map(form => form.teamleadName).filter(Boolean))];
@@ -128,7 +70,6 @@ const ReportDashboard = ({ user, logout }) => {
   const stats = {
     total: forms.length,
     interested: forms.filter(f => f.status === 'INTERESTED').length,
-
     notInterested: forms.filter(f => f.status === 'NOT_INTERESTED').length,
     totalExecutives: uniqueExecutives.length,
     totalTeamLeads: teamLeads.length
@@ -137,7 +78,6 @@ const ReportDashboard = ({ user, logout }) => {
   // Chart 1: Status Distribution (Pie Chart)
   const statusDistributionData = [
     { name: 'Interested', value: stats.interested, color: '#166534' },
-
     { name: 'Not Interested', value: stats.notInterested, color: '#991b1b' }
   ].filter(item => item.value > 0);
 
@@ -156,7 +96,6 @@ const ReportDashboard = ({ user, logout }) => {
       name: lead,
       total: leadForms.length,
       interested: leadForms.filter(f => f.status === 'INTERESTED').length,
-     
       notInterested: leadForms.filter(f => f.status === 'NOT_INTERESTED').length,
       
     };
@@ -171,7 +110,6 @@ const ReportDashboard = ({ user, logout }) => {
       teamlead: exec.teamleadName || 'N/A',
       total: execForms.length,
       interested: execForms.filter(f => f.status === 'INTERESTED').length,
-  
       notInterested: execForms.filter(f => f.status === 'NOT_INTERESTED').length,
      
     };
@@ -205,36 +143,10 @@ const ReportDashboard = ({ user, logout }) => {
 
   const trendData = getTrendData();
 
-  // Chart 6: Team Comparison Radar
-  const teamComparisonData = teamLeads.map(lead => {
-    const leadForms = forms.filter(f => f.teamleadName === lead);
-    return {
-      team: lead,
-      interested: leadForms.filter(f => f.status === 'INTERESTED').length,
-     
-      notInterested: leadForms.filter(f => f.status === 'NOT_INTERESTED').length,
-      greenTag: leadForms.filter(f => f.tag === 'GREEN').length,
-      orangeTag: leadForms.filter(f => f.tag === 'ORANGE').length
-    };
-  });
-
-  // Format date
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
   // Get status badge style
   const getStatusBadge = (status) => {
     const styles = {
       'INTERESTED': { background: '#dcfce7', color: '#166534', label: 'Interested' },
-     
       'NOT_INTERESTED': { background: '#fee2e2', color: '#991b1b', label: 'Not Interested' }
     };
     const style = styles[status] || { background: '#f1f5f9', color: '#475569', label: status };
@@ -270,9 +182,6 @@ const ReportDashboard = ({ user, logout }) => {
   const handleRefresh = () => {
     fetchAllForms();
   };
-
-  const COLORS = ['#166534', '#1e40af', '#991b1b', '#9a3412', '#854d0e', '#3b82f6'];
-
   return (
     <MainLayout user={dashboardUser} logout={logout}>
       <div className="management-dashboard">
@@ -544,101 +453,6 @@ const ReportDashboard = ({ user, logout }) => {
                 )}
               </div>
             )}
-
-            {/* Table View */}
-            {viewMode === 'table' && (
-              <div className="card">
-                <div className="table-container">
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>Date & Time</th>
-                        <th>Shop Details</th>
-                        <th>Vendor Info</th>
-                        <th>Executive</th>
-                        <th>Team Lead</th>
-                        <th>Location</th>
-                        <th>Tag</th>
-                        <th></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredForms.map(form => (
-                        <React.Fragment key={form.id}>
-                          <tr>
-                            <td><div className="date-cell">{formatDate(form.createdAt)}</div></td>
-                            <td>
-                              <div className="shop-details">
-                                <strong>{form.vendorShopName || 'N/A'}</strong>
-                                {form.review && <div className="review-text">{form.review.substring(0, 30)}...</div>}
-                              </div>
-                            </td>
-                            <td>
-                              <div className="vendor-info">
-                                <strong>{form.vendorName || 'N/A'}</strong>
-                                <div className="contact-info">{form.contactNumber}</div>
-                              </div>
-                            </td>
-                            <td><strong>{form.executiveName || `ID: ${form.executiveId}`}</strong></td>
-                            <td><strong>{form.teamleadName || `ID: ${form.teamleadId}`}</strong></td>
-                            <td>
-                              <div className="location-info">
-                                <div>{form.areaName || 'N/A'}</div>
-                                {form.state && <div className="state">{form.state}</div>}
-                              </div>
-                            </td>
-                            <td>{getTagBadge(form.tag)}</td>
-                            <td>
-                              <button onClick={() => toggleRowExpand(form.id)} className="btn-icon">
-                                {expandedRow === form.id ? '−' : '+'}
-                              </button>
-                            </td>
-                          </tr>
-                          {expandedRow === form.id && (
-                            <tr className="expanded-row">
-                              <td colSpan="8">
-                                <div className="expanded-content">
-                                  <div className="details-grid">
-                                    <div className="detail-item"><span className="detail-label">Door Number:</span><span>{form.doorNumber || 'N/A'}</span></div>
-                                    <div className="detail-item"><span className="detail-label">Street:</span><span>{form.streetName || 'N/A'}</span></div>
-                                    <div className="detail-item"><span className="detail-label">PIN Code:</span><span>{form.pinCode || 'N/A'}</span></div>
-                                    <div className="detail-item"><span className="detail-label">Status:</span><span>{getStatusBadge(form.status)}</span></div>
-                                  </div>
-                                </div>
-                              </td>
-                            </tr>
-                          )}
-                        </React.Fragment>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                {filteredForms.length === 0 && <div className="empty-state"><p>No entries found</p></div>}
-              </div>
-            )}
-
-            {/* Cards View */}
-            {viewMode === 'cards' && (
-              <div className="card-grid">
-                {filteredForms.map(form => (
-                  <div key={form.id} className="data-card">
-                    <div className="card-header">
-                      <div className="card-title">
-                        <h4>{form.vendorShopName || 'Unnamed Shop'}</h4>
-                        <div className="card-badges">{getTagBadge(form.tag)}</div>
-                      </div>
-                      <div className="card-subtitle">{form.vendorName} • {formatDate(form.createdAt)}</div>
-                    </div>
-                    <div className="card-body">
-                      <div className="card-info-row"><span className="info-label">Executive:</span><span>{form.executiveName || `ID: ${form.executiveId}`}</span></div>
-                      <div className="card-info-row"><span className="info-label">Team Lead:</span><span>{form.teamleadName || `ID: ${form.teamleadId}`}</span></div>
-                      <div className="card-info-row"><span className="info-label">Contact:</span><span>{form.contactNumber}</span></div>
-                      <div className="card-info-row"><span className="info-label">Location:</span><span>{form.areaName}, {form.state}</span></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
           </>
         )}
          {/* Report Generation Modal */}
@@ -646,10 +460,6 @@ const ReportDashboard = ({ user, logout }) => {
   isOpen={showReportModal}
   onClose={() => setShowReportModal(false)}
   forms={forms}
-  onGenerate={() => {
-    // Optional: Show success message or refresh data
-    console.log('Report generated successfully');
-  }}
 />
       </div>
     </MainLayout>

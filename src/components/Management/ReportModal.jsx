@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { reportService } from '../../Services/report.service';
 
-const ReportModal = ({ isOpen, onClose, forms, onGenerate }) => {
+const ReportModal = ({ isOpen, onClose, forms }) => {
   const [reportType, setReportType] = useState('excel');
   const [reportPeriod, setReportPeriod] = useState('all');
   const [generating, setGenerating] = useState(false);
@@ -26,7 +26,6 @@ const ReportModal = ({ isOpen, onClose, forms, onGenerate }) => {
         reportService.generatePDFReport(filteredData, reportPeriod);
       }
 
-      onGenerate();
       onClose();
     } catch (error) {
       console.error('Report generation error:', error);
