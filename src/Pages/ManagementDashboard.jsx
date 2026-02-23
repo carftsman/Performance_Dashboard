@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import MainLayout from '../components/common/Layout/MainLayout';
 import axios from 'axios';
 import { managerService } from '../Services/manager.service';
+import ReportModal from '../components/Management/ReportModal';
 import './ManagementDashboard.css';
 
 const ManagementDashboard = ({ user, logout }) => {
   const dashboardUser = user || JSON.parse(localStorage.getItem('user'));
-
+// Report Generation State
+const [showReportModal, setShowReportModal] = useState(false);
   const [forms, setForms] = useState([]);
   const [filteredForms, setFilteredForms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -244,6 +246,7 @@ const ManagementDashboard = ({ user, logout }) => {
                 Consolidated view of all field operations • {forms.length} total entries
               </p>
             </div>
+             
             <div className="header-actions">
               <button 
                 className="btn btn-requests" 
@@ -333,6 +336,13 @@ const ManagementDashboard = ({ user, logout }) => {
                   <option value="month">Last 30 Days</option>
                 </select>
 
+                  <button 
+        className="btn btn-success" 
+        onClick={() => setShowReportModal(true)}
+        disabled={loading}
+      >
+        📊 Generate Report
+      </button>
                 {(searchTerm || statusFilter !== 'all' || teamFilter !== 'all' || dateRange !== 'all') && (
                   <button 
                     onClick={() => {
@@ -649,6 +659,16 @@ const ManagementDashboard = ({ user, logout }) => {
           </div>
         )}
 
+        {/* Report Generation Modal */}
+<ReportModal
+  isOpen={showReportModal}
+  onClose={() => setShowReportModal(false)}
+  forms={forms}
+  onGenerate={() => {
+    // Optional: Show success message or refresh data
+    console.log('Report generated successfully');
+  }}
+/>
       </div>
     </MainLayout>
   );
