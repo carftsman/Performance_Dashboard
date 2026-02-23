@@ -2,8 +2,8 @@
 import api from "./api.service";
 
 const teamLeadService = {
- createExecutive: (executiveData) =>
-  api.post("/api/teamlead/create-executive", executiveData),
+  createExecutive: (executiveData) =>
+    api.post("/api/teamlead/create-executive",executiveData),
   getForms: () => 
     api.get("/api/teamlead/forms"),
 };

@@ -167,9 +167,9 @@ const [showReportModal, setShowReportModal] = useState(false);
   // Get status badge style
   const getStatusBadge = (status) => {
     const styles = {
-      'INTERESTED': { background: '#dcfce7', color: '#166534', label: 'Interested' },
-      'ONBOARDED': { background: '#dbeafe', color: '#1e40af', label: 'Onboarded' },
-      'NOT_INTERESTED': { background: '#fee2e2', color: '#991b1b', label: 'Not Interested' }
+      'INTERESTED': { background: '#dcfce7', color: 'black', label: 'Interested' },
+      'ONBOARDED': { background: '#dbeafe', color: 'black', label: 'Onboarded' },
+      'NOT_INTERESTED': { background: '#fee2e2', color: 'black', label: 'Not Interested' }
     };
     const style = styles[status] || { background: '#f1f5f9', color: '#475569', label: status };
     
@@ -331,16 +331,16 @@ const [showReportModal, setShowReportModal] = useState(false);
             {/* Statistics Cards */}
             <div className="stats-grid">
               <div className="stat-card">
-                <div className="stat-value">{stats.total}</div>
-                <div className="stat-label">Total Entries</div>
+                <div className="stat-value" style={{color:'black'}}>{stats.total}</div>
+                <div className="stat-label" style={{color:'black'}}>Total Entries</div>
               </div>
               <div className="stat-card">
-                <div className="stat-value">{stats.totalExecutives}</div>
-                <div className="stat-label">Executives</div>
+                <div className="stat-value" style={{color:'black'}}>{stats.totalExecutives}</div>
+                <div className="stat-label" style={{color:'black'}}>Executives</div>
               </div>
               <div className="stat-card">
-                <div className="stat-value">{stats.totalTeamLeads}</div>
-                <div className="stat-label">Team Leads</div>
+                <div className="stat-value" style={{color:'black'}}>{stats.totalTeamLeads}</div>
+                <div className="stat-label" style={{color:'black'}}>Team Leads</div>
               </div>
             </div>
 

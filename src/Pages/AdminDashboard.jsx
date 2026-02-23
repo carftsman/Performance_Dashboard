@@ -285,16 +285,16 @@ const [showReportModal, setShowReportModal] = useState(false);
             {/* Statistics Cards */}
             <div className="stats-grid">
               <div className="stat-card">
-                <div className="stat-value">{stats.total}</div>
-                <div className="stat-label">Total Entries</div>
+                <div className="stat-value" style={{color:'black'}}>{stats.total}</div>
+                <div className="stat-label" style={{color:'black'}}>Total Entries</div>
               </div>
               <div className="stat-card">
-                <div className="stat-value">{stats.totalExecutives}</div>
-                <div className="stat-label">Executives</div>
+                <div className="stat-value" style={{color:'black'}}>{stats.totalExecutives}</div>
+                <div className="stat-label" style={{color:'black'}}>Executives</div>
               </div>
               <div className="stat-card">
-                <div className="stat-value">{stats.totalTeamLeads}</div>
-                <div className="stat-label">Team Leads</div>
+                <div className="stat-value" style={{color:'black'}}>{stats.totalTeamLeads}</div>
+                <div className="stat-label" style={{color:'black'}}>Team Leads</div>
               </div>
             </div>
 

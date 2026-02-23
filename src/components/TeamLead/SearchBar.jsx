@@ -183,7 +183,6 @@ const SearchBar = ({ searchTerm, onSearchChange, onClear }) => {
         `}</style>
          <div className="search-section card">
       <div className="search-container">
-        <div className="search-icon">🔍</div>
         <input
           type="text"
           placeholder="Search by executive name or ID..."
