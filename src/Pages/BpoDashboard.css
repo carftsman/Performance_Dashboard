@@ -908,6 +908,7 @@
 .history-card {
   border-left: 4px solid #22c55e;
 }
+
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .executive-info-badge {
