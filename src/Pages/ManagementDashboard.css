@@ -285,6 +285,7 @@
   padding: 20px;
   background: #fff;
   flex: 1;
+  overflow-y: auto;
 }
 
 .mgr-modal-body--scrollable {
