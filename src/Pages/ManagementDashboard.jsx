@@ -26,10 +26,15 @@ const [showReportModal, setShowReportModal] = useState(false);
   const [confirmAction, setConfirmAction] = useState(null); // { type: 'ACCEPT'|'REJECT', request: obj }
   const [isProcessingRequest, setIsProcessingRequest] = useState(false);
 
+  // ── BPO Requests Feature State ────────────────────────────────────────────
+  const [bpoRequests, setBpoRequests] = useState([]);
+  const [requestViewMode, setRequestViewMode] = useState('EXECUTIVE'); // 'EXECUTIVE' | 'BPO'
+
   // Fetch all forms & requests
   useEffect(() => {
     fetchAllForms();
     fetchRequests();
+    fetchBpoRequests();
   }, []);
 
   const fetchAllForms = async () => {
@@ -68,6 +73,16 @@ const [showReportModal, setShowReportModal] = useState(false);
       setEditRequests(response || []);
     } catch (error) {
       console.error("Error fetching edit requests:", error);
+    }
+  };
+
+  const fetchBpoRequests = async () => {
+    try {
+      const response = await managerService.getBpoRequests();
+      console.log("get BPO requests from manager dashboard", response);
+      setBpoRequests(response || []);
+    } catch (error) {
+      console.error("Error fetching BPO edit requests:", error);
     }
   };
 
@@ -202,23 +217,40 @@ const [showReportModal, setShowReportModal] = useState(false);
     setIsProcessingRequest(true);
 
     try {
-      if (type === 'ACCEPT') {
-        await managerService.approveRequest(request.id);
-        alert("Request approved successfully.");
-      } else if (type === 'REJECT') {
-        await managerService.rejectRequest(request.id);
-        alert("Request rejected successfully.");
+      if (requestViewMode === 'EXECUTIVE') {
+        if (type === 'ACCEPT') {
+          await managerService.approveRequest(request.id);
+          alert("Request approved successfully.");
+        } else if (type === 'REJECT') {
+          await managerService.rejectRequest(request.id);
+          alert("Request rejected successfully.");
+        }
+      } else if (requestViewMode === 'BPO') {
+        if (type === 'ACCEPT') {
+          await managerService.approveBpoRequest(request.id, { approved: true });
+          alert("BPO Request approved successfully.");
+        } else if (type === 'REJECT') {
+          // Note: If backend doesn't support reject for BPO, you could alert or handle differently.
+          // Assuming reject is not fully supported for BPO yet based on provided APIs
+          alert("Rejection is not currently supported for BPO requests via the API.");
+          setIsProcessingRequest(false);
+          setConfirmAction(null);
+          return;
+        }
       }
 
       // Close confirm and detail modal
       setConfirmAction(null);
       setSelectedRequest(null);
+      
       // Refresh requests and forms
       fetchRequests();
+      fetchBpoRequests();
       fetchAllForms();
 
-      // Close list modal if no requests left
-      if (editRequests.length <= 1) {
+      // Close list modal if no requests left in current view tab
+      const currentListLength = requestViewMode === 'EXECUTIVE' ? editRequests.length : bpoRequests.length;
+      if (currentListLength <= 1) {
         setShowRequestsModal(false);
       }
     } catch (err) {
@@ -232,6 +264,7 @@ const [showReportModal, setShowReportModal] = useState(false);
   const handleRefresh = () => {
     fetchAllForms();
     fetchRequests();
+    fetchBpoRequests();
   };
 
   return (
@@ -260,7 +293,9 @@ const [showReportModal, setShowReportModal] = useState(false);
                 className="btn btn-requests" 
                 onClick={() => setShowRequestsModal(true)}
               >
-                Requests {editRequests.length > 0 && <span className="badge-notification">{editRequests.length}</span>}
+                Requests {(editRequests.length > 0 || bpoRequests.length > 0) && (
+                  <span className="badge-notification">{editRequests.length + bpoRequests.length}</span>
+                )}
               </button>
               <button 
                 onClick={handleRefresh} 
@@ -552,17 +587,33 @@ const [showReportModal, setShowReportModal] = useState(false);
           <div className="mgr-modal-overlay" onClick={() => setShowRequestsModal(false)}>
             <div className="mgr-list-modal" onClick={e => e.stopPropagation()}>
               <div className="mgr-modal-header">
-                <h2>Pending Edit Requests ({editRequests.length})</h2>
+                <h2>Pending Edit Requests ({requestViewMode === 'EXECUTIVE' ? editRequests.length : bpoRequests.length})</h2>
                 <button className="mgr-close-btn" onClick={() => setShowRequestsModal(false)}>×</button>
               </div>
               <div className="mgr-modal-body">
-                {editRequests.length === 0 ? (
+                {/* ── VIEW SWITCHER ── */}
+                <div className="mgr-requests-tabs">
+                  <button 
+                    className={`mgr-tab-btn ${requestViewMode === 'EXECUTIVE' ? 'active' : ''}`}
+                    onClick={() => setRequestViewMode('EXECUTIVE')}
+                  >
+                    Requests from Executives ({editRequests.length})
+                  </button>
+                  <button 
+                    className={`mgr-tab-btn ${requestViewMode === 'BPO' ? 'active' : ''}`}
+                    onClick={() => setRequestViewMode('BPO')}
+                  >
+                    Requests from BPO ({bpoRequests.length})
+                  </button>
+                </div>
+
+                {(requestViewMode === 'EXECUTIVE' ? editRequests : bpoRequests).length === 0 ? (
                   <div className="empty-state">
-                    <p>No pending edit requests.</p>
+                    <p>No pending edit requests for this category.</p>
                   </div>
                 ) : (
                   <div className="mgr-requests-grid">
-                    {editRequests.map(req => (
+                    {(requestViewMode === 'EXECUTIVE' ? editRequests : bpoRequests).map(req => (
                       <div 
                         key={req.id} 
                         className="mgr-request-card"
@@ -572,7 +623,12 @@ const [showReportModal, setShowReportModal] = useState(false);
                           <span className="mgr-req-title">{req.vendorShopName || 'Unnamed Shop'}</span>
                           <span className="mgr-req-date">{formatDate(req.createdAt)}</span>
                         </div>
-                        <div className="mgr-req-subtitle">Requested by: {req.executiveName}</div>
+                        <div className="mgr-req-subtitle">
+                          {requestViewMode === 'EXECUTIVE' 
+                            ? `Requested by: ${req.executiveName || 'Unknown'}` 
+                            : `Requested by BPO: ${req.bpoName || 'Unknown'}`
+                          }
+                        </div>
                       </div>
                     ))}
                   </div>
