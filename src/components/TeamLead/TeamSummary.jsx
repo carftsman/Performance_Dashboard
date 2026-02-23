@@ -16,25 +16,25 @@ const TeamSummary = ({
       label: 'Active Executives',
       value: executives.length,
       icon: '👥',
-      color: '#4a90e2'
+      color: 'white'
     },
     {
       label: 'Total Forms',
       value: totalForms,
       icon: '📋',
-      color: '#50c878'
+      color: 'white'
     },
     {
       label: 'Successful',
       value: successfulForms,
       icon: '✅',
-      color: '#28a745'
+      color: 'white'
     },
     {
       label: 'Not Interested',
       value: notInterestedForms,
       icon: '❌',
-      color: '#dc3545'
+      color: 'white'
     }
   ];
 
@@ -117,7 +117,7 @@ const TeamSummary = ({
   justify-content: center;
   font-size: 24px;
   font-weight: bold;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 14px rgba(235, 205, 205, 0.12);
 }
 
 /* Content */
@@ -130,12 +130,13 @@ const TeamSummary = ({
 .stat-label {
   font-size: 14px;
   font-weight: 600;
-  color: #666;
+  color:black;
 }
 
 .stat-value {
   font-size: 22px;
   font-weight: 800;
+  color:white;
 }
 
 /* Gradient Glow Effect */

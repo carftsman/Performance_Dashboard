@@ -10,89 +10,128 @@ const DashboardHeader = ({
   return (
     <>
       {/* CSS INSIDE COMPONENT */}
-      <style>{`
+      <style>
+        {`
         .header-card {
-          background: white;
-          border-radius: 12px;
-          padding: 20px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-          border: 1px solid #eee;
-          margin-bottom: 20px;
-        }
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border: 1px solid #eee;
+  margin-bottom: 20px;
+}
 
-        .header-content {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          flex-wrap: wrap;
-          gap: 15px;
-        }
+/* Layout */
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
 
-        .header-left h1 {
-          font-size: 24px;
-          font-weight: 700;
-          margin: 0;
-          color:black;
-          
-        }
+/* Left Title */
+.header-left h1 {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  color: #111827;
+}
 
-        .text-muted {
-          color: black;
-          font-size: 14px;
-        }
+.text-muted {
+  color: #6b7280;
+  font-size: 14px;
+}
 
-        .header-actions {
-          display: flex;
-          gap: 10px;
-          flex-wrap: wrap;
-        }
+/* Buttons */
+.header-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
 
-        .btn {
-          padding: 8px 14px;
-          border-radius: 6px;
-          border: none;
-          cursor: pointer;
-          font-size: 14px;
-          font-weight: 500;
-        }
+.btn {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: transform 0.15s ease;
+}
 
-        .btn-success {
-          background: #28a745;
-          color: white;
-        }
+.btn-success {
+  background: #16a34a;
+  color: white;
+}
 
-        .btn-secondary {
-          background: #6c757d;
-          color: white;
-        }
+.btn-secondary {
+  background: #6b7280;
+  color: white;
+}
 
-        .btn-primary {
-          background: #007bff;
-          color: white;
-        }
+.btn-primary {
+  background: #2563eb;
+  color: white;
+}
 
-        .btn:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-        }
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
-        @media (max-width: 768px) {
-          .header-content {
-            flex-direction: column;
-            align-items: flex-start;
-          }
+/* Small hover scale (optional remove if you want no hover) */
+.btn:hover:not(:disabled) {
+  transform: scale(1.03);
+}
 
-          .header-actions {
-            width: 100%;
-            flex-direction: column;
-          }
+/* ================= RESPONSIVE ================= */
 
-          .btn {
-            width: 100%;
-          }
-        }
-      `}</style>
+/* Tablets */
+@media (max-width: 1024px) {
+  .header-left h1 {
+    font-size: 20px;
+  }
 
+  .btn {
+    font-size: 13px;
+    padding: 7px 12px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Extra Small Mobile */
+@media (max-width: 480px) {
+  .header-card {
+    padding: 14px;
+  }
+
+  .header-left h1 {
+    font-size: 18px;
+  }
+
+  .text-muted {
+    font-size: 12px;
+  }
+}`}
+      </style>
       {/* HEADER UI */}
       <div className="card header-card">
         <div className="header-content">
