@@ -3,7 +3,7 @@ import api from "./api.service";
 
 export const formService = {
   getAllForms: () =>
-    api.get("/api/form"),
+    api.get("/api/data/form"),
 
   createForm: (payload) =>
     api.post("/api/form", payload),

@@ -241,12 +241,16 @@ const [showReportModal, setShowReportModal] = useState(false);
           <div className="header-content">
             <div>
               <h1>Admin Dashboard</h1>
-              {/* <p className="text-muted">
-                Consolidated view of all field operations • {forms.length} total entries
-              </p> */}
             </div>
              
             <div className="header-actions">
+               <button 
+                  className="btn btn-success" 
+                  onClick={() => setShowReportModal(true)}
+                  disabled={loading}
+                >
+                  📊 Generate Report
+            </button>
               <button 
                 onClick={handleRefresh} 
                 className="btn btn-primary" 
@@ -329,13 +333,7 @@ const [showReportModal, setShowReportModal] = useState(false);
                   <option value="month">Last 30 Days</option>
                 </select>
 
-                  <button 
-        className="btn btn-success" 
-        onClick={() => setShowReportModal(true)}
-        disabled={loading}
-      >
-        📊 Generate Report
-      </button>
+                 
                 {(searchTerm || statusFilter !== 'all' || teamFilter !== 'all' || dateRange !== 'all') && (
                   <button 
                     onClick={() => {
