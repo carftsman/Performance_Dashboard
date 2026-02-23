@@ -499,6 +499,16 @@
   position: relative;
 }
 
+.bpo-btn-ghost.has-requests {
+  border-color: var(--bpo-error);
+  color: var(--bpo-error);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.bpo-btn-ghost.has-requests:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
 .bpo-badge-count {
   position: absolute;
   top: -8px;

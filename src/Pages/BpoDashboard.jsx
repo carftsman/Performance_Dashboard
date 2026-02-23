@@ -343,17 +343,15 @@ const matchesVendorType =
             >
               📜 View History
             </button>
-            {approvedRequests.length > 0 && (
-              <div className="bpo-approved-badge-container">
-                <button 
-                  className="bpo-btn-ghost"
-                  onClick={() => setShowApprovedModal(true)}
-                >
-                  📋 Approved Requests
-                </button>
-                <span className="bpo-badge-count">{approvedRequests.length}</span>
-              </div>
-            )}
+            <div className="bpo-approved-badge-container">
+              <button 
+                className={`bpo-btn-ghost ${approvedRequests.length > 0 ? 'has-requests' : ''}`}
+                onClick={() => setShowApprovedModal(true)}
+              >
+                📋 Approved Requests
+              </button>
+              <span className="bpo-badge-count">{approvedRequests.length}</span>
+            </div>
             <button className="refresh-btn" onClick={() => { fetchForms(); fetchApprovedRequests(); }}>
               {Icons.refresh} Refresh
             </button>
@@ -618,21 +616,15 @@ const matchesVendorType =
         {showReviewModal && selectedFormForReview && (
           <div className="modal-overlay" onClick={handleCloseReviewModal}>
             <div
-              className="modal-content review-modal"
+              className="bpo-modal-container review-modal-container"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="modal-header">
-                <div>
-                  <h2>Submit Review</h2>
-                  <p className="modal-subtitle">
-                    Form #{selectedFormForReview.id} - {selectedFormForReview.vendorShopName}
-                  </p>
-                   <div className="executive-info-badge">
-      <span className="executive-label">Executive:</span>
-      <span className="executive-name">{selectedFormForReview.executiveName || 'Not Assigned'}</span>
-    </div>
+              <div className="bpo-modal-header">
+                <div className="modal-header-info">
+                  <h2>Submit Manual Review</h2>
+                  <p>Form #{selectedFormForReview.id} — {selectedFormForReview.vendorShopName}</p>
                 </div>
-                <button className="close-btn" onClick={handleCloseReviewModal}>×</button>
+                <button className="bpo-modal-close" onClick={handleCloseReviewModal}>×</button>
               </div>
 
               <div className="modal-body">
@@ -793,29 +785,20 @@ const matchesVendorType =
                 )}
               </div>
 
-              <div className="modal-actions review-actions">
+              <div className="bpo-modal-footer">
                 <button 
-                  className="btn-secondary"
+                  className="bpo-btn-ghost"
                   onClick={handleCloseReviewModal}
                   disabled={isSubmitting}
                 >
                   Cancel
                 </button>
                 <button 
-                  className="btn-primary submit-btn"
+                  className="bpo-btn-primary"
                   onClick={handleReviewSubmit}
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? (
-                    <>
-                      <span className="loading-spinner-small"></span>
-                      Submitting...
-                    </>
-                  ) : (
-                    <>
-                      {Icons.submit} Submit Review
-                    </>
-                  )}
+                  {isSubmitting ? "Submitting..." : "Submit BPO Review"}
                 </button>
               </div>
             </div>

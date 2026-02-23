@@ -147,6 +147,7 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import MainLayout from "../components/common/Layout/MainLayout";
 import { 
   FiSearch, 
@@ -177,6 +178,7 @@ function BpoHistory() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("");
+  const navigate = useNavigate();
 
   const fetchHistory = async () => {
     try {
@@ -473,12 +475,14 @@ function BpoHistory() {
                   className="btn-request"
                   onClick={handleRequestManager}
                   disabled={submitting}
+                  style={{ flex: 1 }}
                 >
-                  <FiSend /> {submitting ? "Sending Request..." : "Submit to Manager"}
+                  {submitting ? "Sending Request..." : "Submit to Manager"}
                 </button>
                 <button 
                   className="btn-cancel"
                   onClick={() => { setSelectedForm(null); setBpoReason(""); }}
+                  style={{ flex: 1 }}
                 >
                   Close
                 </button>
