@@ -286,10 +286,51 @@ function BpoHistory() {
         {/* Header Section */}
         <div className="history-header">
           <div className="header-title">
-            <h1>BPO Request History</h1>
-            <p>View and manage all BPO submissions</p>
+            <button 
+              className="back-btn" 
+              onClick={() => navigate("/bpo-dashboard")}
+              style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}
+            >
+              ← Back to Dashboard
+            </button>
+            <h1>BPO Submission History</h1>
+            <p>View and manage all your historical submissions ({historyForms.length} total)</p>
           </div>
-         
+        </div>
+
+        {/* Filters Section */}
+        <div className="filters-section">
+          <div className="search-box">
+            <FiSearch className="search-icon" />
+            <input
+              type="text"
+              placeholder="Global Search: Shop, Vendor, Executive..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          <div className="filter-group">
+            <div className="filter-select">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="all">All Statuses</option>
+                <option value="interested">INTERESTED</option>
+                <option value="not_interested">NOT INTERESTED</option>
+                <option value="pending">PENDING</option>
+              </select>
+            </div>
+
+            <div className="filter-date">
+              <input
+                type="date"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+              />
+            </div>
+          </div>
         </div>
         {/* Content Section */}
         {loading ? (
@@ -313,7 +354,7 @@ function BpoHistory() {
               >
                 <div className="card-header">
                   <div className="shop-info">
-                    <h3>{form.vendorShopName}</h3>
+                    <h3>{form.vendorShopName || "Unnamed Shop"}</h3>
                     <span className={getStatusClass(form.status)}>
                       {getStatusIcon(form.status)}
                       {form.status?.replace('_', ' ') || 'Unknown'}
@@ -324,40 +365,21 @@ function BpoHistory() {
                 <div className="card-body">
                   <div className="info-row">
                     <FiUser className="info-icon" />
-                    <div className="info-content">
-                      <span className="info-label">Vendor</span>
-                      <span className="info-value">{form.vendorName}</span>
-                    </div>
+                    <span className="info-value">{form.vendorName}</span>
                   </div>
 
                   <div className="info-row">
                     <FiBriefcase className="info-icon" />
-                    <div className="info-content">
-                      <span className="info-label">Executive</span>
-                      <span className="info-value">{form.executiveName}</span>
-                    </div>
-                  </div>
-
-                  <div className="reviews">
-                    <div className="review-item">
-                      <span className="review-label">Vendor Review</span>
-                      <p className="review-text">{form.vendorReview || 'No review'}</p>
-                    </div>
-                    
-                    <div className="review-item">
-                      <span className="review-label">Executive Review</span>
-                      <p className="review-text">{form.executiveReview || 'No review'}</p>
-                    </div>
+                    <span className="info-value">{form.executiveName}</span>
                   </div>
 
                   <div className="card-footer">
                     <div className="team-info">
-                      <span className="team-label">Team Lead:</span>
-                      <span className="team-value">{form.teamleadName}</span>
+                      <span className="team-value">{form.areaName || "N/A"}</span>
                     </div>
                     <div className="view-details">
                       <FiEye className="view-icon" />
-                      <span>Click to Request</span>
+                      <span>Details / Request</span>
                     </div>
                   </div>
                 </div>
@@ -368,7 +390,7 @@ function BpoHistory() {
 
         {/* Modal */}
         {selectedForm && (
-          <div className="modal-overlay" onClick={() => setSelectedForm(null)}>
+          <div className="modal-overlay" onClick={() => { setSelectedForm(null); setBpoReason(""); }}>
             <div className="modal-container" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
                 <div className="modal-title">
@@ -378,47 +400,67 @@ function BpoHistory() {
                     {selectedForm.status}
                   </span>
                 </div>
-                <button className="modal-close" onClick={() => setSelectedForm(null)}>
-                  ×
-                </button>
+                <button className="modal-close" onClick={() => { setSelectedForm(null); setBpoReason(""); }}>×</button>
               </div>
 
               <div className="modal-body">
-                <div className="detail-grid">
-                  <div className="detail-item">
-                    <span className="detail-label">Vendor Name</span>
-                    <span className="detail-value">{selectedForm.vendorName}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Executive Name</span>
-                    <span className="detail-value">{selectedForm.executiveName}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Team Lead</span>
-                    <span className="detail-value">{selectedForm.teamleadName}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Submitted Date</span>
-                    <span className="detail-value">{formatDate(selectedForm.createdAt)}</span>
+                {/* Information Sections (Synced with Dashboard) */}
+                <div className="reviews-section">
+                  <h4>🏢 Core Details</h4>
+                  <div className="detail-grid">
+                    <div className="detail-item">
+                      <span className="detail-label">Vendor Name</span>
+                      <span className="detail-value">{selectedForm.vendorName}</span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Contact</span>
+                      <span className="detail-value">{selectedForm.contactNumber}</span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Executive</span>
+                      <span className="detail-value">{selectedForm.executiveName}</span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Team Lead</span>
+                      <span className="detail-value">{selectedForm.teamleadName}</span>
+                    </div>
                   </div>
                 </div>
 
                 <div className="reviews-section">
-                  <h4>Reviews</h4>
+                  <h4>📍 Location & Address</h4>
                   <div className="review-box">
-                    <span className="review-box-label">Vendor Review</span>
-                    <p>{selectedForm.vendorReview || 'No review provided'}</p>
-                  </div>
-                  <div className="review-box">
-                    <span className="review-box-label">Executive Review</span>
-                    <p>{selectedForm.executiveReview || 'No review provided'}</p>
+                    <p>{selectedForm.doorNumber}, {selectedForm.streetName}, {selectedForm.areaName}, {selectedForm.state} - {selectedForm.pinCode}</p>
+                    <p style={{ marginTop: '8px', fontSize: '0.85rem', color: '#64748b' }}>
+                      Mapped Location: {selectedForm.vendorLocation || "N/A"}
+                    </p>
                   </div>
                 </div>
 
+                <div className="reviews-section">
+                  <h4>💬 Review History</h4>
+                  {selectedForm.executiveReview && (
+                    <div className="review-box">
+                      <span className="review-box-label">Executive Review</span>
+                      <p>{selectedForm.executiveReview}</p>
+                    </div>
+                  )}
+                  {selectedForm.vendorReview && (
+                    <div className="review-box">
+                      <span className="review-box-label">Vendor Review</span>
+                      <p>{selectedForm.vendorReview}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Manager Request Section */}
                 <div className="request-section">
-                  <h4>Request Manager fro form resend</h4>
+                  <h4>⚠️ Request Manager for Resubmission</h4>
+                  <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '12px' }}>
+                    If this form needs to be re-edited and resubmitted, enter the reason clearly for manager approval.
+                  </p>
                   <textarea
-                    placeholder="Enter detailed reason for requesting manager review..."
+                    placeholder="e.g., Vendor changed contact number, address needs correction..."
                     value={bpoReason}
                     onChange={(e) => setBpoReason(e.target.value)}
                     rows={4}
@@ -432,20 +474,13 @@ function BpoHistory() {
                   onClick={handleRequestManager}
                   disabled={submitting}
                 >
-                  {submitting ? (
-                    <>Processing...</>
-                  ) : (
-                    <>
-                      <FiSend />
-                     Resend Request
-                    </>
-                  )}
+                  <FiSend /> {submitting ? "Sending Request..." : "Submit to Manager"}
                 </button>
                 <button 
                   className="btn-cancel"
-                  onClick={() => setSelectedForm(null)}
+                  onClick={() => { setSelectedForm(null); setBpoReason(""); }}
                 >
-                  Cancel
+                  Close
                 </button>
               </div>
             </div>

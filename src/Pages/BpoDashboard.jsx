@@ -328,92 +328,88 @@ const matchesVendorType =
   return (
     <MainLayout>
       <div className="bpo-dashboard">
-        {/* Header with Stats */}
+        {/* Header Section */}
         <div className="dashboard-header">
-  <div>
-    <h1>BPO Forms Management</h1>
-    <p>Manage and track all vendor forms</p>
-  </div>
+          <div className="header-title-group">
+            <h1>BPO Performance Dashboard</h1>
+            <p>Manage and review vendor submissions ({forms.length} total)</p>
+          </div>
 
-  <div className="header-stats">
-    <span className="stat-badge">Total: {stats.total}</span>
-    <span className="stat-badge">Interested: {stats.interested}</span>
-    <span className="stat-badge">Onboarded: {stats.onboarded}</span>
-  </div>
-
-  <div className="header-actions">
-    <button
-      className="history-btn"
-      onClick={() => navigate("/bpo-history")}
-    >
-      📜 View History
-    </button>
-    <button 
-      className="history-btn" 
-      onClick={() => setShowApprovedModal(true)}
-      style={{ position: 'relative' }}
-    >
-      ✅ Approved Requests
-      {approvedRequests.length > 0 && (
-        <span className="stat-badge" style={{ position: 'absolute', top: '-10px', right: '-10px', background: '#ef4444', color: 'white', padding: '2px 6px', fontSize: '0.7rem' }}>
-          {approvedRequests.length}
-        </span>
-      )}
-    </button>
-
-    <button className="refresh-btn" onClick={() => { fetchForms(); fetchApprovedRequests(); }}>
-      ⟳ Refresh
-    </button>
-  </div>
-</div>
+          <div className="header-actions">
+            <button
+              className="back-btn"
+              onClick={() => navigate("/bpo-history")}
+              style={{ marginRight: '8px' }}
+            >
+              📜 View History
+            </button>
+            {approvedRequests.length > 0 && (
+              <div className="bpo-approved-badge-container">
+                <button 
+                  className="bpo-btn-ghost"
+                  onClick={() => setShowApprovedModal(true)}
+                >
+                  📋 Approved Requests
+                </button>
+                <span className="bpo-badge-count">{approvedRequests.length}</span>
+              </div>
+            )}
+            <button className="refresh-btn" onClick={() => { fetchForms(); fetchApprovedRequests(); }}>
+              {Icons.refresh} Refresh
+            </button>
+          </div>
+        </div>
 
         {/* Search and Filter */}
-       <div className="filter-bar">
+      <div className="filter-bar">
+        <div className="search-input-wrapper">
+          <div className="search-icon">{Icons.search}</div>
+          <input
+            type="text"
+            placeholder="Search by shop name, owner, or ID..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
 
-  {/* Global Search */}
-  <input
-    type="text"
-    placeholder="🔍 Search by Shop, Vendor, Location, ID, or Executive..."
-    value={searchTerm}
-    onChange={(e) => setSearchTerm(e.target.value)}
-  />
+        <select
+          className="filter-select"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          <option value="ALL">All Statuses</option>
+          <option value="INTERESTED">INTERESTED</option>
+          <option value="NOT_INTERESTED">NOT INTERESTED</option>
+          <option value="ONBOARDED">ONBOARDED</option>
+          <option value="PENDING">PENDING</option>
+        </select>
 
-  {/* Status Filter */}
-  <select
-    value={statusFilter}
-    onChange={(e) => setStatusFilter(e.target.value)}
-  >
-    <option>All Status</option>
-    <option>INTERESTED</option>
-    <option>NOT_INTERESTED</option>
-    <option>ONBOARDED</option>
-  </select>
+        <select
+          className="filter-select"
+          value={locationFilter}
+          onChange={(e) => setLocationFilter(e.target.value)}
+        >
+          <option value="All Locations">All Locations</option>
+          {uniqueLocations.map((location, index) => (
+            <option key={index} value={location}>
+              {location}
+            </option>
+          ))}
+        </select>
 
-  {/* Location Dropdown */}
-  <select
-    value={locationFilter}
-    onChange={(e) => setLocationFilter(e.target.value)}
-  >
-    <option>All Locations</option>
-    {uniqueLocations.map((location, index) => (
-      <option key={index} value={location}>
-        {location}
-      </option>
-    ))}
-  </select>
-{/* Vendor Type Dropdown */}
-<select
-  value={vendorTypeFilter}
-  onChange={(e) => setVendorTypeFilter(e.target.value)}
->
-  <option>All Types</option>
-  {uniqueVendorTypes.map((type, index) => (
-    <option key={index} value={type}>
-      {type}
-    </option>
-  ))}
-</select>
-</div>
+        <select
+          className="filter-select"
+          value={vendorTypeFilter}
+          onChange={(e) => setVendorTypeFilter(e.target.value)}
+        >
+          <option value="All Types">All Types</option>
+          {uniqueVendorTypes.map((type, index) => (
+            <option key={index} value={type}>
+              {type}
+            </option>
+          ))}
+        </select>
+      </div>
         {/* Loading State */}
         {loading && (
           <div className="loading-container">
@@ -444,67 +440,29 @@ const matchesVendorType =
               filteredForms.map((form) => (
                 <div
                   key={form.id}
-                  className="form-card"
+                  className="bpo-card-compact"
                   onClick={() => handleViewDetails(form)}
                 >
-                  <div className="card-header">
-                    <span>#{form.id}</span>
-                    <span className={`status ${form.status}`}>
-                      {form.status}
+                  <div className="card-top">
+                    <div className="card-id">#{form.id}</div>
+                    <span className={`status-badge status--${form.status?.toLowerCase().replace('_', '-')}`}>
+                      {form.status?.replace('_', ' ')}
                     </span>
                   </div>
 
-                  <h3>{form.vendorShopName || "Unnamed Shop"}</h3>
-                  
-                  <div className="form-details">
-                    <div className="detail-row">
-                      <span className="detail-icon">{Icons.owner}</span>
-                      <span className="detail-label">Owner:</span>
-                      <span className="detail-value">{form.vendorName}</span>
-                    </div>
-                    
-                    <div className="detail-row">
-                      <span className="detail-icon">{Icons.location}</span>
-                      <span className="detail-label">Location:</span>
-                      <span className="detail-value">{form.vendorLocation}</span>
-                    </div>
-                    <div className="detail-row">
-  <span className="detail-icon">🏷️</span>
-  <span className="detail-label">Type:</span>
-  <span className="detail-value">{form.vendorType}</span>
-</div>
-                    <div className="detail-row">
-                      <span className="detail-icon">{Icons.executive}</span>
-                      <span className="detail-label">Executive:</span>
-                      <span className="detail-value">{form.executiveName}</span>
-                    </div>
-                    
-                    <div className="detail-row">
-                      <span className="detail-icon">{Icons.teamlead}</span>
-                      <span className="detail-label">Team Lead:</span>
-                      <span className="detail-value">{form.teamleadName}</span>
-                    </div>
-                    
-                    <div className="detail-row">
-                      <span className="detail-icon">{Icons.calendar}</span>
-                      <span className="detail-label">Date:</span>
-                      <span className="detail-value">
-                        {new Date(form.createdAt).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric'
-                        })}
-                      </span>
-                    </div>
+                  <h3 className="card-title">{form.vendorShopName || "Unnamed Shop"}</h3>
+                  <div className="card-subtitle">
+                    <span>👤 {form.vendorName}</span>
                   </div>
 
-                  {/* Review Button */}
-                  <button 
-                    className="review-btn"
-                    onClick={(e) => handleOpenReviewModal(form, e)}
-                  >
-                    {Icons.review} Add Review
-                  </button>
+                  <div className="card-meta">
+                    <div className="meta-item">
+                      <span>📍 {form.areaName || form.vendorLocation?.split(',')[0]}</span>
+                    </div>
+                    <div className="meta-item">
+                      <span>📅 {new Date(form.createdAt).toLocaleDateString()}</span>
+                    </div>
+                  </div>
                 </div>
               ))
             )}
@@ -513,70 +471,142 @@ const matchesVendorType =
 
         {/* View Details Modal */}
         {selectedForm && (
-          <div className="modal-overlay" onClick={() => setSelectedForm(null)}>
-            <div
-              className="modal-content"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="modal-header">
-                <h2>Form Details #{selectedForm.id}</h2>
-                <button className="close-btn" onClick={() => setSelectedForm(null)}>×</button>
+          <div className="bpo-modal-overlay" onClick={() => setSelectedForm(null)}>
+            <div className="bpo-modal-container" onClick={(e) => e.stopPropagation()}>
+              <div className="bpo-modal-header">
+                <div className="modal-header-info">
+                  <h2>{selectedForm.vendorShopName || "Unnamed Shop"}</h2>
+                  <p>Form ID: #{selectedForm.id} • Submitted on {new Date(selectedForm.createdAt).toLocaleDateString()}</p>
+                </div>
+                <button className="bpo-modal-close" onClick={() => setSelectedForm(null)}>×</button>
               </div>
 
-              <div className="modal-body">
-                <div className="modal-field">
-                  <span className="modal-label">Shop Information</span>
-                  <div className="modal-value">
-                    <strong>{selectedForm.vendorShopName}</strong>
+              <div className="bpo-modal-body">
+                {/* Core Details Section */}
+                <div className="detail-section">
+                  <div className="detail-section-title">🏢 Core Vendor Details</div>
+                  <div className="detail-grid">
+                    <div className="detail-field">
+                      <label>Owner Name</label>
+                      <div className="value">{selectedForm.vendorName}</div>
+                    </div>
+                    <div className="detail-field">
+                      <label>Vendor Type</label>
+                      <div className="value">{selectedForm.vendorType || "N/A"}</div>
+                    </div>
+                    <div className="detail-field">
+                      <label>Contact Number</label>
+                      <div className="value">{selectedForm.contactNumber}</div>
+                    </div>
+                    <div className="detail-field">
+                      <label>Email Address</label>
+                      <div className="value">{selectedForm.mailId || "N/A"}</div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="modal-field">
-                  <span className="modal-label">Owner Details</span>
-                  <div className="modal-value">
-                    {selectedForm.vendorName} | {selectedForm.contactNumber}
+                {/* Address Section */}
+                <div className="detail-section">
+                  <div className="detail-section-title">📍 Address & Location</div>
+                  <div className="detail-grid">
+                    <div className="detail-field detail-field--full">
+                      <label>Complete Address</label>
+                      <div className="value">
+                        {selectedForm.doorNumber}, {selectedForm.streetName}, {selectedForm.areaName}, {selectedForm.state} - {selectedForm.pinCode}
+                      </div>
+                    </div>
+                    <div className="detail-field">
+                      <label>Mapped Location</label>
+                      <div className="value">{selectedForm.vendorLocation || "N/A"}</div>
+                    </div>
+                    <div className="detail-field">
+                      <label>Coordinates (Lat/Long)</label>
+                      <div className="value">
+                        {selectedForm.latitude && selectedForm.longitude ? `${selectedForm.latitude}, ${selectedForm.longitude}` : "N/A"}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="modal-field">
-                  <span className="modal-label">Email</span>
-                  <div className="modal-value">{selectedForm.mailId}</div>
-                </div>
-
-                <div className="modal-field">
-                  <span className="modal-label">Complete Address</span>
-                  <div className="address-block">
-                    {selectedForm.doorNumber}, {selectedForm.streetName}<br />
-                    {selectedForm.areaName}, {selectedForm.state}<br />
-                    PIN: {selectedForm.pinCode}
+                {/* Team Section */}
+                <div className="detail-section">
+                  <div className="detail-section-title">👥 Assignment Hierarchy</div>
+                  <div className="detail-grid">
+                    <div className="detail-field">
+                      <label>Executive Name</label>
+                      <div className="value">{selectedForm.executiveName}</div>
+                    </div>
+                    <div className="detail-field">
+                      <label>Team Lead</label>
+                      <div className="value">{selectedForm.teamleadName}</div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="modal-field">
-                  <span className="modal-label">Review</span>
-                  <div className="modal-value">{selectedForm.review}</div>
-                </div>
-
-                <div className="modal-field">
-                  <span className="modal-label">Status</span>
-                  <div className="modal-value">
-                    <span className={`status ${selectedForm.status}`}>
-                      {selectedForm.status}
-                    </span>
+                {/* Status Section */}
+                <div className="detail-section">
+                  <div className="detail-section-title">📊 Status & Tags</div>
+                  <div className="detail-grid">
+                    <div className="detail-field">
+                      <label>Current Status</label>
+                      <div className="value">
+                        <span className={`status-badge status--${selectedForm.status?.toLowerCase().replace('_', '-')}`}>
+                          {selectedForm.status}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="detail-field">
+                      <label>Priority Tag</label>
+                      <div className="value">{selectedForm.tag || "NONE"}</div>
+                    </div>
                   </div>
                 </div>
 
-                {selectedForm.tag && (
-                  <div className="modal-field">
-                    <span className="modal-label">Tag</span>
-                    <div className="modal-value">{selectedForm.tag}</div>
+                {/* Reviews Section */}
+                {(selectedForm.executiveReview || selectedForm.vendorReview || selectedForm.review) && (
+                  <div className="detail-section">
+                    <div className="detail-section-title">💬 Review History</div>
+                    <div className="detail-grid">
+                      {selectedForm.executiveReview && (
+                        <div className="detail-field detail-field--full">
+                          <div className="review-card">
+                            <span className="author">Executive Review</span>
+                            <p>"{selectedForm.executiveReview}"</p>
+                          </div>
+                        </div>
+                      )}
+                      {selectedForm.vendorReview && (
+                        <div className="detail-field detail-field--full">
+                          <div className="review-card">
+                            <span className="author">Vendor Review</span>
+                            <p>"{selectedForm.vendorReview}"</p>
+                          </div>
+                        </div>
+                      )}
+                      {selectedForm.review && (
+                        <div className="detail-field detail-field--full">
+                          <div className="review-card">
+                            <span className="author">Manager/BPO Comments</span>
+                            <p>"{selectedForm.review}"</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
 
-              <div className="modal-actions">
-
-                <button className="close-modal-btn" onClick={() => setSelectedForm(null)}>
+              <div className="bpo-modal-footer">
+                <button 
+                  className="bpo-btn-primary"
+                  onClick={(e) => {
+                    setSelectedForm(null);
+                    handleOpenReviewModal(selectedForm, e);
+                  }}
+                >
+                  ✎ Add Manual Review
+                </button>
+                <button className="bpo-btn-ghost" onClick={() => setSelectedForm(null)}>
                   Close
                 </button>
               </div>
