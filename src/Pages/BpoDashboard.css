@@ -494,6 +494,34 @@
   border-color: var(--bpo-primary-light);
 }
 
+/* ── APPROVED REQUESTS BUTTON & BADGE ──────────────────────────────────── */
+.bpo-approved-badge-container {
+  position: relative;
+}
+
+.bpo-btn-ghost.has-requests {
+  border-color: var(--bpo-error);
+  color: var(--bpo-error);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.bpo-btn-ghost.has-requests:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.bpo-badge-count {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: var(--bpo-error);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 10px;
+  border: 2px solid white;
+}
+
 /* ── APPROVED REQUESTS MODAL ────────────────────────────────────────── */
 .bpo-modal--resubmission .bpo-modal-container {
   max-width: 900px;
