@@ -585,43 +585,142 @@ const [showReportModal, setShowReportModal] = useState(false);
           <div className="mgr-modal-overlay mgr-modal-overlay--detail" onClick={() => setSelectedRequest(null)}>
             <div className="mgr-detail-modal" onClick={e => e.stopPropagation()}>
               <div className="mgr-modal-header">
-                <h2>Request Details</h2>
+                <h2>Request Details: {selectedRequest.vendorShopName || 'Unnamed Shop'}</h2>
                 <button className="mgr-close-btn" onClick={() => setSelectedRequest(null)}>×</button>
               </div>
               <div className="mgr-modal-body mgr-modal-body--scrollable">
-                <div className="mgr-detail-group">
-                  <label>Shop Name</label>
-                  <p>{selectedRequest.vendorShopName || 'N/A'}</p>
+
+                <div className="mgr-detail-section">
+                  <h4 style={{ margin: '0 0 12px 0', color: '#334155' }}>Core Information</h4>
+                  <div className="mgr-detail-grid">
+                    <div className="mgr-detail-group">
+                      <label>ID</label>
+                      <p>#{selectedRequest.id}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Created At</label>
+                      <p>{formatDate(selectedRequest.createdAt)}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Status</label>
+                      <p>{selectedRequest.status || 'N/A'}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Tag</label>
+                      <p>{selectedRequest.tag || 'N/A'}</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="mgr-detail-group">
-                  <label>Executive Name</label>
-                  <p>{selectedRequest.executiveName || 'N/A'}</p>
+
+                <div className="mgr-detail-section">
+                  <h4 style={{ margin: '0 0 12px 0', color: '#334155' }}>Vendor Details</h4>
+                  <div className="mgr-detail-grid">
+                    <div className="mgr-detail-group">
+                      <label>Owner Name</label>
+                      <p>{selectedRequest.vendorName || 'N/A'}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Vendor Type</label>
+                      <p>{selectedRequest.vendorType || 'N/A'}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Contact Number</label>
+                      <p>{selectedRequest.contactNumber || 'N/A'}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Mail ID</label>
+                      <p>{selectedRequest.mailId || 'N/A'}</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="mgr-detail-group">
-                  <label>Team Lead</label>
-                  <p>{selectedRequest.teamleadName || 'N/A'}</p>
+
+                <div className="mgr-detail-section">
+                  <h4 style={{ margin: '0 0 12px 0', color: '#334155' }}>Location Information</h4>
+                  <div className="mgr-detail-grid">
+                    <div className="mgr-detail-group">
+                      <label>Door Number</label>
+                      <p>{selectedRequest.doorNumber || 'N/A'}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Street Name</label>
+                      <p>{selectedRequest.streetName || 'N/A'}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Area Name</label>
+                      <p>{selectedRequest.areaName || 'N/A'}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>State & PIN</label>
+                      <p>{selectedRequest.state || 'N/A'} {selectedRequest.pinCode || ''}</p>
+                    </div>
+                    <div className="mgr-detail-group" style={{ gridColumn: '1 / -1' }}>
+                      <label>Map Coordinates</label>
+                      <p>{selectedRequest.vendorLocation || 'N/A'}</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="mgr-detail-group">
-                  <label>Contact Number</label>
-                  <p>{selectedRequest.contactNumber || 'N/A'}</p>
+
+                <div className="mgr-detail-section">
+                  <h4 style={{ margin: '0 0 12px 0', color: '#334155' }}>Hierarchy & Organization</h4>
+                  <div className="mgr-detail-grid">
+                    <div className="mgr-detail-group">
+                      <label>Executive Name</label>
+                      <p>{selectedRequest.executiveName || `ID: ${selectedRequest.executiveId}`}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Team Lead</label>
+                      <p>{selectedRequest.teamleadName || `ID: ${selectedRequest.teamleadId}`}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Assigned BPO</label>
+                      <p>{selectedRequest.bpoName || 'N/A'}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Solved Status</label>
+                      <p>{selectedRequest.solved !== null ? (selectedRequest.solved ? 'Yes' : 'No') : 'N/A'}</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="mgr-detail-group">
-                  <label>Status Requirement</label>
-                  <p>{selectedRequest.review || 'N/A'}</p>
+
+                <div className="mgr-detail-section">
+                  <h4 style={{ margin: '0 0 12px 0', color: '#334155' }}>Reviews & Request Intel</h4>
+                  <div className="mgr-detail-grid" style={{ gridTemplateColumns: '1fr' }}>
+                    <div className="mgr-detail-group">
+                      <label style={{ color: '#ef4444' }}>Edit Resend Reason (from Executive)</label>
+                      <p style={{ borderColor: '#ef4444', backgroundColor: '#fef2f2' }}>{selectedRequest.resendReason || 'N/A'}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Manager Review</label>
+                      <p>{selectedRequest.review || 'N/A'}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Executive Review</label>
+                      <p>{selectedRequest.executiveReview || 'N/A'}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Vendor Review</label>
+                      <p>{selectedRequest.vendorReview || 'N/A'}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>BPO Reason / Note</label>
+                      <p>{selectedRequest.bpoReason || 'N/A'}</p>
+                    </div>
+                  </div>
                 </div>
+
               </div>
               <div className="mgr-modal-footer">
                 <button 
                   className="btn btn-danger" 
                   onClick={() => handleRequestAction('REJECT', selectedRequest)}
                 >
-                  Reject
+                  Reject Edit Request
                 </button>
                 <button 
                   className="btn btn-success" 
                   onClick={() => handleRequestAction('ACCEPT', selectedRequest)}
                 >
-                  Accept
+                  Approve Edit Request
                 </button>
               </div>
             </div>
