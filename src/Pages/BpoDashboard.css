@@ -1063,6 +1063,373 @@
   }
 }
 
+/* ────────────────────────────────────────────────────────
+   APPROVED REQUESTS TABS & LIST MODAL
+   ──────────────────────────────────────────────────────── */
+
+/* Base Overlay */
+.bpo-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: overlayFade 0.2s ease;
+}
+
+.bpo-modal-overlay--edit {
+  z-index: 1050; /* Higher than list modal */
+}
+
+/* Modals */
+.bpo-modal {
+  background: #ffffff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 550px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  animation: modalSlide 0.3s ease;
+  overflow: hidden;
+}
+
+.bpo-modal--large {
+  max-width: 800px;
+}
+
+/* Modal Headers */
+.bpo-modal-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  flex-shrink: 0;
+}
+
+.bpo-modal-header-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bpo-modal-title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.bpo-modal-subtitle {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.bpo-modal-close {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 4px; border-radius: 4px;
+}
+
+.bpo-modal-close:hover {
+  color: #ef4444;
+  background: #fef2f2;
+}
+
+/* Modal Body */
+.bpo-modal-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.bg-slate-50 {
+  background-color: #f8fafc;
+}
+
+/* Empty State inside Modal */
+.bpo-empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.bpo-empty-state-icon {
+  font-size: 3rem;
+  opacity: 0.5;
+}
+
+.bpo-empty-state-title {
+  margin: 0; font-size: 1.1rem; font-weight: 600; color: #334155;
+}
+
+.bpo-empty-state-sub {
+  margin: 0; font-size: 0.9rem; color: #64748b;
+}
+
+/* Card Grid for Approved Requests */
+.bpo-approved-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bpo-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.bpo-card:hover {
+  border-color: #6366f1;
+  box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.1);
+  transform: translateY(-2px);
+}
+
+.bpo-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.bpo-card-id {
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.bpo-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.bpo-card-shop {
+  margin: 0 0 12px 0;
+  font-size: 1.1rem;
+  color: #1e293b;
+}
+
+.bpo-approved-reasons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  border-left: 3px solid #6366f1;
+}
+
+.reason-block strong {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.reason-block p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #334155;
+  line-height: 1.4;
+}
+
+.bpo-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* Edit & Resubmit Form (Modal 2) */
+.bpo-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.bpo-edit-section h4 {
+  margin: 0 0 16px 0;
+  font-size: 1.05rem;
+  color: #0f172a;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 8px;
+}
+
+.bpo-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.bpo-edit-grid--full {
+  grid-template-columns: 1fr;
+}
+
+.bpo-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bpo-form-group--full {
+  grid-column: 1 / -1;
+}
+
+.bpo-form-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.bpo-form-group input,
+.bpo-form-group select,
+.bpo-form-group textarea {
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  color: #1e293b;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.bpo-form-group input:focus,
+.bpo-form-group select:focus,
+.bpo-form-group textarea:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.bpo-form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.bpo-action-select {
+  font-weight: 600;
+  background-color: #f8fafc;
+}
+
+/* Modals Footers */
+.bpo-modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e2e8f0;
+  background: white;
+  flex-shrink: 0;
+}
+
+.bpo-modal-footer--actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Buttons inside Modals */
+.bpo-btn {
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.bpo-btn--primary {
+  background: #6366f1;
+  color: white;
+  width: auto;
+}
+.bpo-btn--primary:hover {
+  background: #4f46e5;
+  box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+}
+
+.bpo-btn--secondary {
+  background: #f1f5f9;
+  color: #475569;
+}
+.bpo-btn--secondary:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.bpo-btn--success {
+  background: #22c55e;
+  color: white;
+}
+.bpo-btn--success:hover {
+  background: #16a34a;
+  box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.2);
+}
+
+.bpo-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Media Query Support for New Modals */
+@media (max-width: 768px) {
+  .bpo-modal-overlay {
+    padding: 12px;
+  }
+  .bpo-modal {
+    max-height: 90vh;
+  }
+  .bpo-modal-header {
+    padding: 16px;
+  }
+  .bpo-modal-body,
+  .bpo-modal-footer {
+    padding: 16px;
+  }
+  .bpo-edit-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Dark Mode Support */
 @media (prefers-color-scheme: dark) {
   .bpo-dashboard {

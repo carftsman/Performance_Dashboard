@@ -25,10 +25,19 @@ function BpoDashBoard() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(null);
+
+  // ── Approved Requests Feature State ───────────────────────────────────────
+  const [approvedRequests, setApprovedRequests] = useState([]);
+  const [showApprovedModal, setShowApprovedModal] = useState(false);
+  const [editingRequest, setEditingRequest] = useState(null);
+  const [editFormData, setEditFormData] = useState(null);
+  const [isFetchingApproved, setIsFetchingApproved] = useState(false);
+  const [isResubmitting, setIsResubmitting] = useState(false);
   
   const navigate = useNavigate();
   useEffect(() => {
     fetchForms();
+    fetchApprovedRequests();
   }, []);
 
   const fetchForms = async () => {
@@ -59,6 +68,28 @@ function BpoDashBoard() {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchApprovedRequests = async () => {
+    try {
+      setIsFetchingApproved(true);
+      const response = await axios.get(
+        `${BASE_URL}/api/bpo-request/reopened`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true 
+        }
+      );
+      console.log("fetch approved request response from bpoDashboard",response)
+
+      setApprovedRequests(response.data || []);
+    } catch (err) {
+      console.error("Error fetching approved requests:", err);
+    } finally {
+      setIsFetchingApproved(false);
     }
   };
 
@@ -160,6 +191,72 @@ function BpoDashBoard() {
     setIsSubmitting(false);
   };
 
+  // ── Approved Requests Handlers ────────────────────────────────────────────
+  const handleEditRequest = (req) => {
+    setEditingRequest(req);
+    setEditFormData({
+      vendorShopName: req.vendorShopName || "",
+      vendorName: req.vendorName || "",
+      contactNumber: req.contactNumber || "",
+      mailId: req.mailId || "",
+      vendorType: req.vendorType || "",
+      doorNumber: req.doorNumber || "",
+      streetName: req.streetName || "",
+      areaName: req.areaName || "",
+      pinCode: req.pinCode || "",
+      state: req.state || "",
+      vendorLocation: req.vendorLocation || "",
+      latitude: req.latitude || "",
+      longitude: req.longitude || "",
+      idNumber: req.idNumber || "",
+      bpoName: req.bpoName || "",
+      executiveReview: req.executiveReview || "",
+      vendorReview: req.vendorReview || "",
+      action: req.action || "SOLVED"
+    });
+  };
+
+  const handleEditChange = (e) => {
+    setEditFormData({ ...editFormData, [e.target.name]: e.target.value });
+  };
+
+  const handleUpdateAndResubmit = async () => {
+    // Basic validation
+    if (!editFormData.vendorShopName || !editFormData.vendorName || !editFormData.idNumber || !editFormData.bpoName || !editFormData.executiveReview || !editFormData.vendorReview) {
+      alert("Please fill in all required fields (Shop Name, Owner Name, ID, BPO Name, and Reviews).");
+      return;
+    }
+
+    try {
+      setIsResubmitting(true);
+      await axios.put(
+        `${BASE_URL}/api/bpo-request/resubmit/${editingRequest.id}`,
+        editFormData,
+        {
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: true 
+        }
+      );
+      
+      alert("BPO Request resubmitted successfully!");
+      setEditingRequest(null);
+      
+      // Refresh data
+      fetchApprovedRequests();
+      fetchForms();
+      
+      // Auto-close if it was the last one
+      if (approvedRequests.length <= 1) {
+        setShowApprovedModal(false);
+      }
+    } catch (error) {
+      console.error("Failed to resubmit request:", error);
+      alert(error.response?.data?.message || "Failed to resubmit request. Please try again.");
+    } finally {
+      setIsResubmitting(false);
+    }
+  };
+
   // Open view details modal
   const handleViewDetails = (form) => {
     setSelectedForm(form);
@@ -251,8 +348,20 @@ const matchesVendorType =
     >
       📜 View History
     </button>
+    <button 
+      className="history-btn" 
+      onClick={() => setShowApprovedModal(true)}
+      style={{ position: 'relative' }}
+    >
+      ✅ Approved Requests
+      {approvedRequests.length > 0 && (
+        <span className="stat-badge" style={{ position: 'absolute', top: '-10px', right: '-10px', background: '#ef4444', color: 'white', padding: '2px 6px', fontSize: '0.7rem' }}>
+          {approvedRequests.length}
+        </span>
+      )}
+    </button>
 
-    <button className="refresh-btn" onClick={fetchForms}>
+    <button className="refresh-btn" onClick={() => { fetchForms(); fetchApprovedRequests(); }}>
       ⟳ Refresh
     </button>
   </div>
@@ -677,6 +786,217 @@ const matchesVendorType =
                       {Icons.submit} Submit Review
                     </>
                   )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── MODAL 1: APPROVED REQUESTS LIST ── */}
+        {showApprovedModal && (
+          <div className="bpo-modal-overlay" onClick={() => setShowApprovedModal(false)}>
+            <div className="bpo-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="bpo-modal-header">
+                <h3 className="bpo-modal-title">Approved Requests ({approvedRequests.length})</h3>
+                <button className="bpo-modal-close" onClick={() => setShowApprovedModal(false)}>×</button>
+              </div>
+              
+              <div className="bpo-modal-body bg-slate-50">
+                {isFetchingApproved ? (
+                  <div className="bpo-empty-state">
+                    <div className="loading-spinner"></div>
+                    <p>Loading approved requests...</p>
+                  </div>
+                ) : approvedRequests.length === 0 ? (
+                  <div className="bpo-empty-state">
+                    <span className="bpo-empty-state-icon">✅</span>
+                    <p className="bpo-empty-state-title">All caught up!</p>
+                    <p className="bpo-empty-state-sub">You have no forms waiting for resubmission.</p>
+                  </div>
+                ) : (
+                  <div className="bpo-approved-grid">
+                    {approvedRequests.map(req => (
+                      <div key={req.id} className="bpo-card">
+                        <div className="bpo-card-header">
+                          <span className="bpo-card-id">#{req.id}</span>
+                          <span className="bpo-badge bpo-badge--followup">Needs Edit</span>
+                        </div>
+                        <h3 className="bpo-card-shop">🏪 {req.vendorShopName || 'Unnamed Shop'}</h3>
+                        <div className="bpo-approved-reasons">
+                          <div className="reason-block">
+                            <strong>Original Request:</strong>
+                            <p>{req.resendReason || "N/A"}</p>
+                          </div>
+                          <div className="reason-block">
+                            <strong>Manager Review:</strong>
+                            <p>{req.review || "N/A"}</p>
+                          </div>
+                        </div>
+                        <div className="bpo-card-footer">
+                          <span>📅 {new Date(req.createdAt).toLocaleDateString()}</span>
+                          <button 
+                            className="bpo-btn bpo-btn--primary"
+                            onClick={() => handleEditRequest(req)}
+                          >
+                            ✎ Edit & Resubmit
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── MODAL 2: EDIT & RESUBMIT FORM ── */}
+        {editingRequest && editFormData && (
+          <div className="bpo-modal-overlay bpo-modal-overlay--edit" onClick={() => setEditingRequest(null)}>
+            <div className="bpo-modal bpo-modal--large" onClick={(e) => e.stopPropagation()}>
+              <div className="bpo-modal-header">
+                <div className="bpo-modal-header-titles">
+                  <h3 className="bpo-modal-title">Edit BPO Data</h3>
+                  <span className="bpo-modal-subtitle">#{editingRequest.id} — Manager Feedback: {editingRequest.resendReason || "N/A"}</span>
+                </div>
+                <button 
+                  className="bpo-modal-close" 
+                  onClick={() => setEditingRequest(null)}
+                  disabled={isResubmitting}
+                >
+                  ×
+                </button>
+              </div>
+
+              <div className="bpo-modal-body">
+                <div className="bpo-edit-form">
+                  <div className="bpo-edit-section">
+                    <h4>Core Vendor Details</h4>
+                    <div className="bpo-edit-grid">
+                      <div className="bpo-form-group">
+                        <label>Shop Name*</label>
+                        <input name="vendorShopName" value={editFormData.vendorShopName} onChange={handleEditChange} />
+                      </div>
+                      <div className="bpo-form-group">
+                        <label>Owner Name*</label>
+                        <input name="vendorName" value={editFormData.vendorName} onChange={handleEditChange} />
+                      </div>
+                      <div className="bpo-form-group">
+                        <label>Contact Number</label>
+                        <input name="contactNumber" value={editFormData.contactNumber} onChange={handleEditChange} />
+                      </div>
+                      <div className="bpo-form-group">
+                        <label>Email Address</label>
+                        <input name="mailId" value={editFormData.mailId} onChange={handleEditChange} />
+                      </div>
+                      <div className="bpo-form-group">
+                        <label>Vendor Type</label>
+                        <input name="vendorType" value={editFormData.vendorType} onChange={handleEditChange} />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bpo-edit-section">
+                    <h4>Address Information</h4>
+                    <div className="bpo-edit-grid">
+                      <div className="bpo-form-group">
+                        <label>Door Number</label>
+                        <input name="doorNumber" value={editFormData.doorNumber} onChange={handleEditChange} />
+                      </div>
+                      <div className="bpo-form-group">
+                        <label>Street Name</label>
+                        <input name="streetName" value={editFormData.streetName} onChange={handleEditChange} />
+                      </div>
+                      <div className="bpo-form-group">
+                        <label>Area Name</label>
+                        <input name="areaName" value={editFormData.areaName} onChange={handleEditChange} />
+                      </div>
+                      <div className="bpo-form-group">
+                        <label>PIN Code</label>
+                        <input name="pinCode" value={editFormData.pinCode} onChange={handleEditChange} />
+                      </div>
+                      <div className="bpo-form-group">
+                        <label>State</label>
+                        <input name="state" value={editFormData.state} onChange={handleEditChange} />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bpo-edit-section">
+                    <h4>Location Metadata</h4>
+                    <div className="bpo-edit-grid">
+                      <div className="bpo-form-group">
+                        <label>Latitude</label>
+                        <input name="latitude" value={editFormData.latitude} onChange={handleEditChange} />
+                      </div>
+                      <div className="bpo-form-group">
+                        <label>Longitude</label>
+                        <input name="longitude" value={editFormData.longitude} onChange={handleEditChange} />
+                      </div>
+                      <div className="bpo-form-group">
+                        <label>Mapped Location (Coordinates)</label>
+                        <input name="vendorLocation" value={editFormData.vendorLocation} onChange={handleEditChange} />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bpo-edit-section">
+                    <h4>BPO Review Details</h4>
+                    <div className="bpo-edit-grid">
+                      <div className="bpo-form-group">
+                        <label>ID Number*</label>
+                        <input name="idNumber" value={editFormData.idNumber} onChange={handleEditChange} />
+                      </div>
+                      <div className="bpo-form-group">
+                        <label>BPO Name*</label>
+                        <input name="bpoName" value={editFormData.bpoName} onChange={handleEditChange} />
+                      </div>
+                      <div className="bpo-form-group">
+                        <label>Action</label>
+                        <select name="action" value={editFormData.action} onChange={handleEditChange} className="form-select bpo-action-select">
+                          <option value="SOLVED">SOLVED</option>
+                          <option value="NOT SOLVED">NOT SOLVED</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="bpo-edit-grid bpo-edit-grid--full" style={{marginTop: '16px'}}>
+                      <div className="bpo-form-group bpo-form-group--full">
+                        <label>Executive Review*</label>
+                        <textarea 
+                          name="executiveReview" 
+                          value={editFormData.executiveReview} 
+                          onChange={handleEditChange}
+                          rows="3"
+                        />
+                      </div>
+                      <div className="bpo-form-group bpo-form-group--full">
+                        <label>Vendor Review*</label>
+                        <textarea 
+                          name="vendorReview" 
+                          value={editFormData.vendorReview} 
+                          onChange={handleEditChange}
+                          rows="3"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bpo-modal-footer bpo-modal-footer--actions">
+                <button 
+                  className="bpo-btn bpo-btn--secondary"
+                  onClick={() => setEditingRequest(null)}
+                  disabled={isResubmitting}
+                >
+                  Cancel
+                </button>
+                <button 
+                  className="bpo-btn bpo-btn--success"
+                  onClick={handleUpdateAndResubmit}
+                  disabled={isResubmitting}
+                >
+                  {isResubmitting ? "Resubmitting..." : "Resubmit BPO Data"}
                 </button>
               </div>
             </div>
