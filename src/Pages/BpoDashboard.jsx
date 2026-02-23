@@ -807,51 +807,57 @@ const matchesVendorType =
 
         {/* ── MODAL 1: APPROVED REQUESTS LIST ── */}
         {showApprovedModal && (
-          <div className="bpo-modal-overlay" onClick={() => setShowApprovedModal(false)}>
-            <div className="bpo-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="bpo-modal-overlay bpo-modal--resubmission" onClick={() => setShowApprovedModal(false)}>
+            <div className="bpo-modal-container" onClick={(e) => e.stopPropagation()}>
               <div className="bpo-modal-header">
-                <h3 className="bpo-modal-title">Approved Requests ({approvedRequests.length})</h3>
+                <div className="modal-header-info">
+                  <h2>Approved BPO Requests</h2>
+                  <p>Forms waiting for your resubmission ({approvedRequests.length})</p>
+                </div>
                 <button className="bpo-modal-close" onClick={() => setShowApprovedModal(false)}>×</button>
               </div>
               
-              <div className="bpo-modal-body bg-slate-50">
+              <div className="bpo-modal-body">
                 {isFetchingApproved ? (
                   <div className="bpo-empty-state">
                     <div className="loading-spinner"></div>
-                    <p>Loading approved requests...</p>
+                    <p>Fetching approved forms...</p>
                   </div>
                 ) : approvedRequests.length === 0 ? (
                   <div className="bpo-empty-state">
                     <span className="bpo-empty-state-icon">✅</span>
-                    <p className="bpo-empty-state-title">All caught up!</p>
-                    <p className="bpo-empty-state-sub">You have no forms waiting for resubmission.</p>
+                    <p className="bpo-empty-state-title">All Caught Up!</p>
+                    <p className="bpo-empty-state-sub">No resubmissions pending at the moment.</p>
                   </div>
                 ) : (
                   <div className="bpo-approved-grid">
                     {approvedRequests.map(req => (
-                      <div key={req.id} className="bpo-card">
-                        <div className="bpo-card-header">
-                          <span className="bpo-card-id">#{req.id}</span>
-                          <span className="bpo-badge bpo-badge--followup">Needs Edit</span>
+                      <div key={req.id} className="resubmission-card">
+                        <div className="card-header">
+                          <span className="card-id">#{req.id}</span>
+                          <span className="status-badge status--pending">Needs Edit</span>
                         </div>
-                        <h3 className="bpo-card-shop">🏪 {req.vendorShopName || 'Unnamed Shop'}</h3>
-                        <div className="bpo-approved-reasons">
+                        <h3 className="shop-name">🏪 {req.vendorShopName || 'Unnamed Shop'}</h3>
+                        
+                        <div className="reasons-container">
                           <div className="reason-block">
                             <strong>Original Request:</strong>
                             <p>{req.resendReason || "N/A"}</p>
                           </div>
-                          <div className="reason-block">
+                          <div className="reason-block manager-feedback">
                             <strong>Manager Review:</strong>
                             <p>{req.review || "N/A"}</p>
                           </div>
                         </div>
-                        <div className="bpo-card-footer">
-                          <span>📅 {new Date(req.createdAt).toLocaleDateString()}</span>
+
+                        <div className="card-footer">
+                          <span className="date">📅 {new Date(req.createdAt).toLocaleDateString()}</span>
                           <button 
-                            className="bpo-btn bpo-btn--primary"
+                            className="bpo-btn-primary"
                             onClick={() => handleEditRequest(req)}
+                            style={{ padding: '8px 16px', fontSize: '0.8125rem' }}
                           >
-                            ✎ Edit & Resubmit
+                            ✎ Edit Data
                           </button>
                         </div>
                       </div>
@@ -865,12 +871,12 @@ const matchesVendorType =
 
         {/* ── MODAL 2: EDIT & RESUBMIT FORM ── */}
         {editingRequest && editFormData && (
-          <div className="bpo-modal-overlay bpo-modal-overlay--edit" onClick={() => setEditingRequest(null)}>
-            <div className="bpo-modal bpo-modal--large" onClick={(e) => e.stopPropagation()}>
+          <div className="bpo-modal-overlay" onClick={() => setEditingRequest(null)}>
+            <div className="bpo-modal-container bpo-modal--large" onClick={(e) => e.stopPropagation()}>
               <div className="bpo-modal-header">
-                <div className="bpo-modal-header-titles">
-                  <h3 className="bpo-modal-title">Edit BPO Data</h3>
-                  <span className="bpo-modal-subtitle">#{editingRequest.id} — Manager Feedback: {editingRequest.resendReason || "N/A"}</span>
+                <div className="modal-header-info">
+                  <h2>Edit & Resubmit BPO Data</h2>
+                  <p>Form #{editingRequest.id} — Feedback: {editingRequest.resendReason || "N/A"}</p>
                 </div>
                 <button 
                   className="bpo-modal-close" 
@@ -884,111 +890,113 @@ const matchesVendorType =
               <div className="bpo-modal-body">
                 <div className="bpo-edit-form">
                   <div className="bpo-edit-section">
-                    <h4>Core Vendor Details</h4>
+                    <h4>🏢 Core Vendor Details</h4>
                     <div className="bpo-edit-grid">
                       <div className="bpo-form-group">
                         <label>Shop Name*</label>
-                        <input name="vendorShopName" value={editFormData.vendorShopName} onChange={handleEditChange} />
+                        <input name="vendorShopName" value={editFormData.vendorShopName} onChange={handleEditChange} placeholder="Enter shop name" />
                       </div>
                       <div className="bpo-form-group">
                         <label>Owner Name*</label>
-                        <input name="vendorName" value={editFormData.vendorName} onChange={handleEditChange} />
+                        <input name="vendorName" value={editFormData.vendorName} onChange={handleEditChange} placeholder="Enter owner name" />
                       </div>
                       <div className="bpo-form-group">
                         <label>Contact Number</label>
-                        <input name="contactNumber" value={editFormData.contactNumber} onChange={handleEditChange} />
+                        <input name="contactNumber" value={editFormData.contactNumber} onChange={handleEditChange} placeholder="Enter contact" />
                       </div>
                       <div className="bpo-form-group">
                         <label>Email Address</label>
-                        <input name="mailId" value={editFormData.mailId} onChange={handleEditChange} />
+                        <input name="mailId" value={editFormData.mailId} onChange={handleEditChange} placeholder="Enter email" />
                       </div>
                       <div className="bpo-form-group">
                         <label>Vendor Type</label>
-                        <input name="vendorType" value={editFormData.vendorType} onChange={handleEditChange} />
+                        <input name="vendorType" value={editFormData.vendorType} onChange={handleEditChange} placeholder="Enter type" />
                       </div>
                     </div>
                   </div>
 
                   <div className="bpo-edit-section">
-                    <h4>Address Information</h4>
+                    <h4>📍 Address Information</h4>
                     <div className="bpo-edit-grid">
                       <div className="bpo-form-group">
                         <label>Door Number</label>
-                        <input name="doorNumber" value={editFormData.doorNumber} onChange={handleEditChange} />
+                        <input name="doorNumber" value={editFormData.doorNumber} onChange={handleEditChange} placeholder="Door #" />
                       </div>
                       <div className="bpo-form-group">
                         <label>Street Name</label>
-                        <input name="streetName" value={editFormData.streetName} onChange={handleEditChange} />
+                        <input name="streetName" value={editFormData.streetName} onChange={handleEditChange} placeholder="Street" />
                       </div>
                       <div className="bpo-form-group">
                         <label>Area Name</label>
-                        <input name="areaName" value={editFormData.areaName} onChange={handleEditChange} />
+                        <input name="areaName" value={editFormData.areaName} onChange={handleEditChange} placeholder="Area" />
                       </div>
                       <div className="bpo-form-group">
                         <label>PIN Code</label>
-                        <input name="pinCode" value={editFormData.pinCode} onChange={handleEditChange} />
+                        <input name="pinCode" value={editFormData.pinCode} onChange={handleEditChange} placeholder="PIN" />
                       </div>
                       <div className="bpo-form-group">
                         <label>State</label>
-                        <input name="state" value={editFormData.state} onChange={handleEditChange} />
+                        <input name="state" value={editFormData.state} onChange={handleEditChange} placeholder="State" />
                       </div>
                     </div>
                   </div>
 
                   <div className="bpo-edit-section">
-                    <h4>Location Metadata</h4>
+                    <h4>🌍 Location Metadata</h4>
                     <div className="bpo-edit-grid">
                       <div className="bpo-form-group">
                         <label>Latitude</label>
-                        <input name="latitude" value={editFormData.latitude} onChange={handleEditChange} />
+                        <input name="latitude" value={editFormData.latitude} onChange={handleEditChange} placeholder="Lat" />
                       </div>
                       <div className="bpo-form-group">
                         <label>Longitude</label>
-                        <input name="longitude" value={editFormData.longitude} onChange={handleEditChange} />
+                        <input name="longitude" value={editFormData.longitude} onChange={handleEditChange} placeholder="Long" />
                       </div>
                       <div className="bpo-form-group">
-                        <label>Mapped Location (Coordinates)</label>
-                        <input name="vendorLocation" value={editFormData.vendorLocation} onChange={handleEditChange} />
+                        <label>Mapped Location</label>
+                        <input name="vendorLocation" value={editFormData.vendorLocation} onChange={handleEditChange} placeholder="Coordinates" />
                       </div>
                     </div>
                   </div>
 
                   <div className="bpo-edit-section">
-                    <h4>BPO Review Details</h4>
+                    <h4>✍️ BPO Review Details</h4>
                     <div className="bpo-edit-grid">
                       <div className="bpo-form-group">
                         <label>ID Number*</label>
-                        <input name="idNumber" value={editFormData.idNumber} onChange={handleEditChange} />
+                        <input name="idNumber" value={editFormData.idNumber} onChange={handleEditChange} placeholder="ID #" />
                       </div>
                       <div className="bpo-form-group">
                         <label>BPO Name*</label>
-                        <input name="bpoName" value={editFormData.bpoName} onChange={handleEditChange} />
+                        <input name="bpoName" value={editFormData.bpoName} onChange={handleEditChange} placeholder="BPO Name" />
                       </div>
                       <div className="bpo-form-group">
-                        <label>Action</label>
-                        <select name="action" value={editFormData.action} onChange={handleEditChange} className="form-select bpo-action-select">
+                        <label>Action Update</label>
+                        <select name="action" value={editFormData.action} onChange={handleEditChange} className="bpo-action-select">
                           <option value="SOLVED">SOLVED</option>
                           <option value="NOT SOLVED">NOT SOLVED</option>
                         </select>
                       </div>
                     </div>
-                    <div className="bpo-edit-grid bpo-edit-grid--full" style={{marginTop: '16px'}}>
-                      <div className="bpo-form-group bpo-form-group--full">
-                        <label>Executive Review*</label>
+                    <div className="bpo-edit-grid bpo-edit-grid--full" style={{marginTop: '20px'}}>
+                      <div className="bpo-form-group">
+                        <label>Executive Review Update*</label>
                         <textarea 
                           name="executiveReview" 
                           value={editFormData.executiveReview} 
                           onChange={handleEditChange}
                           rows="3"
+                          placeholder="Update executive review..."
                         />
                       </div>
-                      <div className="bpo-form-group bpo-form-group--full">
-                        <label>Vendor Review*</label>
+                      <div className="bpo-form-group">
+                        <label>Vendor Review Update*</label>
                         <textarea 
                           name="vendorReview" 
                           value={editFormData.vendorReview} 
                           onChange={handleEditChange}
                           rows="3"
+                          placeholder="Update vendor review..."
                         />
                       </div>
                     </div>
@@ -996,16 +1004,18 @@ const matchesVendorType =
                 </div>
               </div>
 
-              <div className="bpo-modal-footer bpo-modal-footer--actions">
+              <div className="bpo-modal-footer">
                 <button 
-                  className="bpo-btn bpo-btn--secondary"
+                  className="bpo-btn--secondary"
+                  style={{ padding: '10px 24px', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}
                   onClick={() => setEditingRequest(null)}
                   disabled={isResubmitting}
                 >
                   Cancel
                 </button>
                 <button 
-                  className="bpo-btn bpo-btn--success"
+                  className="bpo-btn--success"
+                  style={{ padding: '10px 24px', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}
                   onClick={handleUpdateAndResubmit}
                   disabled={isResubmitting}
                 >
