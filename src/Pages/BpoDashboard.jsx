@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import MainLayout from "../components/common/Layout/MainLayout";
 import "./BpoDashboard.css";
-
+import { useNavigate } from "react-router-dom";
 const BASE_URL = "https://mft-zwy7.onrender.com";
 
 function BpoDashBoard() {
@@ -24,6 +24,7 @@ function BpoDashBoard() {
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(null);
   
+  const navigate = useNavigate();
   useEffect(() => {
     fetchForms();
   }, []);
@@ -216,19 +217,30 @@ const matchesVendorType =
       <div className="bpo-dashboard">
         {/* Header with Stats */}
         <div className="dashboard-header">
-          <div>
-            <h1>BPO Forms Management</h1>
-            <p>Manage and track all vendor forms</p>
-          </div>
-          <div className="header-stats">
-            <span className="stat-badge">Total: {stats.total}</span>
-            <span className="stat-badge">Interested: {stats.interested}</span>
-            <span className="stat-badge">Onboarded: {stats.onboarded}</span>
-          </div>
-          <button className="refresh-btn" onClick={fetchForms}>
-            ⟳ Refresh
-          </button>
-        </div>
+  <div>
+    <h1>BPO Forms Management</h1>
+    <p>Manage and track all vendor forms</p>
+  </div>
+
+  <div className="header-stats">
+    <span className="stat-badge">Total: {stats.total}</span>
+    <span className="stat-badge">Interested: {stats.interested}</span>
+    <span className="stat-badge">Onboarded: {stats.onboarded}</span>
+  </div>
+
+  <div className="header-actions">
+    <button
+      className="history-btn"
+      onClick={() => navigate("/bpo-history")}
+    >
+      📜 View History
+    </button>
+
+    <button className="refresh-btn" onClick={fetchForms}>
+      ⟳ Refresh
+    </button>
+  </div>
+</div>
 
         {/* Search and Filter */}
        <div className="filter-bar">
