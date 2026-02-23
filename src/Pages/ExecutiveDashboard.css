@@ -969,7 +969,9 @@
     width: 100%;
   }
 
-  .exec-cards-grid {
+  .exec-cards-grid,
+  .exec-modal-grid,
+  .exec-edit-grid {
     grid-template-columns: 1fr;
   }
 
