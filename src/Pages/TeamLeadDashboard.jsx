@@ -13,7 +13,7 @@ import DashboardHeader from '../components/TeamLead/DashboardHeader';
 
 const TeamLeadDashboard = ({ user, logout }) => {
   const dashboardUser = user || JSON.parse(localStorage.getItem('user'));
-  const [viewMode, setViewMode] = useState('list'); // 'list', 'work', or 'add-entry'
+  const [viewMode, setViewMode] = useState('list'); 
   const [selectedExecutive, setSelectedExecutive] = useState(null);
   const [executiveForms, setExecutiveForms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,21 +22,12 @@ const TeamLeadDashboard = ({ user, logout }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(null);
   const [selectedExecutiveForForm, setSelectedExecutiveForForm] = useState(null);
-  // New state for add executive modal
   const [showAddExecutiveModal, setShowAddExecutiveModal] = useState(false);
-  const [newExecutive, setNewExecutive] = useState({
-    executiveCode: '',
-    name: '',
-    phone: ''
-  });
-  // New state for date filters
   const [dateFilter, setDateFilter] = useState({
     startDate: '',
     endDate: ''
   });
   const [filteredForms, setFilteredForms] = useState([]);
-
-  // Fetch all forms for the team lead
   useEffect(() => {
     fetchTeamLeadForms();
   }, []);
@@ -125,7 +116,6 @@ const TeamLeadDashboard = ({ user, logout }) => {
     console.error("Failed to fetch executives", err);
   }
 };
-  // Handle form submission for new entry
   const handleFormSubmit = async (formData) => {
     try {
       setIsSubmitting(true);
@@ -134,7 +124,7 @@ const TeamLeadDashboard = ({ user, logout }) => {
       // Add team lead information to form data
       const submissionData = {
         ...formData,
-        teamleadId: dashboardUser?.id , // Fallback to 19 if not available
+        teamleadId: dashboardUser?.id , 
         teamleadName: dashboardUser?.userCode,
         executiveId: selectedExecutiveForForm?.id,
         executiveName: selectedExecutiveForForm?.name
@@ -266,74 +256,75 @@ const TeamLeadDashboard = ({ user, logout }) => {
   return (
     <MainLayout user={dashboardUser} logout={logout}>
       <div className="teamlead-dashboard">
-        {/* Header with Add Executive Button */}
-       <DashboardHeader
-  dashboardUser={dashboardUser}
-  loading={loading}
-  onAddExecutive={() => setShowAddExecutiveModal(true)}
-  onAddEntry={() => {
-    setSelectedExecutiveForForm({
-      id: dashboardUser?.id || 19,
-      name: dashboardUser?.userCode || "Team Lead",
-    });
-    setViewMode("add-entry");
-  }}
-  onRefresh={handleRefresh}
-/>
-        <AddExecutiveModal
-  isOpen={showAddExecutiveModal}
-  onClose={() => setShowAddExecutiveModal(false)}
-  onExecutiveAdded={fetchExecutives}
-/>
-       <SearchBar
-  searchTerm={searchTerm}
-  onSearchChange={setSearchTerm}
-  onClear={() => setSearchTerm("")}
-/>
+            <DashboardHeader
+              dashboardUser={dashboardUser}
+              loading={loading}
+              onAddExecutive={() => setShowAddExecutiveModal(true)}
+              onAddEntry={() => {
+                setSelectedExecutiveForForm({
+                  id: dashboardUser?.id ,
+                  name: dashboardUser?.userCode,
+                });
+                setViewMode("add-entry");
+              }}
+              onRefresh={handleRefresh}
+            />
+            <AddExecutiveModal
+              isOpen={showAddExecutiveModal}
+              onClose={() => setShowAddExecutiveModal(false)}
+              onExecutiveAdded={fetchExecutives}
+            />
+
+            <SearchBar
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            onClear={() => setSearchTerm("")}
+          />
+
         {/* Error Display */}
-        {error && (
-          <div className="card error-card">
-            <p>{error}</p>
-            <button 
-              onClick={handleRefresh}
-              className="btn btn-danger"
-            >
-              Retry
-            </button>
-          </div>
-        )}
+          {error && (
+            <div className="card error-card">
+              <p>{error}</p>
+              <button 
+                onClick={handleRefresh}
+                className="btn btn-danger"
+              >
+                Retry
+              </button>
+            </div>
+          )}
 
-        {/* Loading State */}
-        {loading && (
-         <LoadingState/>
-        )}
+          {/* Loading State */}
+          {loading && (
+          <LoadingState/>
+          )}
 
-        {/* Executive List */}
-        {!loading && !error && (
+              {/* Executive List */}
+          {!loading && !error && (
           <ExecutiveList
-    executives={getFilteredExecutives()}
-    onExecutiveClick={handleExecutiveClick}
-    searchTerm={searchTerm}
-    onClearSearch={() => setSearchTerm("")}
-  />
-        )}
+          executives={getFilteredExecutives()}
+          onExecutiveClick={handleExecutiveClick}
+          searchTerm={searchTerm}
+          onClearSearch={() => setSearchTerm("")}
+        />
+      )}
 
         {/* Quick Stats Summary with Date Filter */}
-        {!loading && !error && executiveForms.length > 0 && (
-          <TeamSummary
-    executives={getExecutivesWithForms()}
-    totalForms={filteredForms.length}
-    successfulForms={filteredForms.filter(
-      (f) => f.status === "INTERESTED" || f.status === "ONBOARDED"
-    ).length}
-    notInterestedForms={filteredForms.filter(
-      (f) => f.status === "NOT_INTERESTED"
-    ).length}
-    dateFilter={dateFilter}
-    onDateFilterChange={handleDateFilterChange}
-    onClearDateFilters={clearDateFilters}
-  />
-        )}
+      {!loading && !error && executiveForms.length > 0 && (
+        <TeamSummary
+            executives={getExecutivesWithForms()}
+            totalForms={filteredForms.length}
+            successfulForms={filteredForms.filter(
+              (f) => f.status === "INTERESTED" || f.status === "ONBOARDED"
+            ).length}
+            notInterestedForms={filteredForms.filter(
+              (f) => f.status === "NOT_INTERESTED"
+            ).length}
+            dateFilter={dateFilter}
+            onDateFilterChange={handleDateFilterChange}
+            onClearDateFilters={clearDateFilters}
+           />
+      )}
       </div>
     </MainLayout>
   );

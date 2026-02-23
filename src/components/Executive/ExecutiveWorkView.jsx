@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import LocationForm from '../Executive/VendorForm';
 import HeaderSection from '../Executive/HeaderSection';
 import FilterSection from '../Executive/FilterSection';
+import FormsTable from '../Executive/FormsTable';
 
 const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
   const [viewMode, setViewMode] = useState('list');
@@ -64,7 +65,6 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
   const stats = useMemo(() => ({
     total: filteredForms.length,
     interested: filteredForms.filter(f => f.status === 'INTERESTED').length,
-    onboarded: filteredForms.filter(f => f.status === 'ONBOARDED').length,
     notInterested: filteredForms.filter(f => f.status === 'NOT_INTERESTED').length
   }), [filteredForms]);
 
@@ -93,7 +93,6 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
   const getStatusBadge = (status) => {
     const styles = {
       'INTERESTED': { bg: '#d4edda', color: '#155724', label: 'Interested' },
-      'ONBOARDED': { bg: '#cce5ff', color: '#004085', label: 'Onboarded' },
       'NOT_INTERESTED': { bg: '#f8d7da', color: '#721c24', label: 'Not Interested' },
       'FOLLOW_UP': { bg: '#fff3cd', color: '#856404', label: 'Follow Up' }
     };
@@ -172,12 +171,6 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
               <div className="stat-label">Interested</div>
             </div>
             <div className="stat-card">
-              <div className="stat-value" style={{ color: '#007bff' }}>
-                {stats.onboarded}
-              </div>
-              <div className="stat-label">Onboarded</div>
-            </div>
-            <div className="stat-card">
               <div className="stat-value" style={{ color: '#dc3545' }}>
                 {stats.notInterested}
               </div>
@@ -199,79 +192,7 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
             </h3>
             
             {/* Desktop Table View */}
-            <div className="table-container desktop-view">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Date & Time</th>
-                    <th>Shop Name</th>
-                    <th>Vendor Info</th>
-                    <th>Location</th>
-                    <th>Review</th>
-                    <th>Status</th>
-                    <th>Tag</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredForms.map(form => (
-                    <tr key={form.id}>
-                      <td>
-                        <div className="date-cell">
-                          {formatDate(form.createdAt)}
-                        </div>
-                      </td>
-                      <td>
-                        <div className="shop-details">
-                          <strong>{form.vendorShopName}</strong>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="vendor-info">
-                          <div><strong>{form.vendorName}</strong></div>
-                          <div className="contact-info">
-                            <span>📞 {form.contactNumber}</span>
-                            {form.mailId && <span>✉️ {form.mailId}</span>}
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="location-info">
-                          <div>{form.areaName}, {form.state}</div>
-                          {form.pinCode && <div>PIN: {form.pinCode}</div>}
-                        </div>
-                      </td>
-                      <td>
-                        <div className="review-cell">
-                          {form.review && (
-                            <div className="review-text" title={form.review}>
-                              {form.review.substring(0, 30)}
-                              {form.review.length > 30 ? '...' : ''}
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td>{getStatusBadge(form.status)}</td>
-                      <td>{getTagBadge(form.tag)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-         
-
-            {filteredForms.length === 0 && (
-              <div className="empty-state">
-                <p>
-                  {filterType !== 'all' && customDate 
-                    ? `No entries found for the selected ${filterType}`
-                    : 'No entries found for this executive'}
-                </p>
-                <button onClick={handleAddNew} className="btn btn-primary">
-                  Add First Entry
-                </button>
-              </div>
-            )}
+            <FormsTable forms={filteredForms} />
           </div>
         </>
       ) : (
