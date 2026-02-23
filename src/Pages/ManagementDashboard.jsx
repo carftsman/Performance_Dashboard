@@ -240,14 +240,22 @@ const [showReportModal, setShowReportModal] = useState(false);
         {/* Header */}
         <div className="card header-card">
           <div className="header-content">
-            <div>
+            <div className='header-left'>
               <h1>Management Dashboard</h1>
               {/* <p className="text-muted">
                 Consolidated view of all field operations • {forms.length} total entries
               </p> */}
+                <button 
+                className="btn btn-success" 
+                onClick={() => setShowReportModal(true)}
+                disabled={loading}
+              >
+                📊 Generate Report
+              </button>
             </div>
              
             <div className="header-actions">
+               
               <button 
                 className="btn btn-requests" 
                 onClick={() => setShowRequestsModal(true)}
@@ -336,13 +344,7 @@ const [showReportModal, setShowReportModal] = useState(false);
                   <option value="month">Last 30 Days</option>
                 </select>
 
-                  <button 
-        className="btn btn-success" 
-        onClick={() => setShowReportModal(true)}
-        disabled={loading}
-      >
-        📊 Generate Report
-      </button>
+                 
                 {(searchTerm || statusFilter !== 'all' || teamFilter !== 'all' || dateRange !== 'all') && (
                   <button 
                     onClick={() => {
@@ -444,15 +446,15 @@ const [showReportModal, setShowReportModal] = useState(false);
                       {/* Left Column: Vendor & Contact */}
                       <div className="mgmt-detail-section">
                         <h3>Vendor Information</h3>
-                        <div className="detail-row">
+                        <div className="mgmt-detail-row">
                           <span className="detail-label">Owner Name</span>
                           <span className="detail-value">{form.vendorName || 'N/A'}</span>
                         </div>
-                        <div className="detail-row">
+                        <div className="mgmt-detail-row">
                           <span className="detail-label">Contact Number</span>
                           <span className="detail-value">{form.contactNumber || 'N/A'}</span>
                         </div>
-                        <div className="detail-row">
+                        <div className="mgmt-detail-row">
                           <span className="detail-label">Email Address</span>
                           <span className="detail-value">{form.mailId || 'N/A'}</span>
                         </div>
@@ -461,15 +463,15 @@ const [showReportModal, setShowReportModal] = useState(false);
                       {/* Right Column: Hierarchy */}
                       <div className="mgmt-detail-section">
                         <h3>Executive & Team</h3>
-                        <div className="detail-row">
+                        <div className="mgmt-detail-row">
                           <span className="detail-label">Executive</span>
                           <span className="detail-value">{form.executiveName || `ID: ${form.executiveId}`}</span>
                         </div>
-                        <div className="detail-row">
+                        <div className="mgmt-detail-row">
                           <span className="detail-label">Team Lead</span>
                           <span className="detail-value">{form.teamleadName || `ID: ${form.teamleadId}`}</span>
                         </div>
-                        <div className="detail-row">
+                        <div className="mgmt-detail-row">
                           <span className="detail-label">Assigned BPO</span>
                           <span className="detail-value">{form.assignedBpoName || form.assignedBpoId || 'Not Assigned'}</span>
                         </div>
@@ -478,27 +480,27 @@ const [showReportModal, setShowReportModal] = useState(false);
                       {/* Full Width: Location */}
                       <div className="mgmt-detail-section full-width">
                         <h3>Location Details</h3>
-                        <div className="detail-row-inline">
+                        <div className="mgmt-detail-row-inline">
                           <span className="detail-label">Door No:</span>
                           <span className="detail-value">{form.doorNumber || 'N/A'}</span>
                         </div>
-                        <div className="detail-row-inline">
+                        <div className="mgmt-detail-row-inline">
                           <span className="detail-label">Street:</span>
                           <span className="detail-value">{form.streetName || 'N/A'}</span>
                         </div>
-                        <div className="detail-row-inline">
+                        <div className="mgmt-detail-row-inline">
                           <span className="detail-label">Area/City:</span>
                           <span className="detail-value">{form.areaName || 'N/A'}</span>
                         </div>
-                        <div className="detail-row-inline">
+                        <div className="mgmt-detail-row-inline">
                           <span className="detail-label">State:</span>
                           <span className="detail-value">{form.state || 'N/A'}</span>
                         </div>
-                        <div className="detail-row-inline">
+                        <div className="mgmt-detail-row-inline">
                           <span className="detail-label">PIN:</span>
                           <span className="detail-value">{form.pinCode || 'N/A'}</span>
                         </div>
-                        <div className="detail-row-inline location-link">
+                        <div className="mgmt-detail-row-inline location-link">
                           <span className="detail-label">GPS:</span>
                           <span className="detail-value">{form.vendorLocation || 'N/A'}</span>
                         </div>
