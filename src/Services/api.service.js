@@ -31,7 +31,8 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response.data,
   (error) => {
-    console.log("response from activation account",response);
+    // console.log("response from activation account",response);
+    console.log("API Error:", error.response);
     // No response at all — network issue
     if (!error.response) {
       return Promise.reject({

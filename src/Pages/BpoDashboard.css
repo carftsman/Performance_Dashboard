@@ -231,15 +231,29 @@
 }
 
 .detail-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 28px 90px 1fr;
   align-items: center;
-  gap: 10px;
-  color: #666;
-  font-size: 13px;
-  padding: 4px 0;
-  border-bottom: 1px dashed #f0f0f0;
+  padding: 8px 0;
+  font-size: 14px;
+  border-bottom: 1px solid #f2f2f2;
 }
 
+.detail-icon {
+  font-size: 16px;
+  text-align: center;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #555;
+}
+
+.detail-value {
+  color: #222;
+  font-weight: 500;
+  word-break: break-word;
+}
 .detail-row:last-child {
   border-bottom: none;
 }

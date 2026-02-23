@@ -173,39 +173,53 @@ const ExecutiveDashboard = ({ user, logout }) => {
   /* =========================================
      SUBMIT FORM
   ========================================== */
-  const handleSubmitDailyLog = async (formData) => {
 
-    if (!vendorLocation) {
-      alert("Please capture vendor location");
-      return;
-    }
+ const handleSubmitDailyLog = async (formData) => {
 
-    setIsSubmitting(true);
+  if (!vendorLocation) {
+    alert("Please capture vendor location");
+    return;
+  }
 
-    try {
-      const submissionData = {
-        ...formData,
-        workStartLocation,  // ✅ stored once
-        vendorLocation      // ✅ per vendor visit
-      };
+  setIsSubmitting(true);
 
-      await formService.createForm(submissionData);
+  try {
 
-      alert("Form submitted successfully!");
+    const submissionData = {
+      ...formData,
 
-      setVendorLocation(null);
-      setGeocodedAddress(null);
-      setShowForm(false);
+      // ✅ Backend expects flat latitude & longitude
+      latitude: vendorLocation.latitude,
+      longitude: vendorLocation.longitude,
 
-      loadHistory(); // refresh history
+      // ✅ Backend expects vendorLocation as STRING
+      vendorLocation:
+        geocodedAddress?.areaName ||
+        geocodedAddress?.streetName ||
+        "Current Location",
 
-    } catch (error) {
-      alert("Submission failed");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+      // DO NOT send workStartLocation
+    };
 
+    console.log("Submitting to backend:", submissionData);
+
+    await formService.createForm(submissionData);
+
+    alert("Form submitted successfully!");
+
+    setVendorLocation(null);
+    setGeocodedAddress(null);
+    setShowForm(false);
+
+    loadHistory();
+
+  } catch (error) {
+    console.error("Submission failed:", error.response?.data);
+    alert("Submission failed");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
   // ── Request to Manager Handler ────────────────────────────────────────────
   const handleProceedRequest = async () => {
     if (!requestReason.trim()) {
