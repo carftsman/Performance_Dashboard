@@ -1,4 +1,4 @@
-import React from "react";
+import React ,{useState} from "react";
 
 const DashboardHeader = ({
   dashboardUser,
@@ -7,6 +7,43 @@ const DashboardHeader = ({
   onAddEntry,
   onRefresh,
 }) => {
+   const [locationAllowed, setLocationAllowed] = useState(false);
+  const [workStarted, setWorkStarted] = useState(false);
+   const [workStartLocation, setWorkStartLocation] = useState(null);
+     const [showForm, setShowForm] = useState(false);
+   /* =========================================
+     ENABLE LOCATION
+  ========================================== */
+  const handleEnableLocation = () => {
+    navigator.geolocation.getCurrentPosition(
+
+      () => {
+        setLocationAllowed(true);
+        alert("Location Permission Granted ✅");
+      },
+      () => alert("Location Permission Denied ❌")
+    );
+  };
+  
+  /* =========================================
+     START WORK (Store once)
+  ========================================== */
+  const handleStartWork = () => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const startLocation = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          timestamp: new Date().toISOString(),
+        };
+
+        setWorkStartLocation(startLocation);
+        setWorkStarted(true);
+         onAddEntry(); 
+      },
+      () => alert("Unable to fetch start location")
+    );
+  };
   return (
     <>
       {/* CSS INSIDE COMPONENT */}
@@ -19,6 +56,34 @@ const DashboardHeader = ({
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   border: 1px solid #eee;
   margin-bottom: 20px;
+}
+
+.exec-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: none;
+  border-radius: 7px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.exec-btn--location {
+  background: rgba(227, 31, 31, 0.18);
+  color: black;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+.exec-btn--location:hover:not(:disabled) {
+  background: rgba(238, 25, 25, 0.28);
+}
+.exec-btn--location:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Layout */
@@ -85,6 +150,22 @@ const DashboardHeader = ({
   transform: scale(1.03);
 }
 
+.exec-btn--start {
+  background: #22c55e;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.35);
+}
+.exec-btn--start:hover:not(:disabled) {
+  background: #16a34a;
+  transform: translateY(-1px);
+}
+.exec-btn--start:disabled {
+  background: rgba(255, 255, 255, 0.2);
+  color: black;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
 /* ================= RESPONSIVE ================= */
 
 /* Tablets */
@@ -148,9 +229,32 @@ const DashboardHeader = ({
               Add Executive
             </button>
 
-            <button onClick={onAddEntry} className="btn btn-success">
-              + Add Entry
+             {!locationAllowed && (
+            <button className="exec-btn exec-btn--location" onClick={handleEnableLocation}>
+              📍 Enable Location
             </button>
+          )}
+
+          {!workStarted && (
+            <button
+              className="exec-btn exec-btn--start"
+              disabled={!locationAllowed}
+              onClick={handleStartWork}
+              title={!locationAllowed ? "Enable location first" : "Start your work session"}
+            >
+              ▶ Start Work
+            </button>
+          )}
+
+          {workStarted && !showForm && (
+            <button
+              className="exec-btn exec-btn--new-entry"
+              onClick={() =>onAddEntry()}
+            >
+              + New Entry
+            </button>
+          )}
+
 
             <button
               onClick={onRefresh}
