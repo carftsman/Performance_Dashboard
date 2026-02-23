@@ -807,6 +807,49 @@
   to { transform: translateY(0); opacity: 1; }
 }
 
+/* ── REQUESTS TABS ── */
+.mgr-requests-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 8px;
+}
+
+.mgr-tab-btn {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.mgr-tab-btn:hover {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.mgr-tab-btn.active {
+  background: #e0e7ff;
+  color: #4f46e5;
+}
+
+.mgr-tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #4f46e5;
+  border-radius: 2px 2px 0 0;
+}
+
 /* Empty State */
 .empty-state {
   text-align: center;
