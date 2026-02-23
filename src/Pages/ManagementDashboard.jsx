@@ -62,7 +62,8 @@ const ManagementDashboard = ({ user, logout }) => {
   const fetchRequests = async () => {
     try {
       const response = await managerService.getRequests();
-      setEditRequests(response.data || []);
+      console.log("get request from manager dashboard",response);
+      setEditRequests(response || []);
     } catch (error) {
       console.error("Error fetching edit requests:", error);
     }
