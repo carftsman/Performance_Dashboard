@@ -19,7 +19,7 @@ const HeaderSection = ({ executive, onBack }) => {
 .header-card h2 {
   font-size: 20px;
   font-weight: 600;
-  color: #111827;
+  color: white;
   margin: 0;
 }
 

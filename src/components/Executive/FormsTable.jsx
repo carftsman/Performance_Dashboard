@@ -2,7 +2,6 @@
 const StatusBadge = ({ status }) => {
   const styles = {
     INTERESTED: { bg: "#d4edda", color: "#155724", label: "Interested" },
-    ONBOARDED: { bg: "#cce5ff", color: "#004085", label: "Onboarded" },
     NOT_INTERESTED: { bg: "#f8d7da", color: "#721c24", label: "Not Interested" },
     FOLLOW_UP: { bg: "#fff3cd", color: "#856404", label: "Follow Up" },
   };
@@ -66,6 +65,117 @@ const formatDate = (dateString) => {
 
 const FormsTable = ({ forms }) => {
   return (
+    <>
+    <style>{`
+      /* Table Container */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 1rem;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Table Styles */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px; /* allow horizontal scroll on small screens */
+}
+
+.data-table th,
+.data-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.data-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.data-table td {
+  font-size: 0.9rem;
+  color: #444;
+}
+
+/* Zebra striping */
+.data-table tbody tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+/* Hover effect */
+.data-table tbody tr:hover {
+  background-color: #f1f3f5;
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 768px) {
+  .data-table {
+    min-width: 600px;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .data-table {
+    min-width: 400px;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  font-size: 0.95rem;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  margin-top: 1rem;
+}
+
+/* Status & Tag Badges */
+.data-table td span {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Vendor Info */
+.data-table td div {
+  line-height: 1.3;
+}
+
+/* Optional: make table horizontally scrollable */
+.table-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+    `}</style>
     <div className="table-container desktop-view">
       <table className="data-table">
         <thead>
@@ -141,6 +251,7 @@ const FormsTable = ({ forms }) => {
         </div>
       )}
     </div>
+    </>
   );
 };
 

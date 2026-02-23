@@ -241,9 +241,9 @@ const [showReportModal, setShowReportModal] = useState(false);
           <div className="header-content">
             <div>
               <h1>Management Dashboard</h1>
-              <p className="text-muted">
+              {/* <p className="text-muted">
                 Consolidated view of all field operations • {forms.length} total entries
-              </p>
+              </p> */}
             </div>
              
             <div className="header-actions">

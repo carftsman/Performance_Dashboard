@@ -32,10 +32,12 @@ const DashboardHeader = ({
           font-size: 24px;
           font-weight: 700;
           margin: 0;
+          color:black;
+          
         }
 
         .text-muted {
-          color: #777;
+          color: black;
           font-size: 14px;
         }
 
@@ -96,10 +98,9 @@ const DashboardHeader = ({
         <div className="header-content">
           <div className="header-left">
             <div>
-              <h1>Team Lead Dashboard</h1>
-              <p className="text-muted">
-                Welcome back {dashboardUser?.userCode || "Team Lead"}
-              </p>
+              <h1>Team Lead Dashboard - {dashboardUser?.userCode}
+              </h1>
+              
             </div>
           </div>
 
