@@ -19,6 +19,8 @@ function BpoDashBoard() {
   const [selectedFormForReview, setSelectedFormForReview] = useState(null);
   const [executiveReview, setExecutiveReview] = useState("");
   const [vendorReview, setVendorReview] = useState("");
+  const [idNumber, setIdNumber] = useState("");
+  const [bpoName, setBpoName] = useState("");
   const [selectedAction, setSelectedAction] = useState("SOLVED");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
@@ -65,6 +67,14 @@ function BpoDashBoard() {
     if (!selectedFormForReview) return;
     
     // Validation
+    if (!idNumber.trim()) {
+      setSubmitError("Please provide ID Number");
+      return;
+    }
+    if (!bpoName.trim()) {
+      setSubmitError("Please provide BPO Name");
+      return;
+    }
     if (!executiveReview.trim()) {
       setSubmitError("Please provide executive review");
       return;
@@ -80,6 +90,8 @@ function BpoDashBoard() {
       
       const payload = {
         action: selectedAction,
+        idNumber: idNumber.trim(),
+        bpoName: bpoName.trim(),
         executiveReview: executiveReview.trim(),
         vendorReview: vendorReview.trim()
       };
@@ -126,6 +138,8 @@ function BpoDashBoard() {
     setSelectedFormForReview(form);
     setExecutiveReview("");
     setVendorReview("");
+    setIdNumber("");
+    setBpoName("");
     setSelectedAction("SOLVED");
     setSubmitError(null);
     setSubmitSuccess(null);
@@ -138,6 +152,8 @@ function BpoDashBoard() {
     setSelectedFormForReview(null);
     setExecutiveReview("");
     setVendorReview("");
+    setIdNumber("");
+    setBpoName("");
     setSelectedAction("SOLVED");
     setSubmitError(null);
     setSubmitSuccess(null);
@@ -517,6 +533,38 @@ const matchesVendorType =
                   </div>
                 )}
 
+                {/* ID Number */}
+                <div className="form-group">
+                  <label className="form-label">
+                    ID Number <span className="required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="filter-input"
+                    style={{ width: '100%', boxSizing: 'border-box' }}
+                    placeholder="Enter ID Number"
+                    value={idNumber}
+                    onChange={(e) => setIdNumber(e.target.value)}
+                    disabled={isSubmitting}
+                  />
+                </div>
+
+                {/* BPO Name */}
+                <div className="form-group">
+                  <label className="form-label">
+                    BPO Name <span className="required">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="filter-input"
+                    style={{ width: '100%', boxSizing: 'border-box' }}
+                    placeholder="Enter BPO Name"
+                    value={bpoName}
+                    onChange={(e) => setBpoName(e.target.value)}
+                    disabled={isSubmitting}
+                  />
+                </div>
+
                 {/* Executive Review */}
                 <div className="form-group">
                   <label className="form-label">
@@ -573,10 +621,22 @@ const matchesVendorType =
                 </div>
 
                 {/* Preview Section */}
-                {(executiveReview || vendorReview) && (
+                {(idNumber || bpoName || executiveReview || vendorReview) && (
                   <div className="review-preview">
                     <h4>Preview</h4>
                     <div className="preview-content">
+                      {idNumber && (
+                        <div className="preview-item">
+                          <strong>ID Number:</strong>
+                          <p>{idNumber}</p>
+                        </div>
+                      )}
+                      {bpoName && (
+                        <div className="preview-item">
+                          <strong>BPO Name:</strong>
+                          <p>{bpoName}</p>
+                        </div>
+                      )}
                       {executiveReview && (
                         <div className="preview-item">
                           <strong>Executive Review:</strong>
