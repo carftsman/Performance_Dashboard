@@ -161,20 +161,20 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
           {/* Quick Stats Cards */}
           <div className="stats-grid">
             <div className="stat-card">
-              <div className="stat-value">{stats.total}</div>
-              <div className="stat-label">Total Entries</div>
+              <div className="stat-value" style={{color:'black'}}>{stats.total}</div>
+              <div className="stat-label" style={{color:'black'}}>Total Entries</div>
             </div>
             <div className="stat-card">
-              <div className="stat-value" style={{ color: '#28a745' }}>
+              <div className="stat-value" style={{ color: 'black' }}>
                 {stats.interested}
               </div>
-              <div className="stat-label">Interested</div>
+              <div className="stat-label" style={{color:'black'}}>Interested</div>
             </div>
             <div className="stat-card">
-              <div className="stat-value" style={{ color: '#dc3545' }}>
+              <div className="stat-value" style={{ color: 'black' }}>
                 {stats.notInterested}
               </div>
-              <div className="stat-label">Not Interested</div>
+              <div className="stat-label" style={{color:'black'}}>Not Interested</div>
             </div>
           </div>
 

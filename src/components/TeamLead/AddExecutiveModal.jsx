@@ -297,7 +297,7 @@ form {
           </div>
 
           <div className="form-group">
-            <label htmlFor="name">Name *</label>
+            <label htmlFor="name">Name</label>
             <input
               type="text"
               id="name"
