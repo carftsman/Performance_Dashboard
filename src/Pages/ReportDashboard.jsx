@@ -128,7 +128,7 @@ const ReportDashboard = ({ user, logout }) => {
   const stats = {
     total: forms.length,
     interested: forms.filter(f => f.status === 'INTERESTED').length,
-    onboarded: forms.filter(f => f.status === 'ONBOARDED').length,
+
     notInterested: forms.filter(f => f.status === 'NOT_INTERESTED').length,
     totalExecutives: uniqueExecutives.length,
     totalTeamLeads: teamLeads.length
@@ -137,7 +137,7 @@ const ReportDashboard = ({ user, logout }) => {
   // Chart 1: Status Distribution (Pie Chart)
   const statusDistributionData = [
     { name: 'Interested', value: stats.interested, color: '#166534' },
-    { name: 'Onboarded', value: stats.onboarded, color: '#1e40af' },
+
     { name: 'Not Interested', value: stats.notInterested, color: '#991b1b' }
   ].filter(item => item.value > 0);
 
@@ -156,11 +156,9 @@ const ReportDashboard = ({ user, logout }) => {
       name: lead,
       total: leadForms.length,
       interested: leadForms.filter(f => f.status === 'INTERESTED').length,
-      onboarded: leadForms.filter(f => f.status === 'ONBOARDED').length,
+     
       notInterested: leadForms.filter(f => f.status === 'NOT_INTERESTED').length,
-      conversionRate: leadForms.length > 0 
-        ? ((leadForms.filter(f => f.status === 'ONBOARDED').length / leadForms.length) * 100).toFixed(1)
-        : 0
+      
     };
   });
 
@@ -173,11 +171,9 @@ const ReportDashboard = ({ user, logout }) => {
       teamlead: exec.teamleadName || 'N/A',
       total: execForms.length,
       interested: execForms.filter(f => f.status === 'INTERESTED').length,
-      onboarded: execForms.filter(f => f.status === 'ONBOARDED').length,
+  
       notInterested: execForms.filter(f => f.status === 'NOT_INTERESTED').length,
-      conversionRate: execForms.length > 0 
-        ? ((execForms.filter(f => f.status === 'ONBOARDED').length / execForms.length) * 100).toFixed(1)
-        : 0
+     
     };
   }).sort((a, b) => b.total - a.total);
 
@@ -200,7 +196,7 @@ const ReportDashboard = ({ user, logout }) => {
         date: dateStr,
         total: dayForms.length,
         interested: dayForms.filter(f => f.status === 'INTERESTED').length,
-        onboarded: dayForms.filter(f => f.status === 'ONBOARDED').length
+       
       });
     }
     
@@ -215,7 +211,7 @@ const ReportDashboard = ({ user, logout }) => {
     return {
       team: lead,
       interested: leadForms.filter(f => f.status === 'INTERESTED').length,
-      onboarded: leadForms.filter(f => f.status === 'ONBOARDED').length,
+     
       notInterested: leadForms.filter(f => f.status === 'NOT_INTERESTED').length,
       greenTag: leadForms.filter(f => f.tag === 'GREEN').length,
       orangeTag: leadForms.filter(f => f.tag === 'ORANGE').length
@@ -238,7 +234,7 @@ const ReportDashboard = ({ user, logout }) => {
   const getStatusBadge = (status) => {
     const styles = {
       'INTERESTED': { background: '#dcfce7', color: '#166534', label: 'Interested' },
-      'ONBOARDED': { background: '#dbeafe', color: '#1e40af', label: 'Onboarded' },
+     
       'NOT_INTERESTED': { background: '#fee2e2', color: '#991b1b', label: 'Not Interested' }
     };
     const style = styles[status] || { background: '#f1f5f9', color: '#475569', label: status };
@@ -285,11 +281,16 @@ const ReportDashboard = ({ user, logout }) => {
           <div className="header-content">
             <div>
               <h1>Reporter Dashboard</h1>
-              <p className="text-muted">
-                Consolidated view of all field operations • {forms.length} total entries
-              </p>
             </div>
+            
             <div className="header-actions">
+               <button 
+        className="btn btn-success" 
+        onClick={() => setShowReportModal(true)}
+        disabled={loading}
+      >
+        📊 Generate Report
+      </button>
               <button onClick={handleRefresh} className="btn btn-primary" disabled={loading}>
                 {loading ? 'Refreshing...' : 'Refresh Data'}
               </button>
@@ -328,10 +329,6 @@ const ReportDashboard = ({ user, logout }) => {
                 <div className="stat-label">Interested</div>
               </div>
               <div className="stat-card">
-                <div className="stat-value" style={{ color: '#1e40af' }}>{stats.onboarded}</div>
-                <div className="stat-label">Onboarded</div>
-              </div>
-              <div className="stat-card">
                 <div className="stat-value" style={{ color: '#991b1b' }}>{stats.notInterested}</div>
                 <div className="stat-label">Not Interested</div>
               </div>
@@ -345,88 +342,6 @@ const ReportDashboard = ({ user, logout }) => {
               </div>
             </div>
 
-            {/* View Toggle and Filters */}
-            <div className="card filters-card">
-              <div className="filters-header">
-                <div className="view-toggle-group">
-                  <button 
-                    className={`view-toggle-btn ${viewMode === 'charts' ? 'active' : ''}`}
-                    onClick={() => setViewMode('charts')}
-                  >
-                    📊 Charts
-                  </button>
-                  <button 
-                    className={`view-toggle-btn ${viewMode === 'table' ? 'active' : ''}`}
-                    onClick={() => setViewMode('table')}
-                  >
-                    📋 Table
-                  </button>
-                  <button 
-                    className={`view-toggle-btn ${viewMode === 'cards' ? 'active' : ''}`}
-                    onClick={() => setViewMode('cards')}
-                  >
-                    🃏 Cards
-                  </button>
-                   <button 
-        className="btn btn-success" 
-        onClick={() => setShowReportModal(true)}
-        disabled={loading}
-      >
-        📊 Generate Report
-      </button>
-                </div>
-                
-                {(searchTerm || statusFilter !== 'all' || teamFilter !== 'all' || dateRange !== 'all') && (
-                  <button 
-                    onClick={() => {
-                      setSearchTerm('');
-                      setStatusFilter('all');
-                      setTeamFilter('all');
-                      setDateRange('all');
-                    }}
-                    className="btn btn-outline btn-sm"
-                  >
-                    Clear All Filters
-                  </button>
-                )}
-              </div>
-
-              <div className="filters-grid">
-                <input
-                  type="text"
-                  placeholder="Search by shop, vendor, executive..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="filter-input"
-                />
-
-                <select 
-                  value={teamFilter}
-                  onChange={(e) => setTeamFilter(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="all">All Team Leads</option>
-                  {teamLeads.map(lead => (
-                    <option key={lead} value={lead}>{lead}</option>
-                  ))}
-                </select>
-
-                <select 
-                  value={dateRange}
-                  onChange={(e) => setDateRange(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="all">All Time</option>
-                  <option value="today">Today</option>
-                  <option value="week">Last 7 Days</option>
-                  <option value="month">Last 30 Days</option>
-                </select>
-              </div>
-
-              <div className="results-count">
-                Showing {filteredForms.length} of {forms.length} entries
-              </div>
-            </div>
 
             {/* Chart Type Selector (only in charts mode) */}
             {viewMode === 'charts' && (
@@ -526,7 +441,6 @@ const ReportDashboard = ({ user, logout }) => {
                           <Tooltip />
                           <Legend />
                           <Bar dataKey="interested" fill="#166534" name="Interested" />
-                          <Bar dataKey="onboarded" fill="#1e40af" name="Onboarded" />
                           <Bar dataKey="notInterested" fill="#991b1b" name="Not Interested" />
                         </BarChart>
                       </ResponsiveContainer>
@@ -547,44 +461,8 @@ const ReportDashboard = ({ user, logout }) => {
                           <Tooltip />
                           <Legend />
                           <Bar dataKey="interested" fill="#166534" name="Interested" />
-                          <Bar dataKey="onboarded" fill="#1e40af" name="Onboarded" />
                           <Bar dataKey="notInterested" fill="#991b1b" name="Not Interested" />
                         </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-
-                    {/* Team Lead Conversion Rates */}
-                    <div className="chart-card full-width">
-                      <h3 className="chart-title">Team Lead Conversion Rates (%)</h3>
-                      <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={teamLeadData}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="name" />
-                          <YAxis domain={[0, 100]} />
-                          <Tooltip />
-                          <Bar dataKey="conversionRate" fill="#3b82f6" name="Conversion Rate %">
-                            {teamLeadData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.conversionRate > 50 ? '#166534' : '#9a3412'} />
-                            ))}
-                          </Bar>
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-
-                    {/* Team Lead Radar Chart */}
-                    <div className="chart-card full-width">
-                      <h3 className="chart-title">Team Lead Performance Radar</h3>
-                      <ResponsiveContainer width="100%" height={400}>
-                        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={teamComparisonData}>
-                          <PolarGrid />
-                          <PolarAngleAxis dataKey="team" />
-                          <PolarRadiusAxis />
-                          <Radar name="Interested" dataKey="interested" stroke="#166534" fill="#166534" fillOpacity={0.6} />
-                          <Radar name="Onboarded" dataKey="onboarded" stroke="#1e40af" fill="#1e40af" fillOpacity={0.6} />
-                          <Radar name="Green Tag" dataKey="greenTag" stroke="#166534" fill="#166534" fillOpacity={0.3} />
-                          <Legend />
-                          <Tooltip />
-                        </RadarChart>
                       </ResponsiveContainer>
                     </div>
                   </>
@@ -603,40 +481,7 @@ const ReportDashboard = ({ user, logout }) => {
                           <Tooltip />
                           <Legend />
                           <Bar dataKey="total" fill="#3b82f6" name="Total Entries" />
-                          <Bar dataKey="onboarded" fill="#1e40af" name="Onboarded" />
                         </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-
-                    {/* Executive Conversion Rates */}
-                    <div className="chart-card full-width">
-                      <h3 className="chart-title">Executive Conversion Rates (%)</h3>
-                      <ResponsiveContainer width="100%" height={400}>
-                        <BarChart data={executiveData.filter(e => e.total > 0).slice(0, 15)}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} interval={0} />
-                          <YAxis domain={[0, 100]} />
-                          <Tooltip />
-                          <Bar dataKey="conversionRate" fill="#166534" name="Conversion Rate %" />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-
-                    {/* Executive Scatter Plot */}
-                    <div className="chart-card full-width">
-                      <h3 className="chart-title">Executive Performance: Total vs Onboarded</h3>
-                      <ResponsiveContainer width="100%" height={400}>
-                        <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-                          <CartesianGrid />
-                          <XAxis type="number" dataKey="total" name="Total Entries" />
-                          <YAxis type="number" dataKey="onboarded" name="Onboarded" />
-                          <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-                          <Scatter name="Executives" data={executiveData} fill="#3b82f6">
-                            {executiveData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.conversionRate > 50 ? '#166534' : '#9a3412'} />
-                            ))}
-                          </Scatter>
-                        </ScatterChart>
                       </ResponsiveContainer>
                     </div>
                   </>
@@ -656,7 +501,7 @@ const ReportDashboard = ({ user, logout }) => {
                           <Legend />
                           <Area type="monotone" dataKey="total" stackId="1" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.6} name="Total Entries" />
                           <Area type="monotone" dataKey="interested" stackId="2" stroke="#166534" fill="#166534" fillOpacity={0.6} name="Interested" />
-                          <Area type="monotone" dataKey="onboarded" stackId="3" stroke="#1e40af" fill="#1e40af" fillOpacity={0.6} name="Onboarded" />
+                         
                         </AreaChart>
                       </ResponsiveContainer>
                     </div>
@@ -673,7 +518,7 @@ const ReportDashboard = ({ user, logout }) => {
                           <Legend />
                           <Line type="monotone" dataKey="total" stroke="#3b82f6" name="Total Entries" strokeWidth={2} />
                           <Line type="monotone" dataKey="interested" stroke="#166534" name="Interested" strokeWidth={2} />
-                          <Line type="monotone" dataKey="onboarded" stroke="#1e40af" name="Onboarded" strokeWidth={2} />
+                         
                         </LineChart>
                       </ResponsiveContainer>
                     </div>
@@ -691,7 +536,7 @@ const ReportDashboard = ({ user, logout }) => {
                           <Legend />
                           <Bar yAxisId="left" dataKey="total" fill="#3b82f6" name="Total Entries" />
                           <Line yAxisId="right" type="monotone" dataKey="interested" stroke="#166534" name="Interested" />
-                          <Line yAxisId="right" type="monotone" dataKey="onboarded" stroke="#1e40af" name="Onboarded" />
+
                         </ComposedChart>
                       </ResponsiveContainer>
                     </div>
