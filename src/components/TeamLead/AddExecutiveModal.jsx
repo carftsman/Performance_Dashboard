@@ -129,7 +129,8 @@ const AddExecutiveModal = ({
 .modal-header h2 {
   margin: 0;
   font-size: 1.5rem;
-  color: #333;
+  color:white;
+  
 }
 
 .btn-close {
@@ -137,12 +138,12 @@ const AddExecutiveModal = ({
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #666;
+  color: white;
   transition: color 0.2s;
 }
 
 .btn-close:hover:not(:disabled) {
-  color: #000;
+  color: white;
 }
 
 /* Alerts */

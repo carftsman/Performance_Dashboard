@@ -6,7 +6,6 @@
 import React, { useEffect, useState } from "react";
 import VendorForm from "../components/Executive/VendorForm";
 import { formService } from "../Services/form.service";
-import { executiveService } from "../Services/executive.service";
 import "./ExecutiveDashboard.css";
 
 const ExecutiveDashboard = ({ user, logout }) => {
@@ -34,49 +33,17 @@ const ExecutiveDashboard = ({ user, logout }) => {
   const [requestReason, setRequestReason] = useState("");
   const [isRequesting, setIsRequesting] = useState(false);
 
-  // ── Approved Requests state ───────────────────────────────────────────────
-  const [approvedRequests, setApprovedRequests] = useState([]);
-  const [showApprovedModal, setShowApprovedModal] = useState(false);
-  const [editingRequest, setEditingRequest] = useState(null);
-  const [editFormData, setEditFormData] = useState(null);
-  const [isResubmitting, setIsResubmitting] = useState(false);
-
   // ── Search state ──────────────────────────────────────────────────────────
   const [searchQuery, setSearchQuery] = useState("");
-
-   // Attendance states
-
-  const [attendanceMarked, setAttendanceMarked] = useState(false);
-const [checkingAttendance, setCheckingAttendance] = useState(true);
-
 
   if (!user) return <h2>No User Found. Please Login Again.</h2>;
 
   /* =========================================
-     LOAD HISTORY & APPROVED REQUESTS
+     LOAD HISTORY (RESTORED)
   ========================================== */
   useEffect(() => {
-    checkAttendanceStatus();
     loadHistory();
-    loadApprovedRequests();
   }, []);
-
-    const checkAttendanceStatus = async () => {
-  try {
-    const response = await executiveService.checkAttendance();
-
-    if (response.data === true) {
-      setAttendanceMarked(true);
-      // setLocationAllowed(true);
-      setWorkStarted(true);
-    }
-
-  } catch (error) {
-    console.error("Attendance check failed:", error);
-  } finally {
-    setCheckingAttendance(false);
-  }
-};
 
   const loadHistory = async () => {
     try {
@@ -89,46 +56,19 @@ const [checkingAttendance, setCheckingAttendance] = useState(true);
       setLoadingHistory(false);
     }
   };
-  
-  
-  const loadApprovedRequests = async () => {
-    try {
-      const response = await executiveService.getApprovedRequests();
-      console.log("approved request responce from Executive dashboard",response)
-      setApprovedRequests(response || []);
-    } catch (error) {
-      console.error("Failed to load approved requests:", error);
-    }
-  };
 
   /* =========================================
      ENABLE LOCATION
   ========================================== */
   const handleEnableLocation = () => {
-  navigator.geolocation.getCurrentPosition(
-    async (position) => {
-      try {
-        const payload = {
-          latitude: position.coords.latitude.toString(),
-          longitude: position.coords.longitude.toString(),
-        };
-
-        await executiveService.markAttendance(payload);
-
-        setAttendanceMarked(true);
-        // setLocationAllowed(true);
-
-        alert("Attendance Marked Successfully ✅");
-
-      } catch (error) {
-        console.error("Attendance marking failed:", error);
-        alert("Failed to mark attendance");
-      }
-    },
-    () => alert("Location Permission Denied ❌")
-  );
-};
-
+    navigator.geolocation.getCurrentPosition(
+      () => {
+        setLocationAllowed(true);
+        alert("Location Permission Granted ✅");
+      },
+      () => alert("Location Permission Denied ❌")
+    );
+  };
 
   /* =========================================
      START WORK (Store once)
@@ -214,53 +154,39 @@ const [checkingAttendance, setCheckingAttendance] = useState(true);
   /* =========================================
      SUBMIT FORM
   ========================================== */
+  const handleSubmitDailyLog = async (formData) => {
 
- const handleSubmitDailyLog = async (formData) => {
+    if (!vendorLocation) {
+      alert("Please capture vendor location");
+      return;
+    }
 
-  if (!vendorLocation) {
-    alert("Please capture vendor location");
-    return;
-  }
+    setIsSubmitting(true);
 
-  setIsSubmitting(true);
+    try {
+      const submissionData = {
+        ...formData,
+        workStartLocation,  // ✅ stored once
+        vendorLocation      // ✅ per vendor visit
+      };
 
-  try {
+      await formService.createForm(submissionData);
 
-    const submissionData = {
-      ...formData,
+      alert("Form submitted successfully!");
 
-      // ✅ Backend expects flat latitude & longitude
-      latitude: vendorLocation.latitude,
-      longitude: vendorLocation.longitude,
+      setVendorLocation(null);
+      setGeocodedAddress(null);
+      setShowForm(false);
 
-      // ✅ Backend expects vendorLocation as STRING
-      vendorLocation:
-        geocodedAddress?.areaName ||
-        geocodedAddress?.streetName ||
-        "Current Location",
+      loadHistory(); // refresh history
 
-      // DO NOT send workStartLocation
-    };
+    } catch (error) {
+      alert("Submission failed");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-    console.log("Submitting to backend:", submissionData);
-
-    await formService.createForm(submissionData);
-
-    alert("Form submitted successfully!");
-
-    setVendorLocation(null);
-    setGeocodedAddress(null);
-    setShowForm(false);
-
-    loadHistory();
-
-  } catch (error) {
-    console.error("Submission failed:", error.response?.data);
-    alert("Submission failed");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
   // ── Request to Manager Handler ────────────────────────────────────────────
   const handleProceedRequest = async () => {
     if (!requestReason.trim()) {
@@ -292,61 +218,6 @@ const [checkingAttendance, setCheckingAttendance] = useState(true);
   const handleCancelRequest = () => {
     setShowRequestModal(false);
     setRequestReason("");
-  };
-
-  // ── Approved Requests Handlers ────────────────────────────────────────────
-  const handleEditRequest = (req) => {
-    setEditingRequest(req);
-    // Pre-fill the form data for editing
-    setEditFormData({
-      vendorShopName: req.vendorShopName || "",
-      vendorName: req.vendorName || "",
-      contactNumber: req.contactNumber || "",
-      mailId: req.mailId || "",
-      vendorType: req.vendorType || "RESTAURANT",
-      vendorLocation: req.vendorLocation || "",
-      doorNumber: req.doorNumber || "",
-      streetName: req.streetName || "",
-      areaName: req.areaName || "",
-      pinCode: req.pinCode || "",
-      state: req.state || "",
-      status: req.status || "INTERESTED",
-      review: req.review || "",
-      latitude: req.latitude || 0,
-      longitude: req.longitude || 0,
-    });
-  };
-
-  const handleEditChange = (e) => {
-    setEditFormData({ ...editFormData, [e.target.name]: e.target.value });
-  };
-
-  const handleUpdateAndResubmit = async () => {
-    if (!editFormData.vendorShopName || !editFormData.vendorName) {
-      alert("Vendor Shop Name and Vendor Name are required.");
-      return;
-    }
-
-    try {
-      setIsResubmitting(true);
-      await executiveService.resubmitRequest(editingRequest.id, editFormData);
-      alert("Request resubmitted successfully!");
-      setEditingRequest(null);
-      
-      // Refresh data
-      await loadApprovedRequests();
-      await loadHistory();
-      
-      // Auto-close if it was the last one
-      if (approvedRequests.length <= 1) {
-        setShowApprovedModal(false);
-      }
-    } catch (error) {
-      console.error("Failed to resubmit:", error);
-      alert("Failed to resubmit request. Please try again.");
-    } finally {
-      setIsResubmitting(false);
-    }
   };
 
   /* =========================================
@@ -404,7 +275,7 @@ const [checkingAttendance, setCheckingAttendance] = useState(true);
         </div>
 
         <div className="exec-navbar-actions">
-          {!attendanceMarked && !checkingAttendance &&  (
+          {!locationAllowed && (
             <button className="exec-btn exec-btn--location" onClick={handleEnableLocation}>
               📍 Enable Location
             </button>
@@ -413,7 +284,7 @@ const [checkingAttendance, setCheckingAttendance] = useState(true);
           {!workStarted && (
             <button
               className="exec-btn exec-btn--start"
-               disabled={!attendanceMarked}
+              disabled={!locationAllowed}
               onClick={handleStartWork}
               title={!locationAllowed ? "Enable location first" : "Start your work session"}
             >
@@ -430,16 +301,6 @@ const [checkingAttendance, setCheckingAttendance] = useState(true);
             </button>
           )}
 
-          <button 
-            className="exec-btn exec-btn--requests"
-            onClick={() => setShowApprovedModal(true)}
-          >
-            📋 Approved Requests
-            {approvedRequests.length > 0 && (
-              <span className="exec-badge-count">{approvedRequests.length}</span>
-            )}
-          </button>
-
           <button className="exec-btn exec-btn--logout" onClick={logout}>
             Logout
           </button>
@@ -454,10 +315,10 @@ const [checkingAttendance, setCheckingAttendance] = useState(true);
             <span className="exec-status-dot" />
             Work In Progress
           </span>
-        ) : attendanceMarked ?(
+        ) : locationAllowed ? (
           <span className="exec-status-pill exec-status-pill--inactive">
             <span className="exec-status-dot" />
-           Attendance Marked — Start Work
+            Location Ready — Start Work to Begin
           </span>
         ) : (
           <span className="exec-status-pill exec-status-pill--inactive">
@@ -761,180 +622,6 @@ const [checkingAttendance, setCheckingAttendance] = useState(true);
                 disabled={isRequesting || !requestReason.trim()}
               >
                 {isRequesting ? "Submitting..." : "Proceed"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      {/* ── MODAL 1: APPROVED REQUESTS LIST ── */}
-      {showApprovedModal && (
-        <div className="exec-modal-overlay" onClick={() => setShowApprovedModal(false)}>
-          <div className="exec-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="exec-modal-header">
-              <h3 className="exec-modal-title">Approved Requests ({approvedRequests.length})</h3>
-              <button className="exec-modal-close" onClick={() => setShowApprovedModal(false)}>×</button>
-            </div>
-            
-            <div className="exec-modal-body bg-slate-50">
-              {approvedRequests.length === 0 ? (
-                <div className="exec-empty-state">
-                  <span className="exec-empty-state-icon">✅</span>
-                  <p className="exec-empty-state-title">All caught up!</p>
-                  <p className="exec-empty-state-sub">You have no forms waiting for resubmission.</p>
-                </div>
-              ) : (
-                <div className="exec-approved-grid">
-                  {approvedRequests.map(req => (
-                    <div key={req.id} className="exec-card">
-                      <div className="exec-card-header">
-                        <span className="exec-card-id">#{req.id}</span>
-                        <span className="exec-badge exec-badge--followup">Needs Edit</span>
-                      </div>
-                      <h3 className="exec-card-shop">🏪 {req.vendorShopName || 'Unnamed Shop'}</h3>
-                      <div className="exec-approved-reasons">
-                        <div className="reason-block">
-                          <strong>Original Request:</strong>
-                          <p>{req.resendReason || "N/A"}</p>
-                        </div>
-                        <div className="reason-block">
-                          <strong>Manager Review:</strong>
-                          <p>{req.review || "N/A"}</p>
-                        </div>
-                      </div>
-                      <div className="exec-card-footer">
-                        <span>📅 {formatDate(req.createdAt)}</span>
-                        <button 
-                          className="exec-btn exec-btn--primary"
-                          onClick={() => handleEditRequest(req)}
-                        >
-                          ✎ Edit & Resubmit
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── MODAL 2: EDIT & RESUBMIT FORM ── */}
-      {editingRequest && editFormData && (
-        <div className="exec-modal-overlay exec-modal-overlay--edit" onClick={() => setEditingRequest(null)}>
-          <div className="exec-modal exec-modal--large" onClick={(e) => e.stopPropagation()}>
-            <div className="exec-modal-header">
-              <div className="exec-modal-header-titles">
-                <h3 className="exec-modal-title">Edit Vendor details</h3>
-                <span className="exec-modal-subtitle">#{editingRequest.id} — Manager Feedback: {editingRequest.resendReason}</span>
-              </div>
-              <button 
-                className="exec-modal-close" 
-                onClick={() => setEditingRequest(null)}
-                disabled={isResubmitting}
-              >
-                ×
-              </button>
-            </div>
-
-            <div className="exec-modal-body">
-              <div className="exec-edit-form">
-                <div className="exec-edit-section">
-                  <h4>Core Details</h4>
-                  <div className="exec-edit-grid">
-                    <div className="exec-form-group">
-                      <label>Shop Name*</label>
-                      <input name="vendorShopName" value={editFormData.vendorShopName} onChange={handleEditChange} />
-                    </div>
-                    <div className="exec-form-group">
-                      <label>Owner Name*</label>
-                      <input name="vendorName" value={editFormData.vendorName} onChange={handleEditChange} />
-                    </div>
-                    <div className="exec-form-group">
-                      <label>Contact Number</label>
-                      <input name="contactNumber" value={editFormData.contactNumber} onChange={handleEditChange} />
-                    </div>
-                    <div className="exec-form-group">
-                      <label>Email ID</label>
-                      <input name="mailId" value={editFormData.mailId} onChange={handleEditChange} />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="exec-edit-section">
-                  <h4>Address Information</h4>
-                  <div className="exec-edit-grid">
-                    <div className="exec-form-group">
-                      <label>Door Number</label>
-                      <input name="doorNumber" value={editFormData.doorNumber} onChange={handleEditChange} />
-                    </div>
-                    <div className="exec-form-group">
-                      <label>Street Name</label>
-                      <input name="streetName" value={editFormData.streetName} onChange={handleEditChange} />
-                    </div>
-                    <div className="exec-form-group">
-                      <label>Area Name</label>
-                      <input name="areaName" value={editFormData.areaName} onChange={handleEditChange} />
-                    </div>
-                    <div className="exec-form-group">
-                      <label>PIN Code</label>
-                      <input name="pinCode" value={editFormData.pinCode} onChange={handleEditChange} />
-                    </div>
-                    <div className="exec-form-group">
-                      <label>State</label>
-                      <input name="state" value={editFormData.state} onChange={handleEditChange} />
-                    </div>
-                    <div className="exec-form-group">
-                      <label>Vendor Mode (Mapped Location)</label>
-                      <input name="vendorLocation" value={editFormData.vendorLocation} onChange={handleEditChange} />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="exec-edit-section">
-                  <h4>Status & Review</h4>
-                  <div className="exec-edit-grid">
-                    <div className="exec-form-group">
-                      <label>Status</label>
-                      <select name="status" value={editFormData.status} onChange={handleEditChange}>
-                        <option value="INTERESTED">Interested</option>
-                        <option value="NOT_INTERESTED">Not Interested</option>
-                        <option value="FOLLOW_UP">Follow Up</option>
-                      </select>
-                    </div>
-                    <div className="exec-form-group">
-                      <label>Vendor Type</label>
-                      <select name="vendorType" value={editFormData.vendorType} onChange={handleEditChange}>
-                        <option value="RESTAURANT">Restaurant</option>
-                        <option value="GROCERY">Grocery</option>
-                        <option value="PHARMACY">Pharmacy</option>
-                        <option value="OTHER">Other</option>
-                      </select>
-                    </div>
-                    <div className="exec-form-group" style={{ gridColumn: "1 / -1" }}>
-                      <label>Review Notes</label>
-                      <textarea name="review" rows="3" value={editFormData.review} onChange={handleEditChange} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="exec-modal-footer">
-              <button 
-                className="exec-prompt-btn exec-prompt-btn--cancel" 
-                onClick={() => setEditingRequest(null)}
-                disabled={isResubmitting}
-              >
-                Cancel
-              </button>
-              <button 
-                className="exec-prompt-btn exec-prompt-btn--proceed"
-                style={{ background: '#10b981', color: 'white', border: 'none' }}
-                onClick={handleUpdateAndResubmit}
-                disabled={isResubmitting || !editFormData.vendorShopName || !editFormData.vendorName}
-              >
-                {isResubmitting ? "Resubmitting..." : "Update & Resubmit"}
               </button>
             </div>
           </div>

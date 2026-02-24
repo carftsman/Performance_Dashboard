@@ -28,6 +28,10 @@ const TeamLeadDashboard = ({ user, logout }) => {
     endDate: ''
   });
   const [filteredForms, setFilteredForms] = useState([]);
+  const [locationAllowed, setLocationAllowed] = useState(false);
+const [workStarted, setWorkStarted] = useState(false);
+const [workStartLocation, setWorkStartLocation] = useState(null);
+  const [showForm, setShowForm] = useState(false);
   useEffect(() => {
     fetchTeamLeadForms();
   }, []);
@@ -275,6 +279,11 @@ const filterFormsByDate = () => {
       submitSuccess={submitSuccess}
       handleFormSubmit={handleFormSubmit}
       isSubmitting={isSubmitting}
+      locationAllowed={locationAllowed}
+      setLocationAllowed={setLocationAllowed}
+  workStarted={workStarted}
+  setWorkStarted={setWorkStarted}
+  setWorkStartLocation={setWorkStartLocation}
     />
   );
 }
@@ -298,18 +307,25 @@ const filterFormsByDate = () => {
     <MainLayout user={dashboardUser} logout={logout}>
       <div className="teamlead-dashboard">
             <DashboardHeader
-              dashboardUser={dashboardUser}
-              loading={loading}
-              onAddExecutive={() => setShowAddExecutiveModal(true)}
-              onAddEntry={() => {
-                setSelectedExecutiveForForm({
-                  id: dashboardUser?.id ,
-                  name: dashboardUser?.userCode,
-                });
-                setViewMode("add-entry");
-              }}
-              onRefresh={handleRefresh}
-            />
+  dashboardUser={dashboardUser}
+  loading={loading}
+  onAddExecutive={() => setShowAddExecutiveModal(true)}
+  onAddEntry={() => {
+    setSelectedExecutiveForForm({
+      id: dashboardUser?.id,
+      name: dashboardUser?.userCode,
+    });
+    setViewMode("add-entry");
+  }}
+  onRefresh={handleRefresh}
+
+  /* 🔥 ADD THESE */
+  locationAllowed={locationAllowed}
+  setLocationAllowed={setLocationAllowed}
+  workStarted={workStarted}
+  setWorkStarted={setWorkStarted}
+  setWorkStartLocation={setWorkStartLocation}
+/>
             <AddExecutiveModal
               isOpen={showAddExecutiveModal}
               onClose={() => setShowAddExecutiveModal(false)}
