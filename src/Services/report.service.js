@@ -107,7 +107,7 @@ class ReportService {
     XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
 
     // Generate filename and save
-    const fileName = `${dashboardType}_report_${period}_${new Date().toISOString().split('T')[0]}.xlsx`;
+    const fileName = `Report For Selected TIme Period${period}_${new Date().toISOString().split('T')[0]}.xlsx`;
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
     saveAs(blob, fileName);
@@ -336,7 +336,7 @@ class ReportService {
       margin: { top: yPos + 20 }
     });
 
-    const fileName = `${dashboardType}_report_${period}_${new Date().toISOString().split('T')[0]}.pdf`;
+    const fileName = `Report For Selected Time Period${period}_${new Date().toISOString().split('T')[0]}.pdf`;
     doc.save(fileName);
 
     return true;
