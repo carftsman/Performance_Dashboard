@@ -44,15 +44,39 @@ const ExecutiveDashboard = ({ user, logout }) => {
   // ── Search state ──────────────────────────────────────────────────────────
   const [searchQuery, setSearchQuery] = useState("");
 
+   // Attendance states
+
+  const [attendanceMarked, setAttendanceMarked] = useState(false);
+const [checkingAttendance, setCheckingAttendance] = useState(true);
+
+
   if (!user) return <h2>No User Found. Please Login Again.</h2>;
 
   /* =========================================
      LOAD HISTORY & APPROVED REQUESTS
   ========================================== */
   useEffect(() => {
+    checkAttendanceStatus();
     loadHistory();
     loadApprovedRequests();
   }, []);
+
+    const checkAttendanceStatus = async () => {
+  try {
+    const response = await executiveService.checkAttendance();
+
+    if (response.data === true) {
+      setAttendanceMarked(true);
+      // setLocationAllowed(true);
+      setWorkStarted(true);
+    }
+
+  } catch (error) {
+    console.error("Attendance check failed:", error);
+  } finally {
+    setCheckingAttendance(false);
+  }
+};
 
   const loadHistory = async () => {
     try {
@@ -65,7 +89,8 @@ const ExecutiveDashboard = ({ user, logout }) => {
       setLoadingHistory(false);
     }
   };
-
+  
+  
   const loadApprovedRequests = async () => {
     try {
       const response = await executiveService.getApprovedRequests();
@@ -80,14 +105,30 @@ const ExecutiveDashboard = ({ user, logout }) => {
      ENABLE LOCATION
   ========================================== */
   const handleEnableLocation = () => {
-    navigator.geolocation.getCurrentPosition(
-      () => {
-        setLocationAllowed(true);
-        alert("Location Permission Granted ✅");
-      },
-      () => alert("Location Permission Denied ❌")
-    );
-  };
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      try {
+        const payload = {
+          latitude: position.coords.latitude.toString(),
+          longitude: position.coords.longitude.toString(),
+        };
+
+        await executiveService.markAttendance(payload);
+
+        setAttendanceMarked(true);
+        // setLocationAllowed(true);
+
+        alert("Attendance Marked Successfully ✅");
+
+      } catch (error) {
+        console.error("Attendance marking failed:", error);
+        alert("Failed to mark attendance");
+      }
+    },
+    () => alert("Location Permission Denied ❌")
+  );
+};
+
 
   /* =========================================
      START WORK (Store once)
@@ -363,7 +404,7 @@ const ExecutiveDashboard = ({ user, logout }) => {
         </div>
 
         <div className="exec-navbar-actions">
-          {!locationAllowed && (
+          {!attendanceMarked && !checkingAttendance &&  (
             <button className="exec-btn exec-btn--location" onClick={handleEnableLocation}>
               📍 Enable Location
             </button>
@@ -372,7 +413,7 @@ const ExecutiveDashboard = ({ user, logout }) => {
           {!workStarted && (
             <button
               className="exec-btn exec-btn--start"
-              disabled={!locationAllowed}
+               disabled={!attendanceMarked}
               onClick={handleStartWork}
               title={!locationAllowed ? "Enable location first" : "Start your work session"}
             >
@@ -413,10 +454,10 @@ const ExecutiveDashboard = ({ user, logout }) => {
             <span className="exec-status-dot" />
             Work In Progress
           </span>
-        ) : locationAllowed ? (
+        ) : attendanceMarked ?(
           <span className="exec-status-pill exec-status-pill--inactive">
             <span className="exec-status-dot" />
-            Location Ready — Start Work to Begin
+           Attendance Marked — Start Work
           </span>
         ) : (
           <span className="exec-status-pill exec-status-pill--inactive">
