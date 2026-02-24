@@ -404,7 +404,6 @@ const matchesVendorType =
           <option value="INTERESTED">INTERESTED</option>
           <option value="NOT_INTERESTED">NOT INTERESTED</option>
           <option value="ONBOARDED">ONBOARDED</option>
-          <option value="PENDING">PENDING</option>
         </select>
 
         <select
