@@ -22,6 +22,7 @@ const VendorForm = ({
     areaName:       "",
     pinCode:        "",
     state:          "",
+    district:       "",
     status:         "INTERESTED",
     review:         "",
   });
@@ -38,6 +39,7 @@ const VendorForm = ({
       streetName: geocodedAddress.streetName || prev.streetName,
       pinCode:    geocodedAddress.pinCode    || prev.pinCode,
       state:      geocodedAddress.state      || prev.state,
+      district:   geocodedAddress.district   || prev.district,
     }));
     // Clear errors for autofilled fields
     setErrors((prev) => ({
@@ -46,6 +48,7 @@ const VendorForm = ({
       streetName: "",
       pinCode:    "",
       state:      "",
+      district:   "",
     }));
   }, [geocodedAddress]);
 
@@ -93,6 +96,9 @@ const VendorForm = ({
     if (!formData.state.trim())
       newErrors.state = "State is required";
 
+    if (!formData.district.trim())
+      newErrors.district = "District is required";
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -123,6 +129,7 @@ const VendorForm = ({
       areaName:       "",
       pinCode:        "",
       state:          "",
+      district:       "",
       status:         "INTERESTED",
       review:         "",
     });
@@ -333,6 +340,20 @@ const VendorForm = ({
                 placeholder="Enter state" disabled={isDisabled} required
               />
               {errors.state && <p className="vendor-error-text">⚠ {errors.state}</p>}
+            </div>
+
+            <div className="vendor-group">
+              <label htmlFor="district" className="vendor-label">
+                District <span className="vendor-label-required">*</span>
+                {geocodedAddress?.district && <span className="vendor-label-auto">Auto-filled</span>}
+              </label>
+              <input
+                type="text" id="district" name="district"
+                value={formData.district} onChange={handleChange}
+                className={`vendor-input ${errors.district ? "vendor-input--error" : ""}`}
+                placeholder="Enter district" disabled={isDisabled} required
+              />
+              {errors.district && <p className="vendor-error-text">⚠ {errors.district}</p>}
             </div>
 
           </div>

@@ -218,6 +218,7 @@ function BpoDashBoard() {
       areaName: req.areaName || "",
       pinCode: req.pinCode || "",
       state: req.state || "",
+      district: req.district || "",
       vendorLocation: req.vendorLocation || "",
       latitude: req.latitude || "",
       longitude: req.longitude || "",
@@ -534,7 +535,7 @@ const matchesVendorType =
                     <div className="detail-field detail-field--full">
                       <label>Complete Address</label>
                       <div className="value">
-                        {selectedForm.doorNumber}, {selectedForm.streetName}, {selectedForm.areaName}, {selectedForm.state} - {selectedForm.pinCode}
+                        {selectedForm.doorNumber}, {selectedForm.streetName}, {selectedForm.areaName}, {selectedForm.district}, {selectedForm.state} - {selectedForm.pinCode}
                       </div>
                     </div>
                     <div className="detail-field">
@@ -962,6 +963,10 @@ const matchesVendorType =
                       <div className="bpo-form-group">
                         <label>State</label>
                         <input name="state" value={editFormData.state} onChange={handleEditChange} placeholder="State" />
+                      </div>
+                      <div className="bpo-form-group">
+                        <label>District</label>
+                        <input name="district" value={editFormData.district} onChange={handleEditChange} placeholder="District" />
                       </div>
                     </div>
                   </div>

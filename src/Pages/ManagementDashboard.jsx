@@ -528,6 +528,10 @@ const [showReportModal, setShowReportModal] = useState(false);
                           <span className="detail-value">{form.areaName || 'N/A'}</span>
                         </div>
                         <div className="mgmt-detail-row-inline">
+                          <span className="detail-label">District:</span>
+                          <span className="detail-value">{form.district || 'N/A'}</span>
+                        </div>
+                        <div className="mgmt-detail-row-inline">
                           <span className="detail-label">State:</span>
                           <span className="detail-value">{form.state || 'N/A'}</span>
                         </div>

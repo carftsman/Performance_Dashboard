@@ -178,7 +178,7 @@ const [checkingAttendance, setCheckingAttendance] = useState(true);
 
           const res = await fetch(url);
           const data = await res.json();
-
+ 
           if (data.status === "OK") {
 
             const result = data.results[0];
@@ -192,6 +192,7 @@ const [checkingAttendance, setCheckingAttendance] = useState(true);
               areaName: getComponent("sublocality") || getComponent("locality"),
               pinCode: getComponent("postal_code"),
               state: getComponent("administrative_area_level_1"),
+              district: getComponent("administrative_area_level_2") || getComponent("administrative_area_level_3"),
             };
 
             setGeocodedAddress(address);
@@ -310,6 +311,7 @@ const [checkingAttendance, setCheckingAttendance] = useState(true);
       areaName: req.areaName || "",
       pinCode: req.pinCode || "",
       state: req.state || "",
+      district: req.district || "",
       status: req.status || "INTERESTED",
       review: req.review || "",
       latitude: req.latitude || 0,
