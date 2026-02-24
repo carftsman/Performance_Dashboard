@@ -314,6 +314,20 @@ const VendorForm = ({
             </div>
 
             <div className="vendor-group">
+              <label htmlFor="district" className="vendor-label">
+                District <span className="vendor-label-required">*</span>
+                {geocodedAddress?.district && <span className="vendor-label-auto">Auto-filled</span>}
+              </label>
+              <input
+                type="text" id="district" name="district"
+                value={formData.district} onChange={handleChange}
+                className={`vendor-input ${errors.district ? "vendor-input--error" : ""}`}
+                placeholder="Enter district" disabled={isDisabled} required
+              />
+              {errors.district && <p className="vendor-error-text">⚠ {errors.district}</p>}
+            </div>
+
+            <div className="vendor-group">
               <label htmlFor="pinCode" className="vendor-label">
                 Pin Code <span className="vendor-label-required">*</span>
                 {geocodedAddress?.pinCode && <span className="vendor-label-auto">Auto-filled</span>}
@@ -342,19 +356,7 @@ const VendorForm = ({
               {errors.state && <p className="vendor-error-text">⚠ {errors.state}</p>}
             </div>
 
-            <div className="vendor-group">
-              <label htmlFor="district" className="vendor-label">
-                District <span className="vendor-label-required">*</span>
-                {geocodedAddress?.district && <span className="vendor-label-auto">Auto-filled</span>}
-              </label>
-              <input
-                type="text" id="district" name="district"
-                value={formData.district} onChange={handleChange}
-                className={`vendor-input ${errors.district ? "vendor-input--error" : ""}`}
-                placeholder="Enter district" disabled={isDisabled} required
-              />
-              {errors.district && <p className="vendor-error-text">⚠ {errors.district}</p>}
-            </div>
+            
 
           </div>
         </section>

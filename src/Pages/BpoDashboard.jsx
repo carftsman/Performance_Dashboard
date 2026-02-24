@@ -53,7 +53,7 @@ function BpoDashBoard() {
         }
       );
 
-      console.log("API Success:", response.data);
+      console.log("API Success BPO FORMS DATA FROM RESPONSE", response.data);
       setForms(response.data);
       setError(null);
     } catch (err) {
@@ -283,12 +283,12 @@ function BpoDashBoard() {
     onboarded: forms.filter(f => f.status === 'ONBOARDED').length,
     notInterested: forms.filter(f => f.status === 'NOT_INTERESTED').length
   };
-  // Generate unique locations (Alphabetical Order)
-const uniqueLocations = [
+// Generate unique districts (Alphabetical Order)
+const uniqueDistricts = [
   ...new Set(
     forms
-      .map(form => form.vendorLocation)
-      .filter(location => location && location.trim() !== "")
+      .map(form => form.district)
+      .filter(district => district && district.trim() !== "")
   )
 ].sort((a, b) => a.localeCompare(b));
 
@@ -309,7 +309,8 @@ const uniqueVendorTypes = [
     form.vendorShopName?.toLowerCase().includes(searchValue) ||
     form.vendorName?.toLowerCase().includes(searchValue) ||
     form.executiveName?.toLowerCase().includes(searchValue) ||
-    form.vendorLocation?.toLowerCase().includes(searchValue) ||  // ✅ Added location here
+    form.district?.toLowerCase().includes(searchValue) ||           // ✅ Added district to search
+    form.vendorLocation?.toLowerCase().includes(searchValue) || 
     form.id?.toString().includes(searchTerm);
 
   const matchesStatus =
@@ -318,7 +319,7 @@ const uniqueVendorTypes = [
 
   const matchesLocation =
     locationFilter === "All Locations" ||
-    form.vendorLocation === locationFilter;
+    form.district === locationFilter; // ✅ Filtering by district field now
 const matchesVendorType =
   vendorTypeFilter === "All Types" ||
   form.vendorType === vendorTypeFilter;
@@ -412,10 +413,10 @@ const matchesVendorType =
           value={locationFilter}
           onChange={(e) => setLocationFilter(e.target.value)}
         >
-          <option value="All Locations">All Locations</option>
-          {uniqueLocations.map((location, index) => (
-            <option key={index} value={location}>
-              {location}
+          <option value="All Locations">All Districts</option>
+          {uniqueDistricts.map((district, index) => (
+            <option key={index} value={district}>
+              {district}
             </option>
           ))}
         </select>
@@ -480,7 +481,7 @@ const matchesVendorType =
 
                   <div className="card-meta">
                     <div className="meta-item">
-                      <span>📍 {form.areaName || form.vendorLocation?.split(',')[0]}</span>
+                      <span>📍 {form.district || form.areaName || form.vendorLocation?.split(',')[0] || "N/A"}</span>
                     </div>
                     <div className="meta-item">
                       <span>📅 {new Date(form.createdAt).toLocaleDateString()}</span>
