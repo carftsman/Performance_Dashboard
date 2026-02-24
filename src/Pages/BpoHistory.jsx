@@ -264,7 +264,6 @@ function BpoHistory() {
     switch(status?.toLowerCase()) {
       case 'interested': return <FiCheckCircle className="status-icon interested" />;
       case 'not_interested': return <FiXCircle className="status-icon not-interested" />;
-      case 'pending': return <FiClock className="status-icon pending" />;
       default: return <FiAlertCircle className="status-icon default" />;
     }
   };
@@ -321,7 +320,6 @@ function BpoHistory() {
                 <option value="all">All Statuses</option>
                 <option value="interested">INTERESTED</option>
                 <option value="not_interested">NOT INTERESTED</option>
-                <option value="pending">PENDING</option>
               </select>
             </div>
 
