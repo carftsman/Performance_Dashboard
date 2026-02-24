@@ -89,24 +89,54 @@
 
 .filter-group {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   flex: 1;
   min-width: 300px;
 }
 
-.filter-select {
+.filter-select, .filter-date {
   flex: 1;
-  padding: 12px 36px 12px 16px;
+  position: relative;
+}
+
+.filter-select select, .filter-date input {
+  width: 100%;
+  padding: 12px 16px;
   border: 2px solid #e2e8f0;
   border-radius: 10px;
   font-size: 0.95rem;
   background: white;
   cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+  font-weight: 500;
+  color: #1e293b;
+  box-sizing: border-box;
+}
+
+.filter-select select {
+  padding-right: 40px;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
   background-position: right 14px center;
   background-repeat: no-repeat;
   background-size: 18px;
+}
+
+.filter-date input {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.filter-select select:focus, .filter-date input:focus {
+  border-color: #4f46e5;
+  background: white;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1), 0 0 0 4px rgba(79, 70, 229, 0.05);
+  transform: translateY(-1px);
+}
+
+.filter-select select:hover, .filter-date input:hover {
+  border-color: #cbd5e1;
 }
 
 /* ── GRID & CARDS ───────────────────────────────────────────────────────── */

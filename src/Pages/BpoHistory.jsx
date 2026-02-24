@@ -219,10 +219,10 @@ function BpoHistory() {
       );
     }
     
-    // Date filter (if you have date field)
-    if (dateFilter && form.createdAt) {
+    // Date filter
+    if (dateFilter) {
       filtered = filtered.filter(form => 
-        new Date(form.createdAt).toDateString() === new Date(dateFilter).toDateString()
+        form.createdAt && new Date(form.createdAt).toDateString() === new Date(dateFilter).toDateString()
       );
     }
     
