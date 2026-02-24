@@ -61,36 +61,76 @@ const TeamLeadDashboard = ({ user, logout }) => {
   };
 
   // Filter forms by date
-  const filterFormsByDate = () => {
-    if (!dateFilter.startDate && !dateFilter.endDate) {
-      setFilteredForms(executiveForms);
-      return;
+  // const filterFormsByDate = () => {
+  //   if (!dateFilter.startDate && !dateFilter.endDate) {
+  //     setFilteredForms(executiveForms);
+  //     return;
+  //   }
+
+  //   const filtered = executiveForms.filter(form => {
+  //     // Assuming form has a createdAt or date field
+  //     const formDate = new Date(form.createdAt || form.date || new Date());
+      
+  //     if (dateFilter.startDate && dateFilter.endDate) {
+  //       const start = new Date(dateFilter.startDate);
+  //       const end = new Date(dateFilter.endDate);
+  //       end.setHours(23, 59, 59, 999); // Include the entire end date
+  //       return formDate >= start && formDate <= end;
+  //     } else if (dateFilter.startDate) {
+  //       const start = new Date(dateFilter.startDate);
+  //       return formDate >= start;
+  //     } else if (dateFilter.endDate) {
+  //       const end = new Date(dateFilter.endDate);
+  //       end.setHours(23, 59, 59, 999);
+  //       return formDate <= end;
+  //     }
+      
+  //     return true;
+  //   });
+
+  //   setFilteredForms(filtered);
+  // };
+  // Filter forms by date - FIXED for UTC dates
+const filterFormsByDate = () => {
+  if (!dateFilter.startDate && !dateFilter.endDate) {
+    setFilteredForms(executiveForms);
+    return;
+  }
+
+  const filtered = executiveForms.filter(form => {
+    if (!form.createdAt) return false;
+    
+    // Get just the date part from the form (YYYY-MM-DD)
+    // This works because backend dates are in UTC format
+    const formDateStr = form.createdAt.split('T')[0];
+    
+    if (dateFilter.startDate && dateFilter.endDate) {
+      // Compare date strings directly (YYYY-MM-DD)
+      return formDateStr >= dateFilter.startDate && 
+             formDateStr <= dateFilter.endDate;
+    } 
+    else if (dateFilter.startDate) {
+      // For single date selection (like "today")
+      // Compare the date strings directly
+      return formDateStr === dateFilter.startDate;
+    } 
+    else if (dateFilter.endDate) {
+      return formDateStr <= dateFilter.endDate;
     }
+    
+    return true;
+  });
 
-    const filtered = executiveForms.filter(form => {
-      // Assuming form has a createdAt or date field
-      const formDate = new Date(form.createdAt || form.date || new Date());
-      
-      if (dateFilter.startDate && dateFilter.endDate) {
-        const start = new Date(dateFilter.startDate);
-        const end = new Date(dateFilter.endDate);
-        end.setHours(23, 59, 59, 999); // Include the entire end date
-        return formDate >= start && formDate <= end;
-      } else if (dateFilter.startDate) {
-        const start = new Date(dateFilter.startDate);
-        return formDate >= start;
-      } else if (dateFilter.endDate) {
-        const end = new Date(dateFilter.endDate);
-        end.setHours(23, 59, 59, 999);
-        return formDate <= end;
-      }
-      
-      return true;
-    });
+  console.log("Date filter applied:", {
+    startDate: dateFilter.startDate,
+    endDate: dateFilter.endDate,
+    totalForms: executiveForms.length,
+    filteredForms: filtered.length,
+    sampleDates: filtered.slice(0, 3).map(f => f.createdAt)
+  });
 
-    setFilteredForms(filtered);
-  };
-
+  setFilteredForms(filtered);
+};
   // Handle date filter change
   const handleDateFilterChange = (e) => {
     const { name, value } = e.target;

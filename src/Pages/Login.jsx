@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { authService } from "../Services/authservice";
 import "./Login.css";
 import logo from "../assets/logo.png";
-
+ 
 /* ─── Eye Icon ─────────────────────────────────────────── */
 const EyeIcon = ({ visible }) =>
   visible ? (
@@ -21,7 +21,7 @@ const EyeIcon = ({ visible }) =>
       <circle cx="12" cy="12" r="3" />
     </svg>
   );
-
+ 
 /* ─── Password Input with Eye Toggle ───────────────────── */
 const PasswordInput = ({ id, value, onChange, placeholder, autoComplete }) => {
   const [show, setShow] = useState(false);
@@ -49,19 +49,19 @@ const PasswordInput = ({ id, value, onChange, placeholder, autoComplete }) => {
     </div>
   );
 };
-
+ 
 /* ─── Main Component ────────────────────────────────────── */
 const Login = ({ login }) => {
   const navigate = useNavigate();
-
+ 
   /* ── Shared fields ── */
   const [userCode, setUserCode] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("selectRole");
-
+ 
   /* ── Activate-only fields ── */
   const [confirmPassword, setConfirmPassword] = useState("");
-
+ 
   /* ── UI state ── */
   const [isActivateMode, setIsActivateMode] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -69,7 +69,7 @@ const Login = ({ login }) => {
   const [successMsg, setSuccessMsg] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
-
+ 
   const roles = [
     { value: "executive", label: "Executive" },
     { value: "teamlead", label: "Team Lead" },
@@ -78,12 +78,12 @@ const Login = ({ login }) => {
     { value: "admin", label: "Admin" },
     { value: "reporter", label: "Data Analyst" },
   ];
-
+ 
   const currentRoleLabel =
     role === "selectRole"
       ? "Select Role"
       : roles.find((r) => r.value === role.toLowerCase())?.label || "Select Role";
-
+ 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -94,13 +94,13 @@ const Login = ({ login }) => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
+ 
   /* ──────────── Helpers ──────────── */
   const resetMessages = () => {
     setError("");
     setSuccessMsg("");
   };
-
+ 
   const switchMode = () => {
     resetMessages();
     setUserCode("");
@@ -109,40 +109,40 @@ const Login = ({ login }) => {
     setRole("selectRole");
     setIsActivateMode((m) => !m);
   };
-
+ 
   /* ──────────── LOGIN ──────────── */
   const handleLogin = async (e) => {
     e.preventDefault();
     resetMessages();
-
+ 
     if (!userCode.trim() || !password) {
       return setError("Please enter both User Code and Password.");
     }
     if (role === "selectRole") {
       return setError("Please select a role.");
     }
-
+ 
     setLoading(true);
     try {
       const response = await authService.login({ userCode: userCode.trim(), password });
       console.log("Login Response:", response);
-
+ 
       const backendRole = response.role?.toLowerCase();
-
+ 
       if (backendRole !== role.toLowerCase()) {
         setLoading(false);
         return setError(
           `Role mismatch! You selected "${role}" but your account role is "${backendRole}".`
         );
       }
-
+ 
       const loggedUser = {
         userCode: response.userCode,
         role: backendRole,
         id: response.id,
         email: response.email,
       };
-
+ 
       localStorage.setItem("user", JSON.stringify(loggedUser));
       login(loggedUser);
       navigate(`/${backendRole}`);
@@ -158,18 +158,18 @@ const Login = ({ login }) => {
       setLoading(false);
     }
   };
-
+ 
   /* ──────────── ACTIVATE ──────────── */
   const handleActivate = async (e) => {
     e.preventDefault();
     resetMessages();
-
+ 
     // --- Client-side validation ---
     if (!userCode.trim()) return setError("User Code is required.");
     if (!password) return setError("Password is required.");
     if (password.length < 6) return setError("Password must be at least 6 characters.");
     if (password !== confirmPassword) return setError("Passwords do not match.");
-
+ 
     setLoading(true);
     try {
       const response = await authService.activate({
@@ -177,31 +177,31 @@ const Login = ({ login }) => {
         password,
         confirmPassword,
       });
-
+ 
       // --- Success ---
       // The API may return a message field, or just an empty 200/201
       const successText =
         response?.message ||
         "Account activated successfully! You can now log in.";
-
+ 
       setSuccessMsg(successText);
       setUserCode("");
       setPassword("");
       setConfirmPassword("");
-
+ 
       // Switch back to login after a short delay
       setTimeout(() => {
         resetMessages();
         setIsActivateMode(false);
       }, 2500);
-
+ 
     } catch (err) {
       console.error("Activate Error:", err);
-
+ 
       // err now has { message, status, data } from the updated interceptor
       const status = err.status;
       const data = err.data;
-
+ 
       // --- Map known status codes to helpful messages ---
       if (status === 409) {
         // Conflict: already activated / credentials already exist
@@ -236,12 +236,12 @@ const Login = ({ login }) => {
       setLoading(false);
     }
   };
-
+ 
   /* ──────────── Render ──────────── */
   return (
     <div className="login-container">
       <div className="login-box">
-
+ 
         {/* Header */}
         <div className="login-header">
           <img src={logo} alt="Dhatvi Business Solutions" className="login-logo" />
@@ -250,7 +250,7 @@ const Login = ({ login }) => {
             {isActivateMode ? "Activate your account to get started." : "Sign in to your account."}
           </p>
         </div>
-
+ 
         {/* Alert Messages */}
         {error && (
           <div className="login-alert login-alert--error" role="alert">
@@ -262,7 +262,7 @@ const Login = ({ login }) => {
             ✅ {successMsg}
           </div>
         )}
-
+ 
         {/* ── LOGIN FORM ── */}
         {!isActivateMode && (
           <form onSubmit={handleLogin} noValidate>
@@ -320,7 +320,7 @@ const Login = ({ login }) => {
                 )}
               </div>
             </div>
-
+ 
             {/* User Code */}
             <div className="form-group">
               <label htmlFor="login-usercode">User Code</label>
@@ -335,7 +335,7 @@ const Login = ({ login }) => {
                 autoComplete="username"
               />
             </div>
-
+ 
             {/* Password */}
             <div className="form-group">
               <label htmlFor="login-password">Password</label>
@@ -347,7 +347,7 @@ const Login = ({ login }) => {
                 autoComplete="current-password"
               />
             </div>
-
+ 
             <button
               type="submit"
               className="btn-primary-action"
@@ -363,7 +363,7 @@ const Login = ({ login }) => {
             </button>
           </form>
         )}
-
+ 
         {/* ── ACTIVATE FORM ── */}
         {isActivateMode && (
           <form onSubmit={handleActivate} noValidate>
@@ -381,7 +381,7 @@ const Login = ({ login }) => {
                 autoComplete="username"
               />
             </div>
-
+ 
             {/* Password */}
             <div className="form-group">
               <label htmlFor="act-password">Password</label>
@@ -393,7 +393,7 @@ const Login = ({ login }) => {
                 autoComplete="new-password"
               />
             </div>
-
+ 
             {/* Confirm Password */}
             <div className="form-group">
               <label htmlFor="act-confirm">Confirm Password</label>
@@ -405,7 +405,7 @@ const Login = ({ login }) => {
                 autoComplete="new-password"
               />
             </div>
-
+ 
             <button
               type="submit"
               className="btn-activate-action"
@@ -421,7 +421,7 @@ const Login = ({ login }) => {
             </button>
           </form>
         )}
-
+ 
         {/* ── Toggle Link ── */}
         <div className="login-footer">
           {isActivateMode ? (
@@ -440,10 +440,10 @@ const Login = ({ login }) => {
             </p>
           )}
         </div>
-
+ 
       </div>
     </div>
   );
 };
-
+ 
 export default Login;
