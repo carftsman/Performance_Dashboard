@@ -144,12 +144,25 @@ function BpoDashBoard() {
       
       setSubmitSuccess("Review submitted successfully!");
       
-      // Update the form in the list with new data
-      setForms(prevForms => 
-        prevForms.map(form => 
-          form.id === selectedFormForReview.id ? response.data : form
-        )
-      );
+      // Auto-close modal after a short delay to let user see success state if needed
+      // but the user wants it outside, so we close it immediately but keep success state
+      setTimeout(() => {
+        setShowReviewModal(false);
+        setSelectedFormForReview(null);
+        setExecutiveReview("");
+        setVendorReview("");
+        setIdNumber("");
+        setBpoName("");
+        setSelectedAction("SOLVED");
+        setSubmitError(null);
+        // We do NOT clear submitSuccess here so it stays visible outside
+        setIsSubmitting(false);
+      }, 800);
+
+      // Automatically clear success message after 5 seconds
+      setTimeout(() => {
+        setSubmitSuccess(null);
+      }, 5000);
       
      
     } catch (err) {
@@ -357,6 +370,18 @@ const matchesVendorType =
             </button>
           </div>
         </div>
+
+        {/* Global Success Alert (Outside Modal) */}
+        {submitSuccess && (
+          <div className="alert alert-success bpo-global-toast">
+            <span className="alert-icon">✅</span>
+            <div className="alert-content">
+              <strong>Success!</strong>
+              <span>{submitSuccess}</span>
+            </div>
+            <button className="alert-close" onClick={() => setSubmitSuccess(null)}>×</button>
+          </div>
+        )}
 
         {/* Search and Filter */}
       <div className="filter-bar">
@@ -648,14 +673,6 @@ const matchesVendorType =
                  
                  
 
-                {/* Success Message */}
-                {submitSuccess && (
-                  <div className="alert alert-success">
-                    <span className="alert-icon">✅</span>
-                    {submitSuccess}
-                  </div>
-                )}
-
                 {/* Error Message */}
                 {submitError && (
                   <div className="alert alert-error">
@@ -697,57 +714,66 @@ const matchesVendorType =
                 </div>
 
                 {/* Executive Review */}
-                <div className="form-group">
+                <div className="form-group review-field-group">
                   <label className="form-label">
                     Executive Review <span className="required">*</span>
                   </label>
-                  <textarea
-                    className="form-textarea"
-                    rows="3"
-                    placeholder="Write your review about the executive's performance..."
-                    value={executiveReview}
-                    onChange={(e) => setExecutiveReview(e.target.value)}
-                    disabled={isSubmitting}
-                  />
-                  <div className="character-count">
-                    {executiveReview.length} characters
+                  <div className="textarea-wrapper">
+                    <textarea
+                      className="form-textarea premium-textarea"
+                      rows="4"
+                      placeholder="Enter detailed performance review for the executive..."
+                      value={executiveReview}
+                      onChange={(e) => setExecutiveReview(e.target.value)}
+                      disabled={isSubmitting}
+                    />
+                    <div className="character-count">
+                      {executiveReview.length} chars
+                    </div>
                   </div>
                 </div>
 
                 {/* Vendor Review */}
-                <div className="form-group">
+                <div className="form-group review-field-group">
                   <label className="form-label">
                     Vendor Review <span className="required">*</span>
                   </label>
-                  <textarea
-                    className="form-textarea"
-                    rows="3"
-                    placeholder="Write the vendor's feedback and response..."
-                    value={vendorReview}
-                    onChange={(e) => setVendorReview(e.target.value)}
-                    disabled={isSubmitting}
-                  />
-                  <div className="character-count">
-                    {vendorReview.length} characters
+                  <div className="textarea-wrapper">
+                    <textarea
+                      className="form-textarea premium-textarea"
+                      rows="4"
+                      placeholder="Enter vendor feedback and response details..."
+                      value={vendorReview}
+                      onChange={(e) => setVendorReview(e.target.value)}
+                      disabled={isSubmitting}
+                    />
+                    <div className="character-count">
+                      {vendorReview.length} chars
+                    </div>
                   </div>
                 </div>
                    {/* Action Selection */}
-                <div className="form-group">
+                <div className="form-group action-selection-group">
                   <label className="form-label">
-                    Action <span className="required">*</span>
+                    Review Outcome <span className="required">*</span>
                   </label>
-                  <div className="action-buttons">
-                    {["SOLVED","NOT SOLVED"].map((action) => (
-                      <button
-                        key={action}
-                        type="button"
-                        className={`action-btn ${selectedAction === action ? 'active' : ''}`}
-                        onClick={() => setSelectedAction(action)}
-                        disabled={isSubmitting}
-                      >
-                        {action}
-                      </button>
-                    ))}
+                  <div className="premium-action-buttons">
+                    <button
+                      type="button"
+                      className={`premium-action-btn solved ${selectedAction === "SOLVED" ? 'active' : ''}`}
+                      onClick={() => setSelectedAction("SOLVED")}
+                      disabled={isSubmitting}
+                    >
+                      <span className="action-icon">✓</span> SOLVED
+                    </button>
+                    <button
+                      type="button"
+                      className={`premium-action-btn not-solved ${selectedAction === "NOT SOLVED" ? 'active' : ''}`}
+                      onClick={() => setSelectedAction("NOT SOLVED")}
+                      disabled={isSubmitting}
+                    >
+                      <span className="action-icon">✗</span> NOT SOLVED
+                    </button>
                   </div>
                 </div>
 
