@@ -167,9 +167,10 @@ const ExecutiveDashboard = ({ user, logout }) => {
     try {
       const submissionData = {
         ...formData,
-        workStartLocation,  // ✅ stored once
-        vendorLocation      // ✅ per vendor visit
+        // workStartLocation,  // ✅ stored once
+        // vendorLocation      // ✅ per vendor visit
       };
+      console.log("submission form data",submissionData)
 
       await formService.createForm(submissionData);
 

@@ -4,7 +4,7 @@ import { BASE_URL } from "../config/env";
 
 const api = axios.create({
   baseURL: BASE_URL,
-  timeout: 15000,
+  timeout: 30000,
   withCredentials: true, // ⭐ REQUIRED FOR SESSION AUTH
   headers: {
     "Content-Type": "application/json",
@@ -32,7 +32,7 @@ api.interceptors.response.use(
   (response) => response.data,
   (error) => {
     // console.log("response from activation account",response);
-    console.log("API Error:", error.response);
+    console.log("API Error:", error);
     // No response at all — network issue
     if (!error.response) {
       return Promise.reject({
