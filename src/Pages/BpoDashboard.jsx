@@ -610,7 +610,7 @@ const matchesVendorType =
                       {selectedForm.review && (
                         <div className="detail-field detail-field--full">
                           <div className="review-card">
-                            <span className="author">Manager/BPO Comments</span>
+                            <span className="author">Executive Comments</span>
                             <p>"{selectedForm.review}"</p>
                           </div>
                         </div>
