@@ -484,7 +484,7 @@ const matchesVendorType =
                       <span>📍 {form.district || form.areaName || form.vendorLocation?.split(',')[0] || "N/A"}</span>
                     </div>
                     <div className="meta-item">
-                      <span>📅 {new Date(form.createdAt).toLocaleDateString()}</span>
+                      <span>📅 {new Date(form.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}</span>
                     </div>
                   </div>
                 </div>
@@ -500,7 +500,7 @@ const matchesVendorType =
               <div className="bpo-modal-header">
                 <div className="modal-header-info">
                   <h2>{selectedForm.vendorShopName || "Unnamed Shop"}</h2>
-                  <p>Form ID: #{selectedForm.id} • Submitted on {new Date(selectedForm.createdAt).toLocaleDateString()}</p>
+                  <p>Form ID: #{selectedForm.id} • Submitted on {new Date(selectedForm.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}</p>
                 </div>
                 <button className="bpo-modal-close" onClick={() => setSelectedForm(null)}>×</button>
               </div>
@@ -878,7 +878,7 @@ const matchesVendorType =
                         </div>
 
                         <div className="card-footer">
-                          <span className="date">📅 {new Date(req.createdAt).toLocaleDateString()}</span>
+                          <span className="date">📅 {new Date(req.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}</span>
                           <button 
                             className="bpo-btn-primary"
                             onClick={() => handleEditRequest(req)}

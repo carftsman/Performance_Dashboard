@@ -123,7 +123,7 @@ const ReportDashboard = ({ user, logout }) => {
     for (let i = 29; i >= 0; i--) {
       const date = new Date(today);
       date.setDate(date.getDate() - i);
-      const dateStr = date.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit' });
+      const dateStr = date.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', timeZone: 'Asia/Kolkata' });
       
       const dayForms = forms.filter(f => {
         const formDate = new Date(f.createdAt);

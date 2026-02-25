@@ -160,7 +160,8 @@ const [showReportModal, setShowReportModal] = useState(false);
       month: '2-digit',
       year: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      timeZone: 'Asia/Kolkata'
     });
   };
 

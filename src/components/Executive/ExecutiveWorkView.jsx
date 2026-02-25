@@ -136,7 +136,8 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
       month: '2-digit',
       year: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      timeZone: 'Asia/Kolkata'
     });
   };
 
@@ -184,9 +185,9 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
               All Entries
               {filterType !== 'all' && customDate && (
                 <span className="filter-subtitle">
-                  {filterType === 'day' && ` - ${new Date(customDate).toLocaleDateString('en-IN')}`}
-                  {filterType === 'week' && ` - Week of ${new Date(customDate).toLocaleDateString('en-IN')}`}
-                  {filterType === 'month' && ` - ${new Date(customDate).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}`}
+                  {filterType === 'day' && ` - ${new Date(customDate).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}`}
+                  {filterType === 'week' && ` - Week of ${new Date(customDate).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}`}
+                  {filterType === 'month' && ` - ${new Date(customDate).toLocaleDateString('en-IN', { month: 'long', year: 'numeric', timeZone: 'Asia/Kolkata' })}`}
                 </span>
               )}
             </h3>

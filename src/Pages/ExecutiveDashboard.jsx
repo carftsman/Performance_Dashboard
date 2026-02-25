@@ -368,6 +368,7 @@ const ExecutiveDashboard = ({ user, logout }) => {
       day: "2-digit",
       month: "short",
       year: "numeric",
+      timeZone: "Asia/Kolkata",
     });
   };
 

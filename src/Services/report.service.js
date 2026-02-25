@@ -62,7 +62,8 @@ class ReportService {
       month: '2-digit',
       year: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      timeZone: 'Asia/Kolkata'
     });
   }
 
@@ -73,7 +74,8 @@ class ReportService {
     return date.toLocaleDateString('en-IN', {
       day: '2-digit',
       month: '2-digit',
-      year: 'numeric'
+      year: 'numeric',
+      timeZone: 'Asia/Kolkata'
     });
   }
 
@@ -226,7 +228,7 @@ class ReportService {
 
     const summaryData = [
       ['REPORT SUMMARY'],
-      ['Generated On', new Date().toLocaleString()],
+      ['Generated On', new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })],
       ['Report Period', this.getPeriodLabel(period)],
       ['Dashboard Type', dashboardType.toUpperCase()],
       ['Total Records', data.length.toString()],
@@ -293,7 +295,7 @@ class ReportService {
     // Metadata
     doc.setFontSize(10);
     doc.text(`Period: ${this.getPeriodLabel(period)}`, 14, 25);
-    doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 30);
+    doc.text(`Generated: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}`, 14, 30);
     doc.text(`Total Records: ${data.length}`, 14, 35);
 
     // Summary statistics
