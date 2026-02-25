@@ -6,11 +6,14 @@ const DashboardHeader = ({
   onAddExecutive,
   onAddEntry,
   onRefresh,
+  setWorkStarted,
+  locationAllowed,
+  setLocationAllowed,
+  workStarted,
+  setWorkStartLocation,
+  showForm,
 }) => {
-   const [locationAllowed, setLocationAllowed] = useState(false);
-  const [workStarted, setWorkStarted] = useState(false);
-   const [workStartLocation, setWorkStartLocation] = useState(null);
-     const [showForm, setShowForm] = useState(false);
+
    /* =========================================
      ENABLE LOCATION
   ========================================== */
