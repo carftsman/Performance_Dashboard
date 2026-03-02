@@ -21,27 +21,6 @@ const ExecutiveCard = ({ executive, onClick }) => {
           <span className="role">Field Executive</span>
         </div>
       </div>
-
-      {/* Stats */}
-      <div className="card-stats">
-        <div className="stat-item">
-          <span className="stat-label">Total</span>
-          <span className="stat-value">{executive.stats?.total ?? 0}</span>
-        </div>
-        <div className="stat-item">
-          <span className="stat-label">Interested</span>
-          <span className="stat-value interested">{executive.stats?.interested ?? 0}</span>
-        </div>
-        <div className="stat-item">
-          <span className="stat-label">Onboarded</span>
-          <span className="stat-value onboarded">{executive.stats?.onboarded ?? 0}</span>
-        </div>
-        <div className="stat-item">
-          <span className="stat-label">Not Interested</span>
-          <span className="stat-value not-interested">{executive.stats?.notInterested ?? 0}</span>
-        </div>
-      </div>
-
       {/* Click hint */}
       <div className="view-link">
         View Details <span>→</span>
