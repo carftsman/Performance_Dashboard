@@ -1,5 +1,4 @@
 
-import MainLayout from '../common/Layout/MainLayout';
 import VendorForm from '../Executive/VendorForm';
 import { useState } from 'react';
 
@@ -131,7 +130,6 @@ const AddEntryView = ({
   };
 
   return (
-    <MainLayout user={dashboardUser} logout={logout}>
       <div className="teamlead-dashboard">
         <div className="card">
           
@@ -169,7 +167,7 @@ const AddEntryView = ({
 
         </div>
       </div>
-    </MainLayout>
+    
   );
 };
 
