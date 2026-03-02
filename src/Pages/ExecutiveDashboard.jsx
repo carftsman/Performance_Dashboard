@@ -8,6 +8,7 @@ import VendorForm from "../components/Executive/VendorForm";
 import { formService } from "../Services/form.service";
 import { executiveService } from "../Services/executive.service";
 import "./ExecutiveDashboard.css";
+import UniformNavbar from "../components/common/Navbar/UniformNavbar";
 
 const ExecutiveDashboard = ({ user, logout }) => {
 
@@ -377,59 +378,24 @@ const ExecutiveDashboard = ({ user, logout }) => {
   ========================================== */
   return (
     <div className="exec-page">
-
-      {/* ── TOP NAVBAR ── */}
-      <nav className="exec-navbar">
-        <div className="exec-navbar-brand">
-          <div className="exec-navbar-brand-icon">👤</div>
-          <div>
-            <div className="exec-navbar-brand-text">{user.userCode || user.name || "Executive"}</div>
-            <div className="exec-navbar-brand-sub">Field Executive</div>
-          </div>
-        </div>
-
-        <div className="exec-navbar-actions">
-          {!attendanceMarked && !checkingAttendance && (
-            <button className="exec-btn exec-btn--location" onClick={handleEnableLocation}>
-              📍 Enable Location
-            </button>
-          )}
-
-          {!workStarted && (
-            <button
-              className="exec-btn exec-btn--start"
-              disabled={!attendanceMarked}
-              onClick={handleStartWork}
-              title={!attendanceMarked ? "Enable location first" : "Start your work session"}
-            >
-              ▶ Start Work
-            </button>
-          )}
-
-          {workStarted && !showForm && (
-            <button
-              className="exec-btn exec-btn--new-entry"
-              onClick={() => setShowForm(true)}
-            >
-              + New Entry
-            </button>
-          )}
-
-          <button 
-            className="exec-btn exec-btn--requests"
-            onClick={() => setShowApprovedModal(true)}
-          >
-            📋 Approved Requests
-            {approvedRequests.length > 0 && (
-              <span className="exec-badge-count">{approvedRequests.length}</span>
-            )}
-          </button>
-
-          <button className="exec-btn exec-btn--logout" onClick={logout}>
-            Logout
-          </button>
-        </div>
-      </nav>
+      <UniformNavbar
+        user={user}
+        role="Field Executive"
+        locationAllowed={attendanceMarked}
+        workStarted={workStarted}
+        loading={loadingHistory}
+        showForm={showForm}
+        onRefresh={() => {
+          loadHistory();
+          loadApprovedRequests();
+        }}
+        onEnableLocation={handleEnableLocation}
+        onStartWork={handleStartWork}
+        onAddEntry={() => setShowForm(true)}
+        logout={logout}
+        approvedRequestsCount={approvedRequests.length}
+        onShowApprovedRequests={() => setShowApprovedModal(true)}
+      />
 
       {/* ── STATUS BAR ── */}
       <div className="exec-status-bar">

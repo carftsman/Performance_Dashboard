@@ -9,6 +9,7 @@ import LoadingState from '../components/common/LoadingState';
 import AddExecutiveModal from '../components/TeamLead/AddExecutiveModal';
 import SearchBar from '../components/TeamLead/SearchBar';
 import AddEntryView from '../components/Executive/AddEntryView';
+import UniformNavbar from '../components/common/Navbar/UniformNavbar';
 
 const TeamLeadDashboard = ({ user, logout }) => {
   const dashboardUser = user || JSON.parse(localStorage.getItem('user'));
@@ -274,72 +275,29 @@ const filterFormsByDate = () => {
   };
 
  
-  const renderNavbar = () => (
-    <nav className="exec-navbar">
-      <div className="exec-navbar-brand">
-        <div className="exec-navbar-brand-icon">👤</div>
-        <div>
-          <div className="exec-navbar-brand-text">{dashboardUser?.userCode || dashboardUser?.name || "Team Lead"}</div>
-          <div className="exec-navbar-brand-sub">Team Lead · Field Management</div>
-        </div>
-      </div>
-
-      <div className="exec-navbar-actions">
-        <button onClick={() => setShowAddExecutiveModal(true)} className="exec-btn exec-btn--new-entry">
-          Add Executive
-        </button>
-
-        {!locationAllowed && (
-          <button className="exec-btn exec-btn--location" onClick={handleEnableLocation}>
-            📍 Enable Location
-          </button>
-        )}
-
-        {!workStarted && (
-          <button
-            className="exec-btn exec-btn--start"
-            disabled={!locationAllowed}
-            onClick={handleStartWork}
-            title={!locationAllowed ? "Enable location first" : "Start your work session"}
-          >
-            ▶ Start Work
-          </button>
-        )}
-
-        {workStarted && viewMode !== 'add-entry' && (
-          <button
-            className="exec-btn exec-btn--new-entry"
-            onClick={() => {
-              setSelectedExecutiveForForm({
-                id: dashboardUser?.id,
-                name: dashboardUser?.userCode,
-              });
-              setViewMode("add-entry");
-            }}
-          >
-            + New Entry
-          </button>
-        )}
-
-        <button 
-          onClick={handleRefresh}
-          disabled={loading}
-          className="exec-btn exec-btn--location"
-        >
-          {loading ? "..." : "🔄 Refresh"}
-        </button>
-
-        <button className="exec-btn exec-btn--logout" onClick={logout}>
-          Logout
-        </button>
-      </div>
-    </nav>
-  );
-
   if (viewMode === "add-entry" && selectedExecutiveForForm) {
     return (
       <div className="exec-page">
-        {renderNavbar()}
+        <UniformNavbar
+          user={dashboardUser}
+          role="Team Lead"
+          locationAllowed={locationAllowed}
+          workStarted={workStarted}
+          loading={loading}
+          showForm={true}
+          onRefresh={handleRefresh}
+          onEnableLocation={handleEnableLocation}
+          onStartWork={handleStartWork}
+          onAddExecutive={() => setShowAddExecutiveModal(true)}
+          onAddEntry={() => {
+            setSelectedExecutiveForForm({
+              id: dashboardUser?.id,
+              name: dashboardUser?.userCode,
+            });
+            setViewMode("add-entry");
+          }}
+          logout={logout}
+        />
         <main className="exec-main">
           <AddEntryView
             dashboardUser={dashboardUser}
@@ -365,7 +323,26 @@ const filterFormsByDate = () => {
   if (viewMode === 'work' && selectedExecutive) {
     return (
       <div className="exec-page">
-        {renderNavbar()}
+        <UniformNavbar
+          user={dashboardUser}
+          role="Team Lead"
+          locationAllowed={locationAllowed}
+          workStarted={workStarted}
+          loading={loading}
+          showForm={false}
+          onRefresh={handleRefresh}
+          onEnableLocation={handleEnableLocation}
+          onStartWork={handleStartWork}
+          onAddExecutive={() => setShowAddExecutiveModal(true)}
+          onAddEntry={() => {
+            setSelectedExecutiveForForm({
+              id: dashboardUser?.id,
+              name: dashboardUser?.userCode,
+            });
+            setViewMode("add-entry");
+          }}
+          logout={logout}
+        />
         <main className="exec-main">
           <ExecutiveWorkViewTL 
             executive={selectedExecutive}
@@ -381,7 +358,26 @@ const filterFormsByDate = () => {
   // Main team view (List Mode)
   return (
     <div className="exec-page">
-      {renderNavbar()}
+      <UniformNavbar
+        user={dashboardUser}
+        role="Team Lead"
+        locationAllowed={locationAllowed}
+        workStarted={workStarted}
+        loading={loading}
+        showForm={false}
+        onRefresh={handleRefresh}
+        onEnableLocation={handleEnableLocation}
+        onStartWork={handleStartWork}
+        onAddExecutive={() => setShowAddExecutiveModal(true)}
+        onAddEntry={() => {
+          setSelectedExecutiveForForm({
+            id: dashboardUser?.id,
+            name: dashboardUser?.userCode,
+          });
+          setViewMode("add-entry");
+        }}
+        logout={logout}
+      />
       
       <main className="exec-main">
         <div className="teamlead-dashboard">
