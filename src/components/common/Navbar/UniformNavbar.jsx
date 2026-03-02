@@ -136,22 +136,16 @@ const UniformNavbar = ({
         </button>
       </div>
 
-      {/* ── MOBILE ONLY: START WORK BUTTON ── */}
+      {/* ── MOBILE ONLY: REFRESH ICON ── */}
       <div className="navbar-mobile-right mobile-only">
-        {!workStarted && (
-          <button
-            className="navbar-btn btn--primary mini"
-            disabled={!locationAllowed}
-            onClick={onStartWork}
-          >
-            ▶ Start
-          </button>
-        )}
-        {workStarted && !showForm && onAddEntry && (
-          <button className="navbar-btn btn--primary mini" onClick={onAddEntry}>
-            + Entry
-          </button>
-        )}
+        <button 
+          onClick={onRefresh} 
+          disabled={loading} 
+          className="navbar-btn-icon"
+          title="Refresh Data"
+        >
+          {loading ? <span className="navbar-spinner"></span> : "🔄"}
+        </button>
       </div>
 
       {/* ── MOBILE DRAWER OVERLAY ── */}
@@ -171,6 +165,23 @@ const UniformNavbar = ({
             </div>
             
             <div className="drawer-body">
+              {/* Primary Work Actions Moved into Drawer on Mobile */}
+              {!workStarted && (
+                <button
+                  className="drawer-item"
+                  disabled={!locationAllowed}
+                  onClick={() => { onStartWork(); toggleMobileDrawer(); }}
+                >
+                  ▶ Start Work
+                </button>
+              )}
+
+              {workStarted && !showForm && onAddEntry && (
+                <button className="drawer-item" onClick={() => { onAddEntry(); toggleMobileDrawer(); }}>
+                  + New Entry
+                </button>
+              )}
+
               {role === "Team Lead" && onAddExecutive && (
                 <button 
                   onClick={() => { onAddExecutive(); toggleMobileDrawer(); }} 
@@ -196,14 +207,6 @@ const UniformNavbar = ({
                   📋 Approved Requests ({approvedRequestsCount})
                 </button>
               )}
-
-              <button 
-                onClick={() => { onRefresh(); toggleMobileDrawer(); }} 
-                className="drawer-item"
-                disabled={loading}
-              >
-                🔄 Refresh Data
-              </button>
 
               <hr />
 
