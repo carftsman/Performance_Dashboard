@@ -15,7 +15,7 @@ import BpoDashBoard from "./Pages/DashboardBpo"
 import { authService } from './Services/authservice';
 import AdminDashboard from "./Pages/AdminDashboard";
 import ReportDashboard from "./Pages/ReportDashboard";
-
+import BpoHistory from "./Pages/BpoHistory";
 // ✅ Auth Hook
 const useAuth = () => {
   const [user, setUser] = useState(null);
@@ -141,6 +141,14 @@ function AppContent() {
           </ProtectedRoute>
         }
       />
+      <Route
+  path="/bpo-history"
+  element={
+    <ProtectedRoute allowedRoles={["bpo"]}>
+      <BpoHistory user={user} logout={logout} />
+    </ProtectedRoute>
+  }
+/>
 
       {/* DEFAULT */}
       <Route path="/" element={<Navigate to="/login" />} />

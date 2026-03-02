@@ -1,15 +1,19 @@
-
 import React, { useState, useEffect } from 'react';
 import MainLayout from '../components/common/Layout/MainLayout';
-import ExecutiveWorkView from '../components/TeamLead/ExecutiveWorkView';
-import LocationForm from '../components/Executive/LocationForm';
-import { teamLeadService } from '../Services/teamlead.service';
+import teamLeadService  from '../Services/teamlead.service';
 import './TeamLeadDashboard.css'; // We'll create this CSS file
+import ExecutiveWorkViewTL from '../components/Executive/ExecutiveWorkView';
+import TeamSummary from '../components/TeamLead/TeamSummary';
+import ExecutiveList from '../components/TeamLead/ExecutiveList';
+import LoadingState from '../components/common/LoadingState';
+import AddExecutiveModal from '../components/TeamLead/AddExecutiveModal';
+import SearchBar from '../components/TeamLead/SearchBar';
+import AddEntryView from '../components/Executive/AddEntryView';
+import DashboardHeader from '../components/TeamLead/DashboardHeader';
 
 const TeamLeadDashboard = ({ user, logout }) => {
   const dashboardUser = user || JSON.parse(localStorage.getItem('user'));
-  
-  const [viewMode, setViewMode] = useState('list'); // 'list', 'work', or 'add-entry'
+  const [viewMode, setViewMode] = useState('list'); 
   const [selectedExecutive, setSelectedExecutive] = useState(null);
   const [executiveForms, setExecutiveForms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,10 +22,25 @@ const TeamLeadDashboard = ({ user, logout }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(null);
   const [selectedExecutiveForForm, setSelectedExecutiveForForm] = useState(null);
-  // Fetch all forms for the team lead
+  const [showAddExecutiveModal, setShowAddExecutiveModal] = useState(false);
+  
+  const [dateFilter, setDateFilter] = useState({
+    startDate: '',
+    endDate: ''
+  });
+  const [filteredForms, setFilteredForms] = useState([]);
+  const [locationAllowed, setLocationAllowed] = useState(false);
+const [workStarted, setWorkStarted] = useState(false);
+const [workStartLocation, setWorkStartLocation] = useState(null);
+  const [showForm, setShowForm] = useState(false);
   useEffect(() => {
     fetchTeamLeadForms();
   }, []);
+
+  // Update filtered forms when executiveForms or dateFilter changes
+  useEffect(() => {
+    filterFormsByDate();
+  }, [executiveForms, dateFilter]);
 
   const fetchTeamLeadForms = async () => {
     try {
@@ -34,44 +53,132 @@ const TeamLeadDashboard = ({ user, logout }) => {
       
       const formsData = Array.isArray(data) ? data : [];
       setExecutiveForms(formsData);
+      setFilteredForms(formsData);
       setError(null);
     } catch (error) {
       console.error("Error fetching team lead forms:", error);
       setError("Failed to load team data. Please try again.");
       setExecutiveForms([]);
+      setFilteredForms([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle form submission for new entry
+  // Filter forms by date
+  // const filterFormsByDate = () => {
+  //   if (!dateFilter.startDate && !dateFilter.endDate) {
+  //     setFilteredForms(executiveForms);
+  //     return;
+  //   }
+
+  //   const filtered = executiveForms.filter(form => {
+  //     // Assuming form has a createdAt or date field
+  //     const formDate = new Date(form.createdAt || form.date || new Date());
+      
+  //     if (dateFilter.startDate && dateFilter.endDate) {
+  //       const start = new Date(dateFilter.startDate);
+  //       const end = new Date(dateFilter.endDate);
+  //       end.setHours(23, 59, 59, 999); // Include the entire end date
+  //       return formDate >= start && formDate <= end;
+  //     } else if (dateFilter.startDate) {
+  //       const start = new Date(dateFilter.startDate);
+  //       return formDate >= start;
+  //     } else if (dateFilter.endDate) {
+  //       const end = new Date(dateFilter.endDate);
+  //       end.setHours(23, 59, 59, 999);
+  //       return formDate <= end;
+  //     }
+      
+  //     return true;
+  //   });
+
+  //   setFilteredForms(filtered);
+  // };
+  // Filter forms by date - FIXED for UTC dates
+const filterFormsByDate = () => {
+  if (!dateFilter.startDate && !dateFilter.endDate) {
+    setFilteredForms(executiveForms);
+    return;
+  }
+
+  const filtered = executiveForms.filter(form => {
+    if (!form.createdAt) return false;
+    
+    // Get just the date part from the form (YYYY-MM-DD)
+    // This works because backend dates are in UTC format
+    const formDateStr = form.createdAt.split('T')[0];
+    
+    if (dateFilter.startDate && dateFilter.endDate) {
+      // Compare date strings directly (YYYY-MM-DD)
+      return formDateStr >= dateFilter.startDate && 
+             formDateStr <= dateFilter.endDate;
+    } 
+    else if (dateFilter.startDate) {
+      // For single date selection (like "today")
+      // Compare the date strings directly
+      return formDateStr === dateFilter.startDate;
+    } 
+    else if (dateFilter.endDate) {
+      return formDateStr <= dateFilter.endDate;
+    }
+    
+    return true;
+  });
+
+  console.log("Date filter applied:", {
+    startDate: dateFilter.startDate,
+    endDate: dateFilter.endDate,
+    totalForms: executiveForms.length,
+    filteredForms: filtered.length,
+    sampleDates: filtered.slice(0, 3).map(f => f.createdAt)
+  });
+
+  setFilteredForms(filtered);
+};
+  // Handle date filter change
+  const handleDateFilterChange = (e) => {
+    const { name, value } = e.target;
+    setDateFilter(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Clear date filters
+  const clearDateFilters = () => {
+    setDateFilter({
+      startDate: '',
+      endDate: ''
+    });
+  };
+
+  const fetchExecutives = async () => {
+  try {
+    const res = await teamLeadService.getExecutives();
+    setExecutives(res.data);
+  } catch (err) {
+    console.error("Failed to fetch executives", err);
+  }
+};
   const handleFormSubmit = async (formData) => {
     try {
       setIsSubmitting(true);
+      const res = await teamLeadService.createForm(formData); // 🔥 REAL API
+
+      console.log("API Response:", res);
       setSubmitSuccess(null);
 
       // Add team lead information to form data
       const submissionData = {
         ...formData,
-        teamleadId: dashboardUser?.id || 19, // Fallback to 19 if not available
-        teamleadName: dashboardUser?.userCode || 'Naveen',
+        teamleadId: dashboardUser?.id , 
+        teamleadName: dashboardUser?.userCode,
         executiveId: selectedExecutiveForForm?.id,
         executiveName: selectedExecutiveForForm?.name
       };
 
       console.log('Submitting form:', submissionData);
-
-      // API call would go here
-      // const response = await axios.post(
-      //   "https://mft-zwy7.onrender.com/api/teamlead/add-entry",
-      //   submissionData,
-      //   {
-      //     headers: { 'Content-Type': 'application/json' },
-      //     withCredentials: true
-      //   }
-      // );
-
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       setSubmitSuccess({ type: 'success', message: 'Entry added successfully!' });
@@ -97,11 +204,12 @@ const TeamLeadDashboard = ({ user, logout }) => {
     }
   };
 
-  // Group forms by executive
+  
+  // Group forms by executive (using filteredForms instead of executiveForms)
   const getExecutivesWithForms = () => {
     const execMap = new Map();
     
-    executiveForms.forEach(form => {
+    filteredForms.forEach(form => {
       const execId = form.executiveId;
       if (!execMap.has(execId)) {
         execMap.set(execId, {
@@ -164,49 +272,32 @@ const TeamLeadDashboard = ({ user, logout }) => {
     fetchTeamLeadForms();
   };
 
-  // If in add entry mode, show the form
-  if (viewMode === 'add-entry' && selectedExecutiveForForm) {
-    return (
-      <MainLayout user={dashboardUser} logout={logout}>
-        <div className="teamlead-dashboard">
-          <div className="card">
-            <div className="form-header">
-              <div className="form-header-left">
-                <button onClick={handleBackToTeam} className="btn btn-secondary">
-                  ← Back to Dashboard
-                </button>
-               
-              </div>
-            </div>
-
-            {/* Success/Error Message */}
-            {submitSuccess && (
-              <div className={`alert ${submitSuccess.type === 'success' ? 'alert-success' : 'alert-error'}`}>
-                {submitSuccess.message}
-              </div>
-            )}
-
-            <LocationForm
-              onSubmit={handleFormSubmit}
-              locationEnabled={true}
-              isSubmitting={isSubmitting}
-              userCode={selectedExecutiveForForm.name}
-              initialData={null}
-              readOnly={false}
-              teamLeadMode={true}
-              executiveId={selectedExecutiveForForm.id}
-            />
-          </div>
-        </div>
-      </MainLayout>
-    );
-  }
+ 
+  if (viewMode === "add-entry" && selectedExecutiveForForm) {
+  return (
+    <AddEntryView
+      dashboardUser={dashboardUser}
+      logout={logout}
+      selectedExecutive={selectedExecutiveForForm}
+      onBack={handleBackToTeam}
+      submitSuccess={submitSuccess}
+      handleFormSubmit={handleFormSubmit}
+      isSubmitting={isSubmitting}
+      locationAllowed={locationAllowed}
+      setLocationAllowed={setLocationAllowed}
+  workStarted={workStarted}
+  setWorkStarted={setWorkStarted}
+  setWorkStartLocation={setWorkStartLocation}
+  setIsSubmitting={setIsSubmitting}
+    />
+  );
+}
 
   // If in work mode, show executive work view
   if (viewMode === 'work' && selectedExecutive) {
     return (
       <MainLayout user={dashboardUser} logout={logout}>
-        <ExecutiveWorkView 
+        <ExecutiveWorkViewTL 
           executive={selectedExecutive}
           onBack={handleBackToTeam}
           onRefresh={handleRefresh}
@@ -220,174 +311,82 @@ const TeamLeadDashboard = ({ user, logout }) => {
   return (
     <MainLayout user={dashboardUser} logout={logout}>
       <div className="teamlead-dashboard">
-        {/* Header */}
-        <div className="card header-card">
-          <div className="header-content">
-            <div className="header-left">
-              <div>
-                <h1>Team Lead Dashboard</h1>
-                <p className="text-muted">
-                  Welcome back  {dashboardUser?.userCode || 'Team Lead'} 
-                </p>
-              </div>
-            </div>
-            <div className="header-actions">
-              <button
-                onClick={() => {
-                  // Pass the team lead themselves as the executive when adding entry from global button
-                  setSelectedExecutiveForForm({
-                    id: dashboardUser?.id || 19,
-                    name: dashboardUser?.userCode || 'Team Lead'
-                  });
-                  setViewMode('add-entry');
-                }}
-                className="btn btn-success"
-              >
-                + Add Entry
-              </button>
-              <button 
-                onClick={handleRefresh}
-                disabled={loading}
-                className="btn btn-primary"
-              >
-                {loading ? 'Refreshing...' : 'Refresh Data'}
-              </button>
-            </div>
-          </div>
-        </div>
+            <DashboardHeader
+  dashboardUser={dashboardUser}
+  loading={loading}
+  onAddExecutive={() => setShowAddExecutiveModal(true)}
+  onAddEntry={() => {
+    setSelectedExecutiveForForm({
+      id: dashboardUser?.id,
+      name: dashboardUser?.userCode,
+    });
+    setViewMode("add-entry");
+  }}
+  onRefresh={handleRefresh}
 
-        {/* Search Bar */}
-        <div className="card">
-          <div className="search-container">
-            <input
-              type="text"
-              placeholder="Search by executive name or ID..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
+  /* 🔥 ADD THESE */
+  locationAllowed={locationAllowed}
+  setLocationAllowed={setLocationAllowed}
+  workStarted={workStarted}
+  setWorkStarted={setWorkStarted}
+  setWorkStartLocation={setWorkStartLocation}
+/>
+            <AddExecutiveModal
+              isOpen={showAddExecutiveModal}
+              onClose={() => setShowAddExecutiveModal(false)}
+              onExecutiveAdded={fetchExecutives}
             />
-            {searchTerm && (
-              <button
-                onClick={() => setSearchTerm('')}
-                className="btn btn-secondary btn-clear"
-              >
-                Clear
-              </button>
-            )}
-          </div>
-        </div>
+
+            <SearchBar
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            onClear={() => setSearchTerm("")}
+          />
 
         {/* Error Display */}
-        {error && (
-          <div className="card error-card">
-            <p>{error}</p>
-            <button 
-              onClick={handleRefresh}
-              className="btn btn-danger"
-            >
-              Retry
-            </button>
-          </div>
-        )}
-
-        {/* Loading State */}
-        {loading && (
-          <div className="card loading-card">
-            <div className="loader"></div>
-            <h3>Loading team data...</h3>
-          </div>
-        )}
-
-        {/* Executive List */}
-        {!loading && !error && (
-          <div className="card">
-            <div className="card-header">
-              <h2 className="card-title">
-                List of Execuitves
-                {/* List of Executives ({getFilteredExecutives().length}) */}
-              </h2>
+          {error && (
+            <div className="card error-card">
+              <p>{error}</p>
+              <button 
+                onClick={handleRefresh}
+                className="btn btn-danger"
+              >
+                Retry
+              </button>
             </div>
-            
-            <div className="executive-list">
-              {getFilteredExecutives().map(executive => (
-                <div 
-                  key={executive.id}
-                  className="executive-card"
-                >
-                  <div className="executive-card-content">
-                    {/* Avatar */}
-                    <div className="executive-avatar">
-                      {executive.name.charAt(0)}
-                    </div>
+          )}
 
-                    {/* Executive Info */}
-                    <div className="executive-info">
-                      <h3 className="executive-name">{executive.name}</h3>
-                    </div>
+          {/* Loading State */}
+          {loading && (
+          <LoadingState/>
+          )}
 
-                    {/* Actions */}
-                    <div className="executive-actions">
-                      <button
-                        onClick={() => handleExecutiveClick(executive)}
-                        className="btn btn-primary btn-sm"
-                        title="View all entries"
-                      >
-                        View
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+              {/* Executive List */}
+          {!loading && !error && (
+          <ExecutiveList
+          executives={getFilteredExecutives()}
+          onExecutiveClick={handleExecutiveClick}
+          searchTerm={searchTerm}
+          onClearSearch={() => setSearchTerm("")}
+        />
+      )}
 
-              {getFilteredExecutives().length === 0 && (
-                <div className="empty-state">
-                  <p>No executives found</p>
-                  {searchTerm && (
-                    <button
-                      onClick={() => setSearchTerm('')}
-                      className="btn btn-secondary"
-                    >
-                      Clear Search
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Quick Stats Summary */}
-        {!loading && !error && executiveForms.length > 0 && (
-          <div className="card summary-card">
-            <h3 className="card-title">Team Summary</h3>
-            <div className="summary-grid">
-              <div className="summary-item">
-                <div className="summary-value">
-                  {getExecutivesWithForms().length}
-                </div>
-                <div className="summary-label">Total Executives</div>
-              </div>
-              <div className="summary-item">
-                <div className="summary-value">
-                  {executiveForms.length}
-                </div>
-                <div className="summary-label">Total Forms</div>
-              </div>
-              <div className="summary-item">
-                <div className="summary-value" style={{ color: '#28a745' }}>
-                  {executiveForms.filter(f => f.status === 'INTERESTED' || f.status === 'ONBOARDED').length}
-                </div>
-                <div className="summary-label">Successful</div>
-              </div>
-              <div className="summary-item">
-                <div className="summary-value" style={{ color: '#dc3545' }}>
-                  {executiveForms.filter(f => f.status === 'NOT_INTERESTED').length}
-                </div>
-                <div className="summary-label">Not Interested</div>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Quick Stats Summary with Date Filter */}
+      {!loading && !error && executiveForms.length > 0 && (
+        <TeamSummary
+            executives={getExecutivesWithForms()}
+            totalForms={filteredForms.length}
+            successfulForms={filteredForms.filter(
+              (f) => f.status === "INTERESTED" || f.status === "ONBOARDED"
+            ).length}
+            notInterestedForms={filteredForms.filter(
+              (f) => f.status === "NOT_INTERESTED"
+            ).length}
+            dateFilter={dateFilter}
+            onDateFilterChange={handleDateFilterChange}
+            onClearDateFilters={clearDateFilters}
+           />
+      )}
       </div>
     </MainLayout>
   );

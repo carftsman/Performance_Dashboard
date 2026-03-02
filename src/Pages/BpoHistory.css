@@ -1,0 +1,494 @@
+/* ==========================================================================
+   BPO HISTORY - PREMIUM UI/UX REDESIGN
+   ========================================================================== */
+
+/* This file inherits the core design tokens and components from BpoDashboard.css
+   Ensure BpoDashboard.css is imported or relevant variables are shared.
+   Since this is a separate file, we re-define the core variables or assume they are available. */
+
+.bpo-history {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  background-color: var(--bpo-bg, #f8fafc);
+  min-height: 100vh;
+  color: var(--bpo-text-main, #1e293b);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* ── HEADER ──────────────────────────────────────────────────────────────── */
+.history-header {
+  background: white;
+  border-radius: 12px;
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  border-left: 6px solid #4f46e5;
+}
+
+.history-header h1 {
+  margin: 0;
+  font-size: 1.875rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.025em;
+}
+
+.history-header p {
+  margin: 4px 0 0 0;
+  color: #64748b;
+  font-size: 1rem;
+}
+
+/* ── CONTROLS / FILTERS ──────────────────────────────────────────────────── */
+.filters-section {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  align-items: center;
+}
+
+.search-box {
+  position: relative;
+  flex: 2;
+  min-width: 300px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 12px 16px 12px 42px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.search-box input:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+}
+
+.filter-group {
+  display: flex;
+  gap: 16px;
+  flex: 1;
+  min-width: 300px;
+  align-items: center;
+}
+
+.filter-select, .filter-date {
+  flex: 1;
+  position: relative;
+}
+
+.filter-select select, .filter-date input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+  font-weight: 500;
+  color: #1e293b;
+  box-sizing: border-box;
+}
+
+.filter-select select {
+  padding-right: 40px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 14px center;
+  background-repeat: no-repeat;
+  background-size: 18px;
+}
+
+.filter-date input {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.filter-select select:focus, .filter-date input:focus {
+  border-color: #4f46e5;
+  background: white;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1), 0 0 0 4px rgba(79, 70, 229, 0.05);
+  transform: translateY(-1px);
+}
+
+.filter-select select:hover, .filter-date input:hover {
+  border-color: #cbd5e1;
+}
+
+/* ── GRID & CARDS ───────────────────────────────────────────────────────── */
+.forms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.form-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+.form-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  border-color: #6366f1;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.shop-info h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.card-body {
+  padding: 0;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.info-icon {
+  color: #4f46e5;
+  font-size: 1rem;
+}
+
+.info-value {
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.reviews {
+  margin: 16px 0;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.review-item {
+  font-size: 0.8125rem;
+}
+
+.review-label {
+  font-weight: 700;
+  color: #4f46e5;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  display: block;
+}
+
+.review-text {
+  color: #1e293b;
+  line-height: 1.4;
+}
+
+.card-footer {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.team-info {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.team-value {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.view-details {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #4f46e5;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+/* ── STATUS BADGES ───────────────────────────────────────────────────────── */
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-badge.interested { background: #d1fae5; color: #065f46; }
+.status-badge.not_interested { background: #fee2e2; color: #991b1b; }
+.status-badge.pending { background: #fef3c7; color: #92400e; }
+
+/* ── MODALS ─────────────────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+}
+
+.modal-container {
+  background: white;
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  border-radius: 20px;
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: 24px 32px;
+  background: #0f172a;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-close {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.modal-body {
+  padding: 32px;
+  overflow-y: auto;
+  background: #fcfcfd;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.detail-item {
+  background: white;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.detail-value {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.reviews-section h4 {
+  margin: 0 0 16px 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.review-box {
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 12px;
+}
+
+.review-box-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #4f46e5;
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* ── REQUEST SECTION ─────────────────────────────────────────────────────── */
+.request-section {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 2px dashed #e2e8f0;
+}
+
+.request-section h4 {
+  color: #ef4444; /* Warning color for resubmission request */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+}
+
+.request-section textarea {
+  width: 100%;
+  padding: 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  outline: none;
+  background: white;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.request-section textarea:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+}
+
+/* ── MODAL FOOTER ───────────────────────────────────────────────────────── */
+.modal-footer {
+  padding: 20px 32px;
+  background: white;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  gap: 12px;
+}
+
+.btn-request {
+  background: #4f46e5;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-request:hover:not(:disabled) {
+  background: #3730a3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.btn-request:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-cancel {
+  background: #f1f5f9;
+  color: #64748b;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* ── UTILITIES ──────────────────────────────────────────────────────────── */
+.loading-state, .empty-state {
+  background: white;
+  border-radius: 12px;
+  padding: 48px;
+  text-align: center;
+  grid-column: 1 / -1;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #f1f5f9;
+  border-top-color: #4f46e5;
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── RESPONSIVENESS ──────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .history-header { padding: 20px; flex-direction: column; align-items: flex-start; }
+  .filters-section { padding: 16px; }
+  .detail-grid { grid-template-columns: 1fr; }
+}

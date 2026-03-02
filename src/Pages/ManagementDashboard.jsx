@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import MainLayout from '../components/common/Layout/MainLayout';
 import axios from 'axios';
+import { managerService } from '../Services/manager.service';
+import ReportModal from '../components/Management/ReportModal';
 import './ManagementDashboard.css';
 
 const ManagementDashboard = ({ user, logout }) => {
   const dashboardUser = user || JSON.parse(localStorage.getItem('user'));
-
+// Report Generation State
+const [showReportModal, setShowReportModal] = useState(false);
   const [forms, setForms] = useState([]);
   const [filteredForms, setFilteredForms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,11 +18,23 @@ const ManagementDashboard = ({ user, logout }) => {
   const [teamFilter, setTeamFilter] = useState('all');
   const [dateRange, setDateRange] = useState('all');
   const [expandedRow, setExpandedRow] = useState(null);
-  const [viewMode, setViewMode] = useState('table'); // 'table' or 'card'
 
-  // Fetch all forms
+  // ── Requests Feature State ────────────────────────────────────────────────
+  const [editRequests, setEditRequests] = useState([]);
+  const [showRequestsModal, setShowRequestsModal] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [confirmAction, setConfirmAction] = useState(null); // { type: 'ACCEPT'|'REJECT', request: obj }
+  const [isProcessingRequest, setIsProcessingRequest] = useState(false);
+
+  // ── BPO Requests Feature State ────────────────────────────────────────────
+  const [bpoRequests, setBpoRequests] = useState([]);
+  const [requestViewMode, setRequestViewMode] = useState('EXECUTIVE'); // 'EXECUTIVE' | 'BPO'
+
+  // Fetch all forms & requests
   useEffect(() => {
     fetchAllForms();
+    fetchRequests();
+    fetchBpoRequests();
   }, []);
 
   const fetchAllForms = async () => {
@@ -48,6 +63,26 @@ const ManagementDashboard = ({ user, logout }) => {
       setFilteredForms([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchRequests = async () => {
+    try {
+      const response = await managerService.getRequests();
+      console.log("get request from manager dashboard",response);
+      setEditRequests(response || []);
+    } catch (error) {
+      console.error("Error fetching edit requests:", error);
+    }
+  };
+
+  const fetchBpoRequests = async () => {
+    try {
+      const response = await managerService.getBpoRequests();
+      console.log("get BPO requests from manager dashboard", response);
+      setBpoRequests(response || []);
+    } catch (error) {
+      console.error("Error fetching BPO edit requests:", error);
     }
   };
 
@@ -125,16 +160,17 @@ const ManagementDashboard = ({ user, logout }) => {
       month: '2-digit',
       year: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      timeZone: 'Asia/Kolkata'
     });
   };
 
   // Get status badge style
   const getStatusBadge = (status) => {
     const styles = {
-      'INTERESTED': { background: '#dcfce7', color: '#166534', label: 'Interested' },
-      'ONBOARDED': { background: '#dbeafe', color: '#1e40af', label: 'Onboarded' },
-      'NOT_INTERESTED': { background: '#fee2e2', color: '#991b1b', label: 'Not Interested' }
+      'INTERESTED': { background: '#dcfce7', color: 'black', label: 'Interested' },
+      'ONBOARDED': { background: '#dbeafe', color: 'black', label: 'Onboarded' },
+      'NOT_INTERESTED': { background: '#fee2e2', color: 'black', label: 'Not Interested' }
     };
     const style = styles[status] || { background: '#f1f5f9', color: '#475569', label: status };
     
@@ -166,8 +202,70 @@ const ManagementDashboard = ({ user, logout }) => {
     setExpandedRow(expandedRow === id ? null : id);
   };
 
+  // ── Requests Flow Functions ───────────────────────────────────────────────
+  const handleRequestAction = (type, request) => {
+    setConfirmAction({ type, request });
+  };
+
+  const cancelRequestAction = () => {
+    setConfirmAction(null);
+  };
+
+  const confirmRequestAction = async () => {
+    if (!confirmAction) return;
+
+    const { type, request } = confirmAction;
+    setIsProcessingRequest(true);
+
+    try {
+      if (requestViewMode === 'EXECUTIVE') {
+        if (type === 'ACCEPT') {
+          await managerService.approveRequest(request.id);
+          alert("Request approved successfully.");
+        } else if (type === 'REJECT') {
+          await managerService.rejectRequest(request.id);
+          alert("Request rejected successfully.");
+        }
+      } else if (requestViewMode === 'BPO') {
+        if (type === 'ACCEPT') {
+          await managerService.approveBpoRequest(request.id, { approved: true });
+          alert("BPO Request approved successfully.");
+        } else if (type === 'REJECT') {
+          // Note: If backend doesn't support reject for BPO, you could alert or handle differently.
+          // Assuming reject is not fully supported for BPO yet based on provided APIs
+          alert("Rejection is not currently supported for BPO requests via the API.");
+          setIsProcessingRequest(false);
+          setConfirmAction(null);
+          return;
+        }
+      }
+
+      // Close confirm and detail modal
+      setConfirmAction(null);
+      setSelectedRequest(null);
+      
+      // Refresh requests and forms
+      fetchRequests();
+      fetchBpoRequests();
+      fetchAllForms();
+
+      // Close list modal if no requests left in current view tab
+      const currentListLength = requestViewMode === 'EXECUTIVE' ? editRequests.length : bpoRequests.length;
+      if (currentListLength <= 1) {
+        setShowRequestsModal(false);
+      }
+    } catch (err) {
+      console.error(`Failed to ${type.toLowerCase()} request:`, err);
+      alert(`Failed to ${type.toLowerCase()} request. Please try again.`);
+    } finally {
+      setIsProcessingRequest(false);
+    }
+  };
+
   const handleRefresh = () => {
     fetchAllForms();
+    fetchRequests();
+    fetchBpoRequests();
   };
 
   return (
@@ -176,15 +274,38 @@ const ManagementDashboard = ({ user, logout }) => {
         {/* Header */}
         <div className="card header-card">
           <div className="header-content">
-            <div>
+            <div className='header-left'>
               <h1>Management Dashboard</h1>
-              <p className="text-muted">
+              {/* <p className="text-muted">
                 Consolidated view of all field operations • {forms.length} total entries
-              </p>
+              </p> */}
+                <button 
+                className="btn btn-success" 
+                onClick={() => setShowReportModal(true)}
+                disabled={loading}
+              >
+                📊 Generate Report
+              </button>
             </div>
-            <button onClick={handleRefresh} className="btn btn-primary" disabled={loading}>
-              {loading ? 'Refreshing...' : 'Refresh Data'}
-            </button>
+             
+            <div className="header-actions">
+               
+              <button 
+                className="btn btn-requests" 
+                onClick={() => setShowRequestsModal(true)}
+              >
+                Requests {(editRequests.length > 0 || bpoRequests.length > 0) && (
+                  <span className="badge-notification">{editRequests.length + bpoRequests.length}</span>
+                )}
+              </button>
+              <button 
+                onClick={handleRefresh} 
+                className="btn btn-primary" 
+                disabled={loading}
+              >
+                {loading ? 'Refreshing...' : 'Refresh Data'}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -211,16 +332,16 @@ const ManagementDashboard = ({ user, logout }) => {
             {/* Statistics Cards */}
             <div className="stats-grid">
               <div className="stat-card">
-                <div className="stat-value">{stats.total}</div>
-                <div className="stat-label">Total Entries</div>
+                <div className="stat-value" style={{color:'black'}}>{stats.total}</div>
+                <div className="stat-label" style={{color:'black'}}>Total Entries</div>
               </div>
               <div className="stat-card">
-                <div className="stat-value">{stats.totalExecutives}</div>
-                <div className="stat-label">Executives</div>
+                <div className="stat-value" style={{color:'black'}}>{stats.totalExecutives}</div>
+                <div className="stat-label" style={{color:'black'}}>Executives</div>
               </div>
               <div className="stat-card">
-                <div className="stat-value">{stats.totalTeamLeads}</div>
-                <div className="stat-label">Team Leads</div>
+                <div className="stat-value" style={{color:'black'}}>{stats.totalTeamLeads}</div>
+                <div className="stat-label" style={{color:'black'}}>Team Leads</div>
               </div>
             </div>
 
@@ -259,6 +380,7 @@ const ManagementDashboard = ({ user, logout }) => {
                   <option value="month">Last 30 Days</option>
                 </select>
 
+                 
                 {(searchTerm || statusFilter !== 'all' || teamFilter !== 'all' || dateRange !== 'all') && (
                   <button 
                     onClick={() => {
@@ -279,257 +401,436 @@ const ManagementDashboard = ({ user, logout }) => {
               </div>
             </div>
 
-            {/* Table View */}
-            {viewMode === 'table' && (
-              <div className="card">
-                <div className="table-container">
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>Date & Time</th>
-                        <th>Shop Details</th>
-                        <th>Vendor Info</th>
-                        <th>Executive</th>
-                        <th>Team Lead</th>
-                        <th>Location</th>
-                        
-                        <th>Tag</th>
-                        <th></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredForms.map(form => (
-                        <React.Fragment key={form.id}>
-                          <tr>
-                            <td>
-                              <div className="date-cell">{formatDate(form.createdAt)}</div>
-                            </td>
-                            <td>
-                              <div className="shop-details">
-                                <strong>{form.vendorShopName || 'N/A'}</strong>
-                                {form.review && (
-                                  <div className="review-text" title={form.review}>
-                                    {form.review.length > 30 ? form.review.substring(0, 30) + '...' : form.review}
-                                  </div>
-                                )}
-                              </div>
-                            </td>
-                            <td>
-                              <div className="vendor-info">
-                                <strong>{form.vendorName || 'N/A'}</strong>
-                                <div className="contact-info">
-                                  <div>{form.contactNumber}</div>
-                                  {form.mailId && <div className="email">{form.mailId}</div>}
-                                </div>
-                              </div>
-                            </td>
-                            <td>
-                              <div className="executive-info">
-                                <strong>{form.executiveName || `ID: ${form.executiveId}`}</strong>
-                              </div>
-                            </td>
-                            <td>
-                              <div className="teamlead-info">
-                                <strong>{form.teamleadName || `ID: ${form.teamleadId}`}</strong>
-                              </div>
-                            </td>
-                            <td>
-                              <div className="location-info">
-                                <div>{form.areaName || 'N/A'}</div>
-                                {form.state && <div className="state">{form.state}</div>}
-                              </div>
-                            </td>
-                           
-                            <td>{getTagBadge(form.tag)}</td>
-                            <td>
-                              <button 
-                                onClick={() => toggleRowExpand(form.id)}
-                                className="btn-icon"
-                              >
-                                {expandedRow === form.id ? '−' : '+'}
-                              </button>
-                            </td>
-                          </tr>
-                          {expandedRow === form.id && (
-                            <tr className="expanded-row">
-                              <td colSpan="9">
-                                <div className="expanded-content">
-                                  <div className="details-grid">
-                                    <div className="detail-item">
-                                      <span className="detail-label">Door Number:</span>
-                                      <span>{form.doorNumber || 'N/A'}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                      <span className="detail-label">Street:</span>
-                                      <span>{form.streetName || 'N/A'}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                      <span className="detail-label">PIN Code:</span>
-                                      <span>{form.pinCode || 'N/A'}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                      <span className="detail-label">Vendor Location:</span>
-                                      <span>{form.vendorLocation || 'N/A'}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                      <span className="detail-label">Assigned BPO:</span>
-                                      <span>{form.assignedBpoName || form.assignedBpoId || 'Not Assigned'}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                      <span className="detail-label">Executive Review:</span>
-                                      <span>{form.executiveReview || 'N/A'}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                      <span className="detail-label">Vendor Review:</span>
-                                      <span>{form.vendorReview || 'N/A'}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                      <span className="detail-label">BPO Action Date:</span>
-                                      <span>{form.bpoActionDate ? formatDate(form.bpoActionDate) : 'N/A'}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                      <span className="detail-label">Reappear Date:</span>
-                                      <span>{form.reappearDate ? formatDate(form.reappearDate) : 'N/A'}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                      <span className="detail-label">Solved:</span>
-                                      <span>{form.solved !== null ? (form.solved ? 'Yes' : 'No') : 'N/A'}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                              </td>
-                            </tr>
-                          )}
-                        </React.Fragment>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {filteredForms.length === 0 && (
-                  <div className="empty-state">
-                    <p>No entries found matching your filters</p>
+            {/* Unified Card View */}
+            <div className="mgmt-grid">
+              {filteredForms.map(form => (
+                <div 
+                  key={form.id} 
+                  className="mgmt-card"
+                  onClick={() => toggleRowExpand(form.id)}
+                >
+                  <div className="mgmt-card-header">
+                    <h3 className="mgmt-shop-name">{form.vendorShopName || 'Unnamed Shop'}</h3>
+                    <div className="mgmt-badges">
+                      {getStatusBadge(form.status)}
+                      {getTagBadge(form.tag)}
+                    </div>
                   </div>
-                )}
-              </div>
-            )}
+                  
+                  <div className="mgmt-card-body">
+                    <p className="mgmt-vendor-name">{form.vendorName || 'No Vendor Name'}</p>
+                    <div className="mgmt-card-meta">
+                      <span>👤 {form.executiveName || `ID: ${form.executiveId}`}</span>
+                      <span>📍 {form.areaName || 'N/A'}, {form.state}</span>
+                      <span>📅 {formatDate(form.createdAt)}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="mgmt-card-footer">
+                    <span className="mgmt-view-btn">View Details &rarr;</span>
+                  </div>
+                </div>
+              ))}
 
-            {/* Card View */}
-            {/* {viewMode === 'card' && (
-              <div className="card-grid">
-                {filteredForms.map(form => (
-                  <div key={form.id} className="data-card">
-                    <div className="card-header">
-                      <div className="card-title">
-                        <h4>{form.vendorShopName || 'Unnamed Shop'}</h4>
-                        <div className="card-badges">
-                          {getStatusBadge(form.status)}
-                          {getTagBadge(form.tag)}
-                        </div>
+              {filteredForms.length === 0 && (
+                <div className="empty-state">
+                  <div className="empty-icon">📊</div>
+                  <h3>No Forms Found</h3>
+                  <p>Try adjusting your search or filters to find what you're looking for.</p>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* ── DETAIL MODAL (Manager View) ── */}
+        {expandedRow && (
+          <div className="mgmt-detail-modal-overlay" onClick={() => setExpandedRow(null)}>
+            <div className="mgmt-detail-modal-content" onClick={e => e.stopPropagation()}>
+              
+              {/* Detail Header */}
+              {forms.filter(f => f.id === expandedRow).map(form => (
+                <React.Fragment key={`detail-${form.id}`}>
+                  <div className="mgmt-detail-header">
+                    <div>
+                      <h2>{form.vendorShopName || 'Unnamed Shop'}</h2>
+                      <p className="text-muted">ID: {form.id} • Submitted: {formatDate(form.createdAt)}</p>
+                    </div>
+                    <button className="mgr-close-btn" onClick={() => setExpandedRow(null)}>×</button>
+                  </div>
+
+                  {/* Detail Body */}
+                  <div className="mgmt-detail-body">
+                    
+                    {/* Status & Tags Strip */}
+                    <div className="mgmt-detail-strip">
+                      <div className="strip-item">
+                        <span className="strip-label">Status</span>
+                        {getStatusBadge(form.status)}
                       </div>
-                      <div className="card-subtitle">
-                        {form.vendorName} • {formatDate(form.createdAt)}
+                      <div className="strip-item">
+                        <span className="strip-label">Priority Tag</span>
+                        {getTagBadge(form.tag)}
+                      </div>
+                      <div className="strip-item">
+                        <span className="strip-label">Solved</span>
+                        <span className="info-value">{form.solved !== null ? (form.solved ? '✅ Yes' : '❌ No') : 'N/A'}</span>
                       </div>
                     </div>
 
-                    <div className="card-body">
-                      <div className="card-info-row">
-                        <span className="info-label">Executive:</span>
-                        <span className="info-value">{form.executiveName || `ID: ${form.executiveId}`}</span>
-                      </div>
-                      <div className="card-info-row">
-                        <span className="info-label">Team Lead:</span>
-                        <span className="info-value">{form.teamleadName || `ID: ${form.teamleadId}`}</span>
-                      </div>
-                      <div className="card-info-row">
-                        <span className="info-label">Contact:</span>
-                        <span className="info-value">{form.contactNumber}</span>
-                      </div>
-                      {form.mailId && (
-                        <div className="card-info-row">
-                          <span className="info-label">Email:</span>
-                          <span className="info-value">{form.mailId}</span>
+                    <div className="mgmt-detail-grid">
+                      {/* Left Column: Vendor & Contact */}
+                      <div className="mgmt-detail-section">
+                        <h3>Vendor Information</h3>
+                        <div className="mgmt-detail-row">
+                          <span className="detail-label">Owner Name</span>
+                          <span className="detail-value">{form.vendorName || 'N/A'}</span>
                         </div>
-                      )}
-                      <div className="card-info-row">
-                        <span className="info-label">Location:</span>
-                        <span className="info-value">{form.areaName}, {form.state}</span>
-                      </div>
-                      {form.review && (
-                        <div className="card-review">
-                          <span className="info-label">Review:</span>
-                          <p>{form.review}</p>
+                        <div className="mgmt-detail-row">
+                          <span className="detail-label">Contact Number</span>
+                          <span className="detail-value">{form.contactNumber || 'N/A'}</span>
                         </div>
-                      )}
-                    </div>
+                        <div className="mgmt-detail-row">
+                          <span className="detail-label">Email Address</span>
+                          <span className="detail-value">{form.mailId || 'N/A'}</span>
+                        </div>
+                      </div>
 
-                    <button 
-                      onClick={() => toggleRowExpand(form.id)}
-                      className="btn-expand"
-                    >
-                      {expandedRow === form.id ? 'Show Less' : 'Show More'}
-                    </button>
+                      {/* Right Column: Hierarchy */}
+                      <div className="mgmt-detail-section">
+                        <h3>Executive & Team</h3>
+                        <div className="mgmt-detail-row">
+                          <span className="detail-label">Executive</span>
+                          <span className="detail-value">{form.executiveName || `ID: ${form.executiveId}`}</span>
+                        </div>
+                        <div className="mgmt-detail-row">
+                          <span className="detail-label">Team Lead</span>
+                          <span className="detail-value">{form.teamleadName || `ID: ${form.teamleadId}`}</span>
+                        </div>
+                        <div className="mgmt-detail-row">
+                          <span className="detail-label">Assigned BPO</span>
+                          <span className="detail-value">{form.assignedBpoName || form.assignedBpoId || 'Not Assigned'}</span>
+                        </div>
+                      </div>
 
-                    {expandedRow === form.id && (
-                      <div className="card-expanded">
-                        <div className="card-info-row">
-                          <span className="info-label">Door Number:</span>
-                          <span className="info-value">{form.doorNumber || 'N/A'}</span>
+                      {/* Full Width: Location */}
+                      <div className="mgmt-detail-section full-width">
+                        <h3>Location Details</h3>
+                        <div className="mgmt-detail-row-inline">
+                          <span className="detail-label">Door No:</span>
+                          <span className="detail-value">{form.doorNumber || 'N/A'}</span>
                         </div>
-                        <div className="card-info-row">
-                          <span className="info-label">Street:</span>
-                          <span className="info-value">{form.streetName || 'N/A'}</span>
+                        <div className="mgmt-detail-row-inline">
+                          <span className="detail-label">Street:</span>
+                          <span className="detail-value">{form.streetName || 'N/A'}</span>
                         </div>
-                        <div className="card-info-row">
-                          <span className="info-label">PIN Code:</span>
-                          <span className="info-value">{form.pinCode || 'N/A'}</span>
+                        <div className="mgmt-detail-row-inline">
+                          <span className="detail-label">Area/City:</span>
+                          <span className="detail-value">{form.areaName || 'N/A'}</span>
                         </div>
-                        <div className="card-info-row">
-                          <span className="info-label">Vendor Location:</span>
-                          <span className="info-value">{form.vendorLocation || 'N/A'}</span>
+                        <div className="mgmt-detail-row-inline">
+                          <span className="detail-label">District:</span>
+                          <span className="detail-value">{form.district || 'N/A'}</span>
                         </div>
-                        <div className="card-info-row">
-                          <span className="info-label">Assigned BPO:</span>
-                          <span className="info-value">{form.assignedBpoName || form.assignedBpoId || 'Not Assigned'}</span>
+                        <div className="mgmt-detail-row-inline">
+                          <span className="detail-label">State:</span>
+                          <span className="detail-value">{form.state || 'N/A'}</span>
                         </div>
+                        <div className="mgmt-detail-row-inline">
+                          <span className="detail-label">PIN:</span>
+                          <span className="detail-value">{form.pinCode || 'N/A'}</span>
+                        </div>
+                        <div className="mgmt-detail-row-inline location-link">
+                          <span className="detail-label">GPS:</span>
+                          <span className="detail-value">{form.vendorLocation || 'N/A'}</span>
+                        </div>
+                      </div>
+
+                      {/* Full Width: Reviews & Dates */}
+                      <div className="mgmt-detail-section full-width">
+                        <h3>Reviews & Actions</h3>
+                        {form.review && (
+                          <div className="review-box">
+                            <strong>General Review:</strong>
+                            <p>{form.review}</p>
+                          </div>
+                        )}
                         {form.executiveReview && (
-                          <div className="card-review">
-                            <span className="info-label">Executive Review:</span>
+                          <div className="review-box">
+                            <strong>Executive Review:</strong>
                             <p>{form.executiveReview}</p>
                           </div>
                         )}
                         {form.vendorReview && (
-                          <div className="card-review">
-                            <span className="info-label">Vendor Review:</span>
+                          <div className="review-box">
+                            <strong>Vendor Review:</strong>
                             <p>{form.vendorReview}</p>
                           </div>
                         )}
-                        <div className="card-info-row">
-                          <span className="info-label">BPO Action Date:</span>
-                          <span className="info-value">{form.bpoActionDate ? formatDate(form.bpoActionDate) : 'N/A'}</span>
-                        </div>
-                        <div className="card-info-row">
-                          <span className="info-label">Reappear Date:</span>
-                          <span className="info-value">{form.reappearDate ? formatDate(form.reappearDate) : 'N/A'}</span>
-                        </div>
-                        <div className="card-info-row">
-                          <span className="info-label">Solved:</span>
-                          <span className="info-value">{form.solved !== null ? (form.solved ? 'Yes' : 'No') : 'N/A'}</span>
+                        
+                        <div className="action-dates">
+                          <div className="date-badge">
+                            <span className="date-label">BPO Action Date:</span>
+                            <span>{form.bpoActionDate ? formatDate(form.bpoActionDate) : 'Pending'}</span>
+                          </div>
+                          <div className="date-badge">
+                            <span className="date-label">Reappear Date:</span>
+                            <span>{form.reappearDate ? formatDate(form.reappearDate) : 'Not Set'}</span>
+                          </div>
                         </div>
                       </div>
-                    )}
+                    </div>
                   </div>
-                ))}
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+        )}
 
-                {filteredForms.length === 0 && (
+        {/* ── MODAL 1: REQUESTS LIST ── */}
+        {showRequestsModal && (
+          <div className="mgr-modal-overlay" onClick={() => setShowRequestsModal(false)}>
+            <div className="mgr-list-modal" onClick={e => e.stopPropagation()}>
+              <div className="mgr-modal-header">
+                <h2>Pending Edit Requests ({requestViewMode === 'EXECUTIVE' ? editRequests.length : bpoRequests.length})</h2>
+                <button className="mgr-close-btn" onClick={() => setShowRequestsModal(false)}>×</button>
+              </div>
+              <div className="mgr-modal-body">
+                {/* ── VIEW SWITCHER ── */}
+                <div className="mgr-requests-tabs">
+                  <button 
+                    className={`mgr-tab-btn ${requestViewMode === 'EXECUTIVE' ? 'active' : ''}`}
+                    onClick={() => setRequestViewMode('EXECUTIVE')}
+                  >
+                    Requests from Executives ({editRequests.length})
+                  </button>
+                  <button 
+                    className={`mgr-tab-btn ${requestViewMode === 'BPO' ? 'active' : ''}`}
+                    onClick={() => setRequestViewMode('BPO')}
+                  >
+                    Requests from BPO ({bpoRequests.length})
+                  </button>
+                </div>
+
+                {(requestViewMode === 'EXECUTIVE' ? editRequests : bpoRequests).length === 0 ? (
                   <div className="empty-state">
-                    <p>No entries found matching your filters</p>
+                    <p>No pending edit requests for this category.</p>
+                  </div>
+                ) : (
+                  <div className="mgr-requests-grid">
+                    {(requestViewMode === 'EXECUTIVE' ? editRequests : bpoRequests).map(req => (
+                      <div 
+                        key={req.id} 
+                        className="mgr-request-card"
+                        onClick={() => setSelectedRequest(req)}
+                      >
+                        <div className="mgr-req-header">
+                          <span className="mgr-req-title">{req.vendorShopName || 'Unnamed Shop'}</span>
+                          <span className="mgr-req-date">{formatDate(req.createdAt)}</span>
+                        </div>
+                        <div className="mgr-req-subtitle">
+                          {requestViewMode === 'EXECUTIVE' 
+                            ? `Requested by: ${req.executiveName || 'Unknown'}` 
+                            : `Requested by BPO: ${req.bpoName || 'Unknown'}`
+                          }
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
-            )} */}
-          </>
+            </div>
+          </div>
         )}
+
+        {/* ── MODAL 2: REQUEST DETAIL ── */}
+        {selectedRequest && !confirmAction && (
+          <div className="mgr-modal-overlay mgr-modal-overlay--detail" onClick={() => setSelectedRequest(null)}>
+            <div className="mgr-detail-modal" onClick={e => e.stopPropagation()}>
+              <div className="mgr-modal-header">
+                <h2>Request Details: {selectedRequest.vendorShopName || 'Unnamed Shop'}</h2>
+                <button className="mgr-close-btn" onClick={() => setSelectedRequest(null)}>×</button>
+              </div>
+              <div className="mgr-modal-body mgr-modal-body--scrollable">
+
+                <div className="mgr-detail-section">
+                  <h4 style={{ margin: '0 0 12px 0', color: '#334155' }}>Core Information</h4>
+                  <div className="mgr-detail-grid">
+                    <div className="mgr-detail-group">
+                      <label>ID</label>
+                      <p>#{selectedRequest.id}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Created At</label>
+                      <p>{formatDate(selectedRequest.createdAt)}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Status</label>
+                      <p>{selectedRequest.status || 'N/A'}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Tag</label>
+                      <p>{selectedRequest.tag || 'N/A'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mgr-detail-section">
+                  <h4 style={{ margin: '0 0 12px 0', color: '#334155' }}>Vendor Details</h4>
+                  <div className="mgr-detail-grid">
+                    <div className="mgr-detail-group">
+                      <label>Owner Name</label>
+                      <p>{selectedRequest.vendorName || 'N/A'}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Vendor Type</label>
+                      <p>{selectedRequest.vendorType || 'N/A'}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Contact Number</label>
+                      <p>{selectedRequest.contactNumber || 'N/A'}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Mail ID</label>
+                      <p>{selectedRequest.mailId || 'N/A'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mgr-detail-section">
+                  <h4 style={{ margin: '0 0 12px 0', color: '#334155' }}>Location Information</h4>
+                  <div className="mgr-detail-grid">
+                    <div className="mgr-detail-group">
+                      <label>Door Number</label>
+                      <p>{selectedRequest.doorNumber || 'N/A'}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Street Name</label>
+                      <p>{selectedRequest.streetName || 'N/A'}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Area Name</label>
+                      <p>{selectedRequest.areaName || 'N/A'}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>State & PIN</label>
+                      <p>{selectedRequest.state || 'N/A'} {selectedRequest.pinCode || ''}</p>
+                    </div>
+                    <div className="mgr-detail-group" style={{ gridColumn: '1 / -1' }}>
+                      <label>Map Coordinates</label>
+                      <p>{selectedRequest.vendorLocation || 'N/A'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mgr-detail-section">
+                  <h4 style={{ margin: '0 0 12px 0', color: '#334155' }}>Hierarchy & Organization</h4>
+                  <div className="mgr-detail-grid">
+                    <div className="mgr-detail-group">
+                      <label>Executive Name</label>
+                      <p>{selectedRequest.executiveName || `ID: ${selectedRequest.executiveId}`}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Team Lead</label>
+                      <p>{selectedRequest.teamleadName || `ID: ${selectedRequest.teamleadId}`}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Assigned BPO</label>
+                      <p>{selectedRequest.bpoName || 'N/A'}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Solved Status</label>
+                      <p>{selectedRequest.solved !== null ? (selectedRequest.solved ? 'Yes' : 'No') : 'N/A'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mgr-detail-section">
+                  <h4 style={{ margin: '0 0 12px 0', color: '#334155' }}>Reviews & Request Intel</h4>
+                  <div className="mgr-detail-grid" style={{ gridTemplateColumns: '1fr' }}>
+                    <div className="mgr-detail-group">
+                      <label style={{ color: '#ef4444' }}>Edit Resend Reason (from Executive)</label>
+                      <p style={{ borderColor: '#ef4444', backgroundColor: '#fef2f2' }}>{selectedRequest.resendReason || 'N/A'}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Manager Review</label>
+                      <p>{selectedRequest.review || 'N/A'}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Executive Review</label>
+                      <p>{selectedRequest.executiveReview || 'N/A'}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>Vendor Review</label>
+                      <p>{selectedRequest.vendorReview || 'N/A'}</p>
+                    </div>
+                    <div className="mgr-detail-group">
+                      <label>BPO Reason / Note</label>
+                      <p>{selectedRequest.bpoReason || 'N/A'}</p>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+              <div className="mgr-modal-footer">
+                <button 
+                  className="btn btn-danger" 
+                  onClick={() => handleRequestAction('REJECT', selectedRequest)}
+                >
+                  Reject Edit Request
+                </button>
+                <button 
+                  className="btn btn-success" 
+                  onClick={() => handleRequestAction('ACCEPT', selectedRequest)}
+                >
+                  Approve Edit Request
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── MODAL 3: CONFIRM ACTION ── */}
+        {confirmAction && (
+          <div className="mgr-modal-overlay mgr-modal-overlay--prompt" onClick={cancelRequestAction}>
+            <div className="mgr-prompt-modal" onClick={e => e.stopPropagation()}>
+              <div className="mgr-prompt-header">
+                <h4>Confirm {confirmAction.type === 'ACCEPT' ? 'Approval' : 'Rejection'}</h4>
+                <button className="mgr-close-btn" onClick={cancelRequestAction} disabled={isProcessingRequest}>×</button>
+              </div>
+              <div className="mgr-prompt-body">
+                <p>Are you sure you want to <strong>{confirmAction.type.toLowerCase()}</strong> this edit request?</p>
+              </div>
+              <div className="mgr-prompt-footer">
+                <button 
+                  className="btn btn-outline" 
+                  onClick={cancelRequestAction}
+                  disabled={isProcessingRequest}
+                >
+                  Cancel
+                </button>
+                <button 
+                  className={`btn ${confirmAction.type === 'ACCEPT' ? 'btn-success' : 'btn-danger'}`}
+                  onClick={confirmRequestAction}
+                  disabled={isProcessingRequest}
+                >
+                  {isProcessingRequest ? 'Processing...' : 'Proceed'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Report Generation Modal */}
+<ReportModal
+  isOpen={showReportModal}
+  onClose={() => setShowReportModal(false)}
+  forms={forms}
+  onGenerate={() => {
+    // Optional: Show success message or refresh data
+    console.log('Report generated successfully');
+  }}
+/>
       </div>
     </MainLayout>
   );
