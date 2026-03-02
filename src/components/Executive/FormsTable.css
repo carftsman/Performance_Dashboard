@@ -1,0 +1,162 @@
+/* FormsTable.css */
+
+.forms-section {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f0f0f0;
+  overflow: hidden;
+  margin-top: 20px;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+th {
+  background: #f8fafc;
+  padding: 14px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+td {
+  padding: 14px 18px;
+  font-size: 14px;
+  color: #334155;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+tr:hover {
+  background: #f8fafc;
+}
+
+/* Badges */
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-interested { background: #dcfce7; color: #166534; }
+.status-not-interested { background: #fee2e2; color: #991b1b; }
+.status-onboarded { background: #dbeafe; color: #1e40af; }
+.status-default { background: #f1f5f9; color: #475569; }
+
+/* Desktop Icon Styles */
+.view-btn {
+  background: #f1f5f9;
+  color: #4f46e5;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.view-btn:hover {
+  background: #4f46e5;
+  color: white;
+}
+
+/* ================= MOBILE CARDS VIEW ================= */
+.mobile-cards-container {
+  display: none;
+  padding: 16px;
+  gap: 16px;
+  flex-direction: column;
+}
+
+/* Inspired by ExecutiveDashboard history cards */
+.mobile-form-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.shop-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.card-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.card-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.item-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.item-value {
+  color: #334155;
+  font-weight: 500;
+}
+
+.card-footer {
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+  .table-wrapper {
+    display: none;
+  }
+
+  .mobile-cards-container {
+    display: flex;
+  }
+
+  .forms-section {
+    background: transparent;
+    box-shadow: none;
+    border: none;
+  }
+}

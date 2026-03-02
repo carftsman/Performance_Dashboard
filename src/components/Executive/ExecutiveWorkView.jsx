@@ -3,6 +3,7 @@ import LocationForm from '../Executive/VendorForm';
 import HeaderSection from '../Executive/HeaderSection';
 import FilterSection from '../Executive/FilterSection';
 import FormsTable from '../Executive/FormsTable';
+import './ExecutiveWorkView.css';
 
 const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
   const [viewMode, setViewMode] = useState('list');
