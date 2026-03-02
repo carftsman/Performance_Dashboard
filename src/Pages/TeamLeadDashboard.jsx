@@ -65,37 +65,6 @@ const [workStartLocation, setWorkStartLocation] = useState(null);
     }
   };
 
-  // Filter forms by date
-  // const filterFormsByDate = () => {
-  //   if (!dateFilter.startDate && !dateFilter.endDate) {
-  //     setFilteredForms(executiveForms);
-  //     return;
-  //   }
-
-  //   const filtered = executiveForms.filter(form => {
-  //     // Assuming form has a createdAt or date field
-  //     const formDate = new Date(form.createdAt || form.date || new Date());
-      
-  //     if (dateFilter.startDate && dateFilter.endDate) {
-  //       const start = new Date(dateFilter.startDate);
-  //       const end = new Date(dateFilter.endDate);
-  //       end.setHours(23, 59, 59, 999); // Include the entire end date
-  //       return formDate >= start && formDate <= end;
-  //     } else if (dateFilter.startDate) {
-  //       const start = new Date(dateFilter.startDate);
-  //       return formDate >= start;
-  //     } else if (dateFilter.endDate) {
-  //       const end = new Date(dateFilter.endDate);
-  //       end.setHours(23, 59, 59, 999);
-  //       return formDate <= end;
-  //     }
-      
-  //     return true;
-  //   });
-
-  //   setFilteredForms(filtered);
-  // };
-  // Filter forms by date - FIXED for UTC dates
 const filterFormsByDate = () => {
   if (!dateFilter.startDate && !dateFilter.endDate) {
     setFilteredForms(executiveForms);
