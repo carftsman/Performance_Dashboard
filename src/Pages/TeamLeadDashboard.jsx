@@ -23,6 +23,7 @@ const TeamLeadDashboard = ({ user, logout }) => {
   const [submitSuccess, setSubmitSuccess] = useState(null);
   const [selectedExecutiveForForm, setSelectedExecutiveForForm] = useState(null);
   const [showAddExecutiveModal, setShowAddExecutiveModal] = useState(false);
+  
   const [dateFilter, setDateFilter] = useState({
     startDate: '',
     endDate: ''
@@ -132,6 +133,9 @@ const filterFormsByDate = () => {
   const handleFormSubmit = async (formData) => {
     try {
       setIsSubmitting(true);
+      const res = await teamLeadService.createForm(formData); // 🔥 REAL API
+
+      console.log("API Response:", res);
       setSubmitSuccess(null);
 
       // Add team lead information to form data
@@ -253,6 +257,7 @@ const filterFormsByDate = () => {
   workStarted={workStarted}
   setWorkStarted={setWorkStarted}
   setWorkStartLocation={setWorkStartLocation}
+  setIsSubmitting={setIsSubmitting}
     />
   );
 }

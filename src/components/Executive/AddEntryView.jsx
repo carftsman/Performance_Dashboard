@@ -3,13 +3,17 @@ import MainLayout from '../common/Layout/MainLayout';
 import VendorForm from '../Executive/VendorForm';
 import { useState } from 'react';
 
+ 
+
 const AddEntryView = ({
   dashboardUser,
   logout,
   selectedExecutive,
+  handleFormSubmit,
   onBack,
   submitSuccess,
   isSubmitting,
+   setIsSubmitting
 }) => {
   if (!selectedExecutive) return null;
  const [isGettingLocation, setIsGettingLocation] = useState(false);
