@@ -4,15 +4,17 @@
   width: 100%;
   background: var(--gray-0);
   border-radius: var(--radius-lg);
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-2) var(--space-4); /* Reduced vertical padding */
   box-shadow: var(--shadow-sm);
-  border: 1.5px solid var(--gray-200);
+  border: 2px solid var(--brand-600); /* Darker, thicker border as requested */
   transition: border-color 0.2s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
 }
 
 .search-section:focus-within {
-  border-color: var(--brand-400);
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1), var(--shadow-sm);
+  border-color: var(--brand-600);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
 /* Container */
@@ -21,17 +23,19 @@
   align-items: center;
   gap: var(--space-3);
   position: relative;
+  width: 100%;
 }
 
 /* Search Icon */
 .search-icon {
   font-size: 18px;
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
+  width: 32px; /* Slightly smaller for better fit */
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
+  line-height: 1; /* Reset line-height to fix alignment */
   background: var(--brand-50);
   border-radius: var(--radius-md);
   color: var(--brand-500);
@@ -46,7 +50,7 @@
 /* Input */
 .search-input {
   flex: 1;
-  padding: 0.625rem var(--space-10) 0.625rem var(--space-2);
+  padding: 0.75rem var(--space-10) 0.75rem var(--space-1); /* Adjusted padding */
   border: none;
   outline: none;
   font-size: var(--text-base);
@@ -55,6 +59,9 @@
   background: transparent;
   font-family: var(--font-sans);
   min-width: 0;
+  height: 44px; /* Explicit height for alignment */
+  display: flex;
+  align-items: center;
 }
 
 .search-input::placeholder {
@@ -81,6 +88,7 @@
   transition: background 0.2s, color 0.2s, transform 0.2s;
   flex-shrink: 0;
   line-height: 1;
+  margin-right: -4px; /* Optical adjustment */
 }
 .search-clear:hover {
   background: var(--color-danger-bg);
@@ -94,11 +102,12 @@
 
 @media (max-width: 768px) {
   .search-section {
-    padding: var(--space-3);
+    padding: var(--space-2) var(--space-3);
     border-radius: var(--radius-md);
   }
   .search-input {
     font-size: 16px; /* prevent iOS auto-zoom */
+    height: 40px;
   }
   .search-container {
     gap: var(--space-2);
@@ -107,9 +116,9 @@
 
 @media (max-width: 480px) {
   .search-icon {
-    width: 32px;
-    height: 32px;
-    font-size: 16px;
+    width: 28px;
+    height: 28px;
+    font-size: 15px;
   }
   .search-input {
     font-size: 16px;

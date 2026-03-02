@@ -2,7 +2,7 @@ import './SearchBar.css';
 
 const SearchBar = ({ searchTerm, onSearchChange, onClear }) => {
   return (
-    <div className="search-section card">
+    <div className="search-section">
       <div className="search-container">
         {/* <span className="search-icon" aria-hidden="true">🔍</span> */}
         <input
