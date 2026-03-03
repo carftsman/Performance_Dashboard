@@ -1,4 +1,4 @@
-
+import './FormsTable.css';
 const StatusBadge = ({ status }) => {
   const styles = {
     INTERESTED: { bg: "#d4edda", color: "#155724", label: "Interested" },
@@ -66,185 +66,117 @@ const formatDate = (dateString) => {
 
 const FormsTable = ({ forms }) => {
   return (
-    <>
-    <style>{`
-      /* Table Container */
-.table-container {
-  width: 100%;
-  overflow-x: auto;
-  margin-top: 1rem;
-  font-family: 'Arial', sans-serif;
-}
-
-/* Table Styles */
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 800px; /* allow horizontal scroll on small screens */
-}
-
-.data-table th,
-.data-table td {
-  padding: 0.75rem 1rem;
-  text-align: left;
-  vertical-align: middle;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.data-table th {
-  background-color: #f8f9fa;
-  font-weight: 600;
-  color: #333;
-  font-size: 0.95rem;
-}
-
-.data-table td {
-  font-size: 0.9rem;
-  color: #444;
-}
-
-/* Zebra striping */
-.data-table tbody tr:nth-child(even) {
-  background-color: #fafafa;
-}
-
-/* Hover effect */
-.data-table tbody tr:hover {
-  background-color: #f1f3f5;
-}
-
-/* Responsive adjustments for mobile */
-@media (max-width: 768px) {
-  .data-table {
-    min-width: 600px;
-  }
-
-  .data-table th,
-  .data-table td {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.85rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .data-table {
-    min-width: 400px;
-  }
-
-  .data-table th,
-  .data-table td {
-    padding: 0.4rem 0.5rem;
-    font-size: 0.8rem;
-  }
-}
-
-/* Empty state */
-.empty-state {
-  text-align: center;
-  padding: 2rem;
-  color: #666;
-  font-size: 0.95rem;
-  background-color: #f8f9fa;
-  border-radius: 6px;
-  margin-top: 1rem;
-}
-
-/* Status & Tag Badges */
-.data-table td span {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-/* Vendor Info */
-.data-table td div {
-  line-height: 1.3;
-}
-
-/* Optional: make table horizontally scrollable */
-.table-container::-webkit-scrollbar {
-  height: 6px;
-}
-
-.table-container::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 3px;
-}
-
-.table-container::-webkit-scrollbar-track {
-  background-color: rgba(0, 0, 0, 0.05);
-}
-    `}</style>
-    <div className="table-container desktop-view">
-      <table className="data-table">
-        <thead>
-          <tr>
-            <th>Date & Time</th>
-            <th>Shop Name</th>
-            <th>Vendor Info</th>
-            <th>Location</th>
-            <th>Review</th>
-            <th>Status</th>
-            <th>Tag</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {forms.map((form) => (
-            <tr key={form.id}>
-              {/* Date */}
-              <td>{formatDate(form.createdAt || form.date)}</td>
-
-              {/* Shop Name */}
-              <td>
-                <strong>{form.vendorShopName}</strong>
-              </td>
-
-              {/* Vendor Info */}
-              <td>
-                <div>
-                  <strong>{form.vendorName}</strong>
-                </div>
-                <div style={{ fontSize: "12px", color: "#666" }}>
-                  📞 {form.contactNumber} <br />
-                  {form.mailId && <>✉️ {form.mailId}</>}
-                </div>
-              </td>
-
-              {/* Location */}
-              <td>
-                {form.areaName}, {form.state}
-                <br />
-                {form.pinCode && <span>PIN: {form.pinCode}</span>}
-              </td>
-
-              {/* Review */}
-              <td>
-                {form.review ? (
-                  <span title={form.review}>
-                    {form.review.substring(0, 30)}
-                    {form.review.length > 30 && "..."}
-                  </span>
-                ) : (
-                  "—"
-                )}
-              </td>
-
-              {/* Status */}
-              <td>
-                <StatusBadge status={form.status} />
-              </td>
-
-              {/* Tag */}
-              <td>
-                <TagBadge tag={form.tag} />
-              </td>
+    <div className="forms-section">
+      {/* Desktop Table View */}
+      <div className="table-wrapper">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Date & Time</th>
+              <th>Shop Name</th>
+              <th>Vendor Info</th>
+              <th>Location</th>
+              <th>Review</th>
+              <th>Status</th>
+              <th>Tag</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            {forms.map((form) => (
+              <tr key={form.id}>
+                {/* Date */}
+                <td>{formatDate(form.createdAt || form.date)}</td>
+
+                {/* Shop Name */}
+                <td>
+                  <strong>{form.vendorShopName}</strong>
+                </td>
+
+                {/* Vendor Info */}
+                <td>
+                  <div>
+                    <strong>{form.vendorName}</strong>
+                  </div>
+                  <div style={{ fontSize: "12px", color: "#666" }}>
+                    📞 {form.contactNumber} <br />
+                    {form.mailId && <>✉️ {form.mailId}</>}
+                  </div>
+                </td>
+
+                {/* Location */}
+                <td>
+                  {form.areaName}, {form.state}
+                  <br />
+                  {form.pinCode && <span>PIN: {form.pinCode}</span>}
+                </td>
+
+                {/* Review */}
+                <td>
+                  {form.review ? (
+                    <span title={form.review}>
+                      {form.review.substring(0, 30)}
+                      {form.review.length > 30 && "..."}
+                    </span>
+                  ) : (
+                    "—"
+                  )}
+                </td>
+
+                {/* Status */}
+                <td>
+                  <StatusBadge status={form.status} />
+                </td>
+
+                {/* Tag */}
+                <td>
+                  <TagBadge tag={form.tag} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile Cards View */}
+      <div className="mobile-cards-container">
+        {forms.map((form) => (
+          <div key={form.id} className="mobile-form-card">
+            <div className="card-header">
+              <span className="shop-name">{form.vendorShopName}</span>
+              <StatusBadge status={form.status} />
+            </div>
+            
+            <div className="card-body">
+              <div className="card-item">
+                <span className="item-label">Vendor</span>
+                <span className="item-value">{form.vendorName}</span>
+              </div>
+              <div className="card-item">
+                <span className="item-label">Contact</span>
+                <span className="item-value">{form.contactNumber}</span>
+              </div>
+              <div className="card-item" style={{ gridColumn: "span 2" }}>
+                <span className="item-label">Location</span>
+                <span className="item-value">{form.areaName}, {form.state} {form.pinCode && `(PIN: ${form.pinCode})`}</span>
+              </div>
+              {form.review && (
+                <div className="card-item" style={{ gridColumn: "span 2" }}>
+                  <span className="item-label">Review</span>
+                  <span className="item-value">{form.review}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="card-footer">
+              <span className="item-value" style={{ fontSize: "12px", color: "#64748b" }}>
+                {formatDate(form.createdAt || form.date)}
+              </span>
+              <TagBadge tag={form.tag} />
+            </div>
+          </div>
+        ))}
+      </div>
 
       {forms.length === 0 && (
         <div className="empty-state">
@@ -252,8 +184,6 @@ const FormsTable = ({ forms }) => {
         </div>
       )}
     </div>
-   
-    </>
   );
 };
 
