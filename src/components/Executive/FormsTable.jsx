@@ -1,4 +1,6 @@
 import './FormsTable.css';
+import { useState, useEffect } from 'react';
+
 const StatusBadge = ({ status }) => {
   const styles = {
     INTERESTED: { bg: "#d4edda", color: "#155724", label: "Interested" },
@@ -64,15 +66,108 @@ const formatDate = (dateString) => {
   });
 };
 
+// ── Detail Row helper for the bottom sheet ──
+const SheetRow = ({ label, value }) => {
+  if (!value && value !== 0) return null;
+  return (
+    <div className="ft-detail-row">
+      <span className="ft-detail-label">{label}</span>
+      <span className="ft-detail-value">{value}</span>
+    </div>
+  );
+};
+
+// ── Bottom Sheet Modal (mobile only) ──
+const FormBottomSheet = ({ form, onClose }) => {
+  // Prevent body scroll while sheet is open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, []);
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [onClose]);
+
+  const location = [
+    form.areaName,
+    form.state,
+    form.pinCode ? `PIN: ${form.pinCode}` : null,
+  ]
+    .filter(Boolean)
+    .join(', ');
+
+  return (
+    <>
+      {/* Backdrop — click to close */}
+      <div
+        className="ft-backdrop"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      {/* Bottom Sheet */}
+      <div
+        className="ft-bottom-sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Details for ${form.vendorShopName}`}
+      >
+        {/* Drag handle bar (visual cue) */}
+        <div className="ft-sheet-handle" />
+
+        {/* Sheet Header */}
+        <div className="ft-sheet-header">
+          <div className="ft-sheet-title-row">
+            <span className="ft-sheet-shop-name">{form.vendorShopName}</span>
+            <button
+              className="ft-sheet-close-btn"
+              onClick={onClose}
+              aria-label="Close details"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="ft-sheet-badges">
+            <StatusBadge status={form.status} />
+            <TagBadge tag={form.tag} />
+          </div>
+        </div>
+
+        {/* Sheet Body — all fields */}
+        <div className="ft-sheet-body">
+          <SheetRow label="Vendor Name"    value={form.vendorName} />
+          <SheetRow label="Contact"        value={form.contactNumber} />
+          <SheetRow label="Email"          value={form.mailId} />
+          <SheetRow label="Location"       value={location} />
+          <SheetRow label="Review"         value={form.review} />
+          <SheetRow
+            label="Date & Time"
+            value={formatDate(form.createdAt || form.date)}
+          />
+        </div>
+      </div>
+    </>
+  );
+};
+
 const FormsTable = ({ forms }) => {
+  const [activeForm, setActiveForm] = useState(null);
+
+  const openSheet  = (form) => setActiveForm(form);
+  const closeSheet = ()     => setActiveForm(null);
+
   return (
     <div className="forms-section">
-      {/* Desktop Table View */}
+      {/* ── Desktop Table View (unchanged) ── */}
       <div className="table-wrapper">
         <table className="data-table">
           <thead>
             <tr>
-              <th>Date & Time</th>
+              <th>Date &amp; Time</th>
               <th>Shop Name</th>
               <th>Vendor Info</th>
               <th>Location</th>
@@ -138,45 +233,42 @@ const FormsTable = ({ forms }) => {
         </table>
       </div>
 
-      {/* Mobile Cards View */}
+      {/* ── Mobile Compact Cards (tap to expand) ── */}
       <div className="mobile-cards-container">
         {forms.map((form) => (
-          <div key={form.id} className="mobile-form-card">
-            <div className="card-header">
-              <span className="shop-name">{form.vendorShopName}</span>
+          <div
+            key={form.id}
+            className="mobile-form-card ft-compact-card"
+            onClick={() => openSheet(form)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && openSheet(form)}
+            aria-label={`View details for ${form.vendorShopName}`}
+          >
+            {/* Top row: shop name + status */}
+            <div className="ft-compact-header">
+              <span className="ft-compact-shop-name">{form.vendorShopName}</span>
               <StatusBadge status={form.status} />
             </div>
-            
-            <div className="card-body">
-              <div className="card-item">
-                <span className="item-label">Vendor</span>
-                <span className="item-value">{form.vendorName}</span>
-              </div>
-              <div className="card-item">
-                <span className="item-label">Contact</span>
-                <span className="item-value">{form.contactNumber}</span>
-              </div>
-              <div className="card-item" style={{ gridColumn: "span 2" }}>
-                <span className="item-label">Location</span>
-                <span className="item-value">{form.areaName}, {form.state} {form.pinCode && `(PIN: ${form.pinCode})`}</span>
-              </div>
-              {form.review && (
-                <div className="card-item" style={{ gridColumn: "span 2" }}>
-                  <span className="item-label">Review</span>
-                  <span className="item-value">{form.review}</span>
-                </div>
-              )}
-            </div>
 
-            <div className="card-footer">
-              <span className="item-value" style={{ fontSize: "12px", color: "#64748b" }}>
+            {/* Middle: vendor name */}
+            <div className="ft-compact-vendor">{form.vendorName}</div>
+
+            {/* Bottom row: date + tap hint */}
+            <div className="ft-compact-footer">
+              <span className="ft-compact-date">
                 {formatDate(form.createdAt || form.date)}
               </span>
-              <TagBadge tag={form.tag} />
+              <span className="ft-tap-hint">Tap for details ›</span>
             </div>
           </div>
         ))}
       </div>
+
+      {/* ── Bottom Sheet Modal ── */}
+      {activeForm && (
+        <FormBottomSheet form={activeForm} onClose={closeSheet} />
+      )}
 
       {forms.length === 0 && (
         <div className="empty-state">

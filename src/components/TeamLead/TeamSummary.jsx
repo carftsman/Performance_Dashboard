@@ -38,9 +38,9 @@ const TeamSummary = ({
   ];
 
   return (
-    <div className="summary-section card">
-      <div className="summary-header">
-        <h3 className="summary-title">Team Summary</h3>
+    <div className="ts-summary-section">
+      <div className="ts-summary-header">
+        <h3 className="ts-summary-title">Team Summary</h3>
         <DateFilter
           dateFilter={dateFilter}
           onDateFilterChange={onDateFilterChange}
@@ -48,15 +48,15 @@ const TeamSummary = ({
         />
       </div>
 
-      <div className="stats-grid">
+      <div className="ts-stats-grid">
         {stats.map((stat, index) => (
-          <div key={index} className="stat-card">
-            <div className={`stat-icon ${stat.colorClass}-bg`}>
+          <div key={index} className="ts-stat-card">
+            <div className={`ts-stat-icon ts-${stat.colorClass}-bg`}>
               {stat.icon}
             </div>
-            <div className="stat-content">
-              <span className="stat-label">{stat.label}</span>
-              <span className={`stat-value ${stat.colorClass}`}>
+            <div className="ts-stat-content">
+              <span className="ts-stat-label">{stat.label}</span>
+              <span className={`ts-stat-value ts-${stat.colorClass}`}>
                 {stat.value}
               </span>
             </div>

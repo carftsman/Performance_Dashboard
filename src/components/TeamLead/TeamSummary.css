@@ -1,7 +1,7 @@
 /* TeamSummary.css — Modern, mobile-first redesign */
 
 /* ── Section ── */
-.summary-section {
+.ts-summary-section {
   width: 100%;
   background: var(--gray-0);
   border-radius: var(--radius-lg);
@@ -11,7 +11,7 @@
 }
 
 /* ── Header ── */
-.summary-header {
+.ts-summary-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -20,7 +20,7 @@
   margin-bottom: var(--space-5);
 }
 
-.summary-title {
+.ts-summary-title {
   font-size: var(--text-lg);
   font-weight: 700;
   color: var(--gray-900);
@@ -28,14 +28,14 @@
 }
 
 /* ── Stats Grid ── */
-.stats-grid {
+.ts-stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: var(--space-3);
 }
 
 /* ── Stat Card ── */
-.stat-card {
+.ts-stat-card {
   background: var(--gray-50);
   border-radius: var(--radius-md);
   padding: var(--space-4);
@@ -48,14 +48,14 @@
   overflow: hidden;
 }
 
-.stat-card:hover {
+.ts-stat-card:hover {
   border-color: var(--brand-200, #c7d2fe);
   box-shadow: var(--shadow-sm);
   transform: translateY(-2px);
 }
 
 /* ── Icon ── */
-.stat-icon {
+.ts-stat-icon {
   width: 44px;
   height: 44px;
   border-radius: var(--radius-md);
@@ -67,20 +67,20 @@
 }
 
 /* icon bg colors via modifier classes */
-.stat-color-executives-bg    { background: rgba(99,102,241,0.1); }
-.stat-color-total-bg         { background: rgba(59,130,246,0.1); }
-.stat-color-success-bg       { background: rgba(16,185,129,0.1); }
-.stat-color-not-interested-bg{ background: rgba(239,68,68,0.1); }
+.ts-stat-color-executives-bg    { background: rgba(99,102,241,0.1); }
+.ts-stat-color-total-bg         { background: rgba(59,130,246,0.1); }
+.ts-stat-color-success-bg       { background: rgba(16,185,129,0.1); }
+.ts-stat-color-not-interested-bg{ background: rgba(239,68,68,0.1); }
 
 /* ── Content ── */
-.stat-content {
+.ts-stat-content {
   display: flex;
   flex-direction: column;
   gap: 2px;
   min-width: 0;
 }
 
-.stat-label {
+.ts-stat-label {
   font-size: var(--text-xs);
   font-weight: 600;
   color: var(--gray-500);
@@ -91,7 +91,7 @@
   text-overflow: ellipsis;
 }
 
-.stat-value {
+.ts-stat-value {
   font-size: var(--text-2xl);
   font-weight: 800;
   line-height: 1;
@@ -99,10 +99,10 @@
 }
 
 /* value colors */
-.stat-color-executives    { color: #6366f1; }
-.stat-color-total         { color: #3b82f6; }
-.stat-color-success       { color: #10b981; }
-.stat-color-not-interested{ color: #ef4444; }
+.ts-stat-color-executives    { color: #6366f1; }
+.ts-stat-color-total         { color: #3b82f6; }
+.ts-stat-color-success       { color: #10b981; }
+.ts-stat-color-not-interested{ color: #ef4444; }
 
 /* ============================================================
    RESPONSIVE
@@ -110,74 +110,74 @@
 
 /* Tablet ≤ 1024px — 2×2 grid */
 @media (max-width: 1024px) {
-  .summary-section  { padding: var(--space-4) var(--space-5); }
-  .stats-grid       { grid-template-columns: repeat(2, 1fr); }
-  .stat-value       { font-size: var(--text-xl); }
+  .ts-summary-section  { padding: var(--space-4) var(--space-5); }
+  .ts-stats-grid       { grid-template-columns: repeat(2, 1fr); }
+  .ts-stat-value       { font-size: var(--text-xl); }
 }
 
 /* Mobile ≤ 768px — 2×2 compact */
 @media (max-width: 768px) {
-  .summary-section {
+  .ts-summary-section {
     padding: var(--space-4);
     border-radius: var(--radius-md);
   }
-  .summary-header {
+  .ts-summary-header {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-3);
     margin-bottom: var(--space-4);
   }
   /* DateFilter full width */
-  .summary-header > *:last-child {
+  .ts-summary-header > *:last-child {
     width: 100%;
   }
-  .stats-grid {
+  .ts-stats-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: var(--space-3);
   }
-  .stat-card {
+  .ts-stat-card {
     padding: var(--space-3);
     gap: var(--space-2);
   }
-  .stat-icon {
+  .ts-stat-icon {
     width: 38px;
     height: 38px;
     font-size: 17px;
   }
-  .stat-value { font-size: var(--text-xl); }
+  .ts-stat-value { font-size: var(--text-xl); }
 }
 
 /* Small Mobile ≤ 480px */
 @media (max-width: 480px) {
-  .summary-section {
+  .ts-summary-section {
     padding: var(--space-3);
   }
-  .stats-grid {
+  .ts-stats-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: var(--space-2);
   }
-  .stat-card {
+  .ts-stat-card {
     padding: var(--space-3) var(--space-2);
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-2);
   }
-  .stat-icon {
+  .ts-stat-icon {
     width: 34px;
     height: 34px;
     font-size: 15px;
     border-radius: var(--radius-sm);
   }
-  .stat-label {
+  .ts-stat-label {
     font-size: 9px;
     letter-spacing: 0.4px;
   }
-  .stat-value {
+  .ts-stat-value {
     font-size: var(--text-lg);
   }
 }
 
 /* Ultra Wide ≥ 1440px — 4 in a row */
 @media (min-width: 1440px) {
-  .stats-grid { grid-template-columns: repeat(4, 1fr); }
+  .ts-stats-grid { grid-template-columns: repeat(4, 1fr); }
 }
