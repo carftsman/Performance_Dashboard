@@ -8,8 +8,7 @@ import VendorForm from "../components/Executive/VendorForm";
 import { formService } from "../Services/form.service";
 import { executiveService } from "../Services/executive.service";
 import "./ExecutiveDashboard.css";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import {toast } from "react-toastify";
 import UniformNavbar from "../components/common/Navbar/UniformNavbar";
 
 const ExecutiveDashboard = ({ user, logout }) => {
@@ -380,14 +379,7 @@ const ExecutiveDashboard = ({ user, logout }) => {
   ========================================== */
   return (
     <div className="exec-page">
-     <ToastContainer
-  position="top-right"
-  autoClose={3000}
-  hideProgressBar={false}
-  newestOnTop
-  closeOnClick
-  pauseOnHover
-/>      <UniformNavbar
+      <UniformNavbar
         user={user}
         role="Field Executive"
         locationAllowed={attendanceMarked}

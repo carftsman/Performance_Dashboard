@@ -10,6 +10,7 @@ import AddExecutiveModal from '../components/TeamLead/AddExecutiveModal';
 import SearchBar from '../components/TeamLead/SearchBar';
 import AddEntryView from '../components/Executive/AddEntryView';
 import UniformNavbar from '../components/common/Navbar/UniformNavbar';
+import { toast } from "react-toastify";
 
 const TeamLeadDashboard = ({ user, logout }) => {
   const dashboardUser = user || JSON.parse(localStorage.getItem('user'));
@@ -135,9 +136,9 @@ const filterFormsByDate = () => {
     navigator.geolocation.getCurrentPosition(
       () => {
         setLocationAllowed(true);
-        alert("Location Permission Granted ✅");
+        toast.success("Location Permission Granted ✅");
       },
-      () => alert("Location Permission Denied ❌")
+      () => toast.error("Location Permission Denied ❌")
     );
   };
 
@@ -159,7 +160,7 @@ const filterFormsByDate = () => {
         });
         setViewMode("add-entry");
       },
-      () => alert("Unable to fetch start location")
+      () => toast.warning("Unable to fetch start location")
     );
   };
 

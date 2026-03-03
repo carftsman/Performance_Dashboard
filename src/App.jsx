@@ -16,6 +16,8 @@ import { authService } from './Services/authservice';
 import AdminDashboard from "./Pages/AdminDashboard";
 import ReportDashboard from "./Pages/ReportDashboard";
 import BpoHistory from "./Pages/BpoHistory";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 // ✅ Auth Hook
 const useAuth = () => {
   const [user, setUser] = useState(null);
@@ -160,6 +162,14 @@ function AppContent() {
 export default function App() {
   return (
     <Router>
+       <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+      />
       <AppContent />
     </Router>
   );
