@@ -44,6 +44,42 @@
   color: #64748b;
   font-size: 1rem;
 }
+/* ── PREMIUM BACK BUTTON ───────────────────────────────────────── */
+
+.back-btn-history {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border: 1.5px solid var(--bpo-border);
+  background: white;
+  color: var(--bpo-secondary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--bpo-shadow-sm);
+  margin-left: 60em;
+}
+
+.back-btn:hover {
+  background: var(--bpo-primary);
+  color: white;
+  border-color: var(--bpo-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(79, 70, 229, 0.2);
+}
+
+.back-btn:active {
+  transform: translateY(0);
+  box-shadow: var(--bpo-shadow-sm);
+}
+
+.back-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
 /* ── CONTROLS / FILTERS ──────────────────────────────────────────────────── */
 .filters-section {
@@ -64,7 +100,7 @@
   min-width: 300px;
 }
 
-.search-icon {
+.search-icon-history {
   position: absolute;
   left: 14px;
   top: 50%;

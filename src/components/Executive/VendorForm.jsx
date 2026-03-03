@@ -222,7 +222,7 @@ const validateForm = () => {
     setFormData({
       vendorShopName: "",
       vendorName:     "",
-      vendorType: "",
+      vendorType:     "",
       contactNumber:  "",
       mailId:         "",
       doorNumber:     "",

@@ -1,168 +1,17 @@
-// import React, { useEffect, useState } from "react";
-// import axios from "axios";
-// import MainLayout from "../components/common/Layout/MainLayout";
-// import "./BpoHistory.css";
-
-// const BASE_URL = "https://mft-zwy7.onrender.com";
-
-// function BpoHistory() {
-//   const [historyForms, setHistoryForms] = useState([]);
-//   const [loading, setLoading] = useState(true);
-
-//   const [selectedForm, setSelectedForm] = useState(null);
-//   const [bpoReason, setBpoReason] = useState("");
-//   const [submitting, setSubmitting] = useState(false);
-
-//   const fetchHistory = async () => {
-//     try {
-//       const response = await axios.get(
-//         `${BASE_URL}/api/bpo-request/history`,
-//         { withCredentials: true }
-//       );
-//       setHistoryForms(response.data);
-//     } catch (error) {
-//       console.error("History Fetch Error:", error);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchHistory();
-//   }, []);
-
-//   // ✅ Manager Request API Call
-//   const handleRequestManager = async () => {
-//     if (!bpoReason.trim()) {
-//       alert("Please enter reason");
-//       return;
-//     }
-
-//     try {
-//       setSubmitting(true);
-
-//       const response = await axios.put(
-//         `${BASE_URL}/api/bpo-request/request/${selectedForm.id}`,
-//         { bpoReason },
-//         { withCredentials: true }
-//       );
-
-//       // update UI instantly
-//       setHistoryForms((prev) =>
-//         prev.map((form) =>
-//           form.id === selectedForm.id ? response.data : form
-//         )
-//       );
-
-//       alert("Request sent to Manager successfully ✅");
-
-//       setSelectedForm(null);
-//       setBpoReason("");
-//     } catch (error) {
-//       console.error("Request Error:", error);
-//       alert("Failed to send request");
-//     } finally {
-//       setSubmitting(false);
-//     }
-//   };
-
-//   return (
-//     <MainLayout>
-//       <div className="history-container">
-//         <h2 className="history-title">BPO Submitted Forms History</h2>
-
-//         {loading ? (
-//           <p className="loading-text">Loading...</p>
-//         ) : historyForms.length === 0 ? (
-//           <p className="no-data">No submitted forms found.</p>
-//         ) : (
-//           <div className="history-grid">
-//             {historyForms.map((form) => (
-//               <div
-//                 key={form.id}
-//                 className="history-card"
-//                 onClick={() => setSelectedForm(form)}
-//               >
-//                 <div className="card-header">
-//                   <h3>{form.vendorShopName}</h3>
-//                   <span className={`status ${form.status?.toLowerCase()}`}>
-//                     {form.status}
-//                   </span>
-//                 </div>
-
-//                 <div className="card-body">
-//                   <p><strong>Vendor:</strong> {form.vendorName}</p>
-//                   <p><strong>Executive:</strong> {form.executiveName}</p>
-//                   <p><strong>TeamLead:</strong> {form.teamleadName}</p>
-//                   <p><strong>Vendor Review:</strong> {form.vendorReview}</p>
-//                   <p><strong>Executive Review:</strong> {form.executiveReview}</p>
-//                 </div>
-//               </div>
-//             ))}
-//           </div>
-//         )}
-
-//         {/* ✅ Modal */}
-//         {selectedForm && (
-//           <div className="modal-overlay">
-//             <div className="modal-content">
-//               <h3>{selectedForm.vendorShopName}</h3>
-
-//               <p><strong>Vendor:</strong> {selectedForm.vendorName}</p>
-//               <p><strong>Executive:</strong> {selectedForm.executiveName}</p>
-//               <p><strong>Status:</strong> {selectedForm.status}</p>
-
-//               <textarea
-//                 placeholder="Enter reason to request manager..."
-//                 value={bpoReason}
-//                 onChange={(e) => setBpoReason(e.target.value)}
-//                 rows={4}
-//               />
-
-//               <div className="modal-buttons">
-//                 <button
-//                   className="request-btn"
-//                   onClick={handleRequestManager}
-//                   disabled={submitting}
-//                 >
-//                   {submitting ? "Sending..." : "Request Manager"}
-//                 </button>
-
-//                 <button
-//                   className="close-btn"
-//                   onClick={() => setSelectedForm(null)}
-//                 >
-//                   Close
-//                 </button>
-//               </div>
-//             </div>
-//           </div>
-//         )}
-//       </div>
-//     </MainLayout>
-//   );
-// }
-
-// export default BpoHistory;
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import MainLayout from "../components/common/Layout/MainLayout";
 import { 
   FiSearch, 
-  FiFilter, 
-  FiClock, 
   FiUser, 
   FiBriefcase,
   FiMessageSquare,
   FiCheckCircle,
   FiXCircle,
   FiAlertCircle,
-  FiSend,
   FiEye,
-  FiDownload,
-  FiCalendar
+  FiArrowLeft
 } from "react-icons/fi";
 import "./BpoHistory.css";
 
@@ -289,11 +138,11 @@ function BpoHistory() {
         <div className="history-header">
           <div className="header-title">
             <button 
-              className="back-btn" 
+              className="back-btn-history" 
               onClick={() => navigate("/bpo-dashboard")}
-              style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}
             >
-              ← Back to Dashboard
+               <FiArrowLeft />
+              Back to Dashboard
             </button>
             <h1>BPO Submission History</h1>
             <p>View and manage all your historical submissions ({historyForms.length} total)</p>
@@ -303,7 +152,7 @@ function BpoHistory() {
         {/* Filters Section */}
         <div className="filters-section">
           <div className="search-box">
-            <FiSearch className="search-icon" />
+            <FiSearch className="search-icon-history" />
             <input
               type="text"
               placeholder="Global Search: Shop, Vendor, Executive..."

@@ -3,6 +3,8 @@ import axios from "axios";
 import MainLayout from "../components/common/Layout/MainLayout";
 import "./BpoDashboard.css";
 import { useNavigate } from "react-router-dom";
+import { FiSearch } from "react-icons/fi";
+
 const BASE_URL = "https://mft-zwy7.onrender.com";
 
 function BpoDashBoard() {
@@ -33,7 +35,7 @@ function BpoDashBoard() {
   const [editFormData, setEditFormData] = useState(null);
   const [isFetchingApproved, setIsFetchingApproved] = useState(false);
   const [isResubmitting, setIsResubmitting] = useState(false);
-  
+
   const navigate = useNavigate();
   useEffect(() => {
     fetchForms();
@@ -49,7 +51,7 @@ function BpoDashBoard() {
           headers: {
             'Content-Type': 'application/json',
           },
-          withCredentials: true 
+          withCredentials: true
         }
       );
 
@@ -80,10 +82,10 @@ function BpoDashBoard() {
           headers: {
             'Content-Type': 'application/json',
           },
-          withCredentials: true 
+          withCredentials: true
         }
       );
-      console.log("fetch approved request response from bpoDashboard",response)
+      console.log("fetch approved request response from bpoDashboard", response)
 
       setApprovedRequests(response.data || []);
     } catch (err) {
@@ -96,7 +98,7 @@ function BpoDashBoard() {
   // Handle review submission
   const handleReviewSubmit = async () => {
     if (!selectedFormForReview) return;
-    
+
     // Validation
     if (!idNumber.trim()) {
       setSubmitError("Please provide ID Number");
@@ -118,7 +120,7 @@ function BpoDashBoard() {
     try {
       setIsSubmitting(true);
       setSubmitError(null);
-      
+
       const payload = {
         action: selectedAction,
         idNumber: idNumber.trim(),
@@ -128,7 +130,7 @@ function BpoDashBoard() {
       };
 
       console.log("Submitting review:", payload);
-      
+
       const response = await axios.post(
         `${BASE_URL}/api/bpo/submit/${selectedFormForReview.id}`,
         payload,
@@ -141,9 +143,9 @@ function BpoDashBoard() {
       );
 
       console.log("Review submitted successfully:", response.data);
-      
+
       setSubmitSuccess("Review submitted successfully!");
-      
+
       // Auto-close modal after a short delay to let user see success state if needed
       // but the user wants it outside, so we close it immediately but keep success state
       setTimeout(() => {
@@ -163,12 +165,12 @@ function BpoDashBoard() {
       setTimeout(() => {
         setSubmitSuccess(null);
       }, 5000);
-      
-     
+
+
     } catch (err) {
       console.error("Error submitting review:", err);
       setSubmitError(
-        err.response?.data?.message || 
+        err.response?.data?.message ||
         "Failed to submit review. Please try again."
       );
     } finally {
@@ -177,7 +179,7 @@ function BpoDashBoard() {
   };
 
   // Open review modal
-  const handleOpenReviewModal = (form, e)=> {
+  const handleOpenReviewModal = (form, e) => {
     e.stopPropagation(); // Prevent card click
     setSelectedFormForReview(form);
     setExecutiveReview("");
@@ -248,17 +250,17 @@ function BpoDashBoard() {
         editFormData,
         {
           headers: { 'Content-Type': 'application/json' },
-          withCredentials: true 
+          withCredentials: true
         }
       );
-      
+
       alert("BPO Request resubmitted successfully!");
       setEditingRequest(null);
-      
+
       // Refresh data
       fetchApprovedRequests();
       fetchForms();
-      
+
       // Auto-close if it was the last one
       if (approvedRequests.length <= 1) {
         setShowApprovedModal(false);
@@ -283,48 +285,48 @@ function BpoDashBoard() {
     onboarded: forms.filter(f => f.status === 'ONBOARDED').length,
     notInterested: forms.filter(f => f.status === 'NOT_INTERESTED').length
   };
-// Generate unique districts (Alphabetical Order)
-const uniqueDistricts = [
-  ...new Set(
-    forms
-      .map(form => form.district)
-      .filter(district => district && district.trim() !== "")
-  )
-].sort((a, b) => a.localeCompare(b));
+  // Generate unique districts (Alphabetical Order)
+  const uniqueDistricts = [
+    ...new Set(
+      forms
+        .map(form => form.district)
+        .filter(district => district && district.trim() !== "")
+    )
+  ].sort((a, b) => a.localeCompare(b));
 
-// Generate unique vendor types
-const uniqueVendorTypes = [
-  ...new Set(
-    forms
-      .map(form => form.vendorType)
-      .filter(type => type && type.trim() !== "")
-  )
-].sort((a, b) => a.localeCompare(b));
+  // Generate unique vendor types
+  const uniqueVendorTypes = [
+    ...new Set(
+      forms
+        .map(form => form.vendorType)
+        .filter(type => type && type.trim() !== "")
+    )
+  ].sort((a, b) => a.localeCompare(b));
   // Filter forms
   const filteredForms = forms.filter((form) => {
-  const searchValue = searchTerm.toLowerCase();
+    const searchValue = searchTerm.toLowerCase();
 
-  const matchesSearch =
-    searchTerm === "" ||
-    form.vendorShopName?.toLowerCase().includes(searchValue) ||
-    form.vendorName?.toLowerCase().includes(searchValue) ||
-    form.executiveName?.toLowerCase().includes(searchValue) ||
-    form.district?.toLowerCase().includes(searchValue) ||           // ✅ Added district to search
-    form.vendorLocation?.toLowerCase().includes(searchValue) || 
-    form.id?.toString().includes(searchTerm);
+    const matchesSearch =
+      searchTerm === "" ||
+      form.vendorShopName?.toLowerCase().includes(searchValue) ||
+      form.vendorName?.toLowerCase().includes(searchValue) ||
+      form.executiveName?.toLowerCase().includes(searchValue) ||
+      form.district?.toLowerCase().includes(searchValue) ||           // ✅ Added district to search
+      form.vendorLocation?.toLowerCase().includes(searchValue) ||
+      form.id?.toString().includes(searchTerm);
 
-  const matchesStatus =
-    statusFilter === "All Status" ||
-    form.status?.toLowerCase() === statusFilter.toLowerCase();
+    const matchesStatus =
+      statusFilter === "All Status" ||
+      form.status?.toLowerCase() === statusFilter.toLowerCase();
 
-  const matchesLocation =
-    locationFilter === "All Locations" ||
-    form.district === locationFilter; // ✅ Filtering by district field now
-const matchesVendorType =
-  vendorTypeFilter === "All Types" ||
-  form.vendorType === vendorTypeFilter;
-  return matchesSearch && matchesStatus && matchesLocation && matchesVendorType;
-});
+    const matchesLocation =
+      locationFilter === "All Locations" ||
+      form.district === locationFilter; // ✅ Filtering by district field now
+    const matchesVendorType =
+      vendorTypeFilter === "All Types" ||
+      form.vendorType === vendorTypeFilter;
+    return matchesSearch && matchesStatus && matchesLocation && matchesVendorType;
+  });
 
   // Icons
   const Icons = {
@@ -352,14 +354,14 @@ const matchesVendorType =
 
           <div className="header-actions">
             <button
-              className="back-btn"
+              className="back-btn-dashboard"
               onClick={() => navigate("/bpo-history")}
               style={{ marginRight: '8px' }}
             >
               📜 View History
             </button>
             <div className="bpo-approved-badge-container">
-              <button 
+              <button
                 className={`bpo-btn-ghost ${approvedRequests.length > 0 ? 'has-requests' : ''}`}
                 onClick={() => setShowApprovedModal(true)}
               >
@@ -386,54 +388,55 @@ const matchesVendorType =
         )}
 
         {/* Search and Filter */}
-      <div className="filter-bar">
-        <div className="search-input-wrapper">
-          <div className="search-icon">{Icons.search}</div>
-          <input
-            type="text"
-            placeholder="Search by shop name, owner, or ID..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+        <div className="filter-bar">
+          <div className="search-input-wrapper">
+            <div className="search-icon">
+              <FiSearch />
+            </div>
+            <input
+              type="text"
+              placeholder="Search by shop name, owner, or ID..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          <select
+            className="filter-select"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="ALL">All Statuses</option>
+            <option value="INTERESTED">INTERESTED</option>
+            <option value="NOT_INTERESTED">NOT INTERESTED</option>
+          </select>
+
+          <select
+            className="filter-select"
+            value={locationFilter}
+            onChange={(e) => setLocationFilter(e.target.value)}
+          >
+            <option value="All Locations">All Districts</option>
+            {uniqueDistricts.map((district, index) => (
+              <option key={index} value={district}>
+                {district}
+              </option>
+            ))}
+          </select>
+
+          <select
+            className="filter-select"
+            value={vendorTypeFilter}
+            onChange={(e) => setVendorTypeFilter(e.target.value)}
+          >
+            <option value="All Types">All Types</option>
+            {uniqueVendorTypes.map((type, index) => (
+              <option key={index} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
         </div>
-
-        <select
-          className="filter-select"
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-        >
-          <option value="ALL">All Statuses</option>
-          <option value="INTERESTED">INTERESTED</option>
-          <option value="NOT_INTERESTED">NOT INTERESTED</option>
-          <option value="ONBOARDED">ONBOARDED</option>
-        </select>
-
-        <select
-          className="filter-select"
-          value={locationFilter}
-          onChange={(e) => setLocationFilter(e.target.value)}
-        >
-          <option value="All Locations">All Districts</option>
-          {uniqueDistricts.map((district, index) => (
-            <option key={index} value={district}>
-              {district}
-            </option>
-          ))}
-        </select>
-
-        <select
-          className="filter-select"
-          value={vendorTypeFilter}
-          onChange={(e) => setVendorTypeFilter(e.target.value)}
-        >
-          <option value="All Types">All Types</option>
-          {uniqueVendorTypes.map((type, index) => (
-            <option key={index} value={type}>
-              {type}
-            </option>
-          ))}
-        </select>
-      </div>
         {/* Loading State */}
         {loading && (
           <div className="loading-container">
@@ -516,7 +519,7 @@ const matchesVendorType =
                     </div>
                     <div className="detail-field">
                       <label>Vendor Type</label>
-                      <div className="value">{selectedForm.vendorType || "N/A"}</div>
+                      <div className="value">{selectedForm?.vendorType ?? "N/A"}</div>
                     </div>
                     <div className="detail-field">
                       <label>Contact Number</label>
@@ -544,10 +547,6 @@ const matchesVendorType =
                       <div className="value">{selectedForm.vendorLocation || "N/A"}</div>
                     </div>
                     <div className="detail-field">
-                      <label>Coordinates (Lat/Long)</label>
-                      <div className="value">
-                        {selectedForm.latitude && selectedForm.longitude ? `${selectedForm.latitude}, ${selectedForm.longitude}` : "N/A"}
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -621,7 +620,7 @@ const matchesVendorType =
               </div>
 
               <div className="bpo-modal-footer">
-                <button 
+                <button
                   className="bpo-btn-primary"
                   onClick={(e) => {
                     setSelectedForm(null);
@@ -671,8 +670,8 @@ const matchesVendorType =
                     </span>
                   </div>
                 </div>
-                 
-                 
+
+
 
                 {/* Error Message */}
                 {submitError && (
@@ -685,7 +684,7 @@ const matchesVendorType =
                 {/* ID Number */}
                 <div className="form-group">
                   <label className="form-label">
-                    ID Number <span className="required">*</span>
+                    BPO ID Number <span className="required">*</span>
                   </label>
                   <input
                     type="text"
@@ -709,7 +708,10 @@ const matchesVendorType =
                     style={{ width: '100%', boxSizing: 'border-box' }}
                     placeholder="Enter BPO Name"
                     value={bpoName}
-                    onChange={(e) => setBpoName(e.target.value)}
+                    onChange={(e) => {
+                      const cleanedValue = e.target.value.replace(/[^A-Za-z\s]/g, "");
+                      setBpoName(cleanedValue);
+                    }}
                     disabled={isSubmitting}
                   />
                 </div>
@@ -753,7 +755,7 @@ const matchesVendorType =
                     </div>
                   </div>
                 </div>
-                   {/* Action Selection */}
+                {/* Action Selection */}
                 <div className="form-group action-selection-group">
                   <label className="form-label">
                     Review Outcome <span className="required">*</span>
@@ -813,14 +815,14 @@ const matchesVendorType =
               </div>
 
               <div className="bpo-modal-footer">
-                <button 
+                <button
                   className="bpo-btn-ghost"
                   onClick={handleCloseReviewModal}
                   disabled={isSubmitting}
                 >
                   Cancel
                 </button>
-                <button 
+                <button
                   className="bpo-btn-primary"
                   onClick={handleReviewSubmit}
                   disabled={isSubmitting}
@@ -843,7 +845,7 @@ const matchesVendorType =
                 </div>
                 <button className="bpo-modal-close" onClick={() => setShowApprovedModal(false)}>×</button>
               </div>
-              
+
               <div className="bpo-modal-body">
                 {isFetchingApproved ? (
                   <div className="bpo-empty-state">
@@ -865,7 +867,7 @@ const matchesVendorType =
                           <span className="status-badge status--pending">Needs Edit</span>
                         </div>
                         <h3 className="shop-name">🏪 {req.vendorShopName || 'Unnamed Shop'}</h3>
-                        
+
                         <div className="reasons-container">
                           <div className="reason-block">
                             <strong>Original Request:</strong>
@@ -879,7 +881,7 @@ const matchesVendorType =
 
                         <div className="card-footer">
                           <span className="date">📅 {new Date(req.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}</span>
-                          <button 
+                          <button
                             className="bpo-btn-primary"
                             onClick={() => handleEditRequest(req)}
                             style={{ padding: '8px 16px', fontSize: '0.8125rem' }}
@@ -905,8 +907,8 @@ const matchesVendorType =
                   <h2>Edit & Resubmit BPO Data</h2>
                   <p>Form #{editingRequest.id} — Feedback: {editingRequest.resendReason || "N/A"}</p>
                 </div>
-                <button 
-                  className="bpo-modal-close" 
+                <button
+                  className="bpo-modal-close"
                   onClick={() => setEditingRequest(null)}
                   disabled={isResubmitting}
                 >
@@ -1009,12 +1011,12 @@ const matchesVendorType =
                         </select>
                       </div>
                     </div>
-                    <div className="bpo-edit-grid bpo-edit-grid--full" style={{marginTop: '20px'}}>
+                    <div className="bpo-edit-grid bpo-edit-grid--full" style={{ marginTop: '20px' }}>
                       <div className="bpo-form-group">
                         <label>Executive Review Update*</label>
-                        <textarea 
-                          name="executiveReview" 
-                          value={editFormData.executiveReview} 
+                        <textarea
+                          name="executiveReview"
+                          value={editFormData.executiveReview}
                           onChange={handleEditChange}
                           rows="3"
                           placeholder="Update executive review..."
@@ -1022,9 +1024,9 @@ const matchesVendorType =
                       </div>
                       <div className="bpo-form-group">
                         <label>Vendor Review Update*</label>
-                        <textarea 
-                          name="vendorReview" 
-                          value={editFormData.vendorReview} 
+                        <textarea
+                          name="vendorReview"
+                          value={editFormData.vendorReview}
                           onChange={handleEditChange}
                           rows="3"
                           placeholder="Update vendor review..."
@@ -1036,7 +1038,7 @@ const matchesVendorType =
               </div>
 
               <div className="bpo-modal-footer">
-                <button 
+                <button
                   className="bpo-btn--secondary"
                   style={{ padding: '10px 24px', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}
                   onClick={() => setEditingRequest(null)}
@@ -1044,7 +1046,7 @@ const matchesVendorType =
                 >
                   Cancel
                 </button>
-                <button 
+                <button
                   className="bpo-btn--success"
                   style={{ padding: '10px 24px', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}
                   onClick={handleUpdateAndResubmit}
