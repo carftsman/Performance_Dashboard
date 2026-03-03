@@ -1,29 +1,12 @@
 import React from 'react';
 import './HeaderSection.css';
+import BackButton from './BackButton';
 
 const HeaderSection = ({ executive, onBack }) => {
   return (
     <header className="workview-header">
       <div className="header-container">
-        <button 
-          onClick={onBack} 
-          className="back-btn"
-          aria-label="Back to team"
-          title="Back to team"
-        >
-          <svg 
-            width="24" 
-            height="24" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="3" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-          >
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-        </button>
+        <BackButton onClick={onBack} />
 
         <div className="executive-info">
           <h1 className="executive-name">{executive.name}</h1>

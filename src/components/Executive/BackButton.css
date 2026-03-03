@@ -1,0 +1,21 @@
+.back-btn {
+  background-color: #1f1f1f;
+  border: none;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+  background-color: #333;
+  transform: scale(1.08);
+}
+
+.back-btn:active {
+  transform: scale(0.95);
+}
