@@ -1,3 +1,5 @@
+import React from 'react';
+import { FiUsers, FiLayers, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import DateFilter from './DateFilter';
 import './TeamSummary.css';
 
@@ -14,26 +16,26 @@ const TeamSummary = ({
     {
       label: 'Active Executives',
       value: executives.length,
-      icon: '👥',
-      colorClass: 'stat-color-executives'
+      icon: <FiUsers />,
+      variant: 'executives'
     },
     {
       label: 'Total Forms',
       value: totalForms,
-      icon: '📋',
-      colorClass: 'stat-color-total'
+      icon: <FiLayers />,
+      variant: 'total'
     },
     {
       label: 'Successful',
       value: successfulForms,
-      icon: '✅',
-      colorClass: 'stat-color-success'
+      icon: <FiCheckCircle />,
+      variant: 'success'
     },
     {
       label: 'Not Interested',
       value: notInterestedForms,
-      icon: '❌',
-      colorClass: 'stat-color-not-interested'
+      icon: <FiXCircle />,
+      variant: 'not-interested'
     }
   ];
 
@@ -50,15 +52,15 @@ const TeamSummary = ({
 
       <div className="ts-stats-grid">
         {stats.map((stat, index) => (
-          <div key={index} className="ts-stat-card">
-            <div className={`ts-stat-icon ts-${stat.colorClass}-bg`}>
+          <div key={index} className={`ts-stat-card ts-stat-card--${stat.variant}`}>
+            <div className="ts-stat-icon">
               {stat.icon}
             </div>
-            <div className="ts-stat-content">
-              <span className="ts-stat-label">{stat.label}</span>
-              <span className={`ts-stat-value ts-${stat.colorClass}`}>
+            <div className="ts-stat-info">
+              <div className="ts-stat-value">
                 {stat.value}
-              </span>
+              </div>
+              <div className="ts-stat-label">{stat.label}</div>
             </div>
           </div>
         ))}
