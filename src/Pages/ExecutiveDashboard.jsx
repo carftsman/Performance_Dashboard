@@ -8,6 +8,8 @@ import VendorForm from "../components/Executive/VendorForm";
 import { formService } from "../Services/form.service";
 import { executiveService } from "../Services/executive.service";
 import "./ExecutiveDashboard.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import UniformNavbar from "../components/common/Navbar/UniformNavbar";
 
 const ExecutiveDashboard = ({ user, logout }) => {
@@ -108,13 +110,13 @@ const ExecutiveDashboard = ({ user, logout }) => {
           };
           await executiveService.markAttendance(payload);
           setAttendanceMarked(true);
-          alert("Attendance Marked Successfully ✅");
+          toast.success("Attendance Marked Successfully ✅");
         } catch (error) {
           console.error("Attendance marking failed:", error);
-          alert("Failed to mark attendance");
+          toast.error("Failed to mark attendance");
         }
       },
-      () => alert("Location Permission Denied ❌")
+      () => toast.error("Location Permission Denied ❌")
     );
   };
 
@@ -134,7 +136,7 @@ const ExecutiveDashboard = ({ user, logout }) => {
         setWorkStarted(true);
         setShowForm(true);
       },
-      () => alert("Unable to fetch start location")
+      () => toast.error("Unable to fetch start location")
     );
   };
 
@@ -193,19 +195,19 @@ const ExecutiveDashboard = ({ user, logout }) => {
         setIsGettingLocation(false);
       },
       () => {
-        alert("Unable to capture vendor location");
+        toast.error("Unable to capture vendor location");
         setIsGettingLocation(false);
       },
       { enableHighAccuracy: true }
     );
-  };
+  }
 
   /* =========================================
      SUBMIT FORM
   ========================================== */
   const handleSubmitDailyLog = async (formData) => {
     if (!vendorLocation) {
-      alert("Please capture vendor location");
+      toast.warning("Please capture vendor location");
       return;
     }
 
@@ -229,7 +231,7 @@ const ExecutiveDashboard = ({ user, logout }) => {
 
       await formService.createForm(submissionData);
 
-      alert("Form submitted successfully!");
+      toast.success("Form submitted successfully!");
 
       setVendorLocation(null);
       setGeocodedAddress(null);
@@ -239,7 +241,7 @@ const ExecutiveDashboard = ({ user, logout }) => {
 
     } catch (error) {
       console.error("Submission failed:", error.response?.data);
-      alert("Submission failed");
+      toast.error("Submission failed");
     } finally {
       setIsSubmitting(false);
     }
@@ -248,7 +250,7 @@ const ExecutiveDashboard = ({ user, logout }) => {
   // ── Request to Manager Handler ────────────────────────────────────────────
   const handleProceedRequest = async () => {
     if (!requestReason.trim()) {
-      alert("Please enter a reason for the request.");
+      toast.warning("Please enter a reason for the request.");
       return;
     }
 
@@ -259,7 +261,7 @@ const ExecutiveDashboard = ({ user, logout }) => {
         reason: requestReason.trim(),
       };
       await formService.resendRequest(payload);
-      alert("Request sent successfully to the manager.");
+      toast.success("Request sent successfully to the manager.");
       // Reset request modal state
       setShowRequestModal(false);
       setRequestReason("");
@@ -267,7 +269,7 @@ const ExecutiveDashboard = ({ user, logout }) => {
       setSelectedForm(null);
     } catch (err) {
       console.error("Failed to send request:", err);
-      alert("Failed to send request. Please try again later.");
+      toast.error("Failed to send request. Please try again later.");
     } finally {
       setIsRequesting(false);
     }
@@ -308,14 +310,14 @@ const ExecutiveDashboard = ({ user, logout }) => {
 
   const handleUpdateAndResubmit = async () => {
     if (!editFormData.vendorShopName || !editFormData.vendorName || !editFormData.district) {
-      alert("Vendor Shop Name, Vendor Name, and District are required.");
+      toast.warning("Vendor Shop Name, Vendor Name, and District are required.");
       return;
     }
 
     try {
       setIsResubmitting(true);
       await executiveService.resubmitRequest(editingRequest.id, editFormData);
-      alert("Request resubmitted successfully!");
+      toast.success("Request resubmitted successfully!");
       setEditingRequest(null);
       
       // Refresh data
@@ -328,7 +330,7 @@ const ExecutiveDashboard = ({ user, logout }) => {
       }
     } catch (error) {
       console.error("Failed to resubmit:", error);
-      alert("Failed to resubmit request. Please try again.");
+      toast.error("Failed to resubmit request. Please try again.");
     } finally {
       setIsResubmitting(false);
     }
@@ -378,7 +380,14 @@ const ExecutiveDashboard = ({ user, logout }) => {
   ========================================== */
   return (
     <div className="exec-page">
-      <UniformNavbar
+     <ToastContainer
+  position="top-right"
+  autoClose={3000}
+  hideProgressBar={false}
+  newestOnTop
+  closeOnClick
+  pauseOnHover
+/>      <UniformNavbar
         user={user}
         role="Field Executive"
         locationAllowed={attendanceMarked}
@@ -618,11 +627,11 @@ const ExecutiveDashboard = ({ user, logout }) => {
                 <div className="exec-modal-field exec-modal-field--full">
                   <label>Full Address</label>
                   <p>
-                    {[
-                      selectedForm.doorNumber, 
+                    {[ 
                       selectedForm.streetName, 
-                      selectedForm.areaName, 
-                      selectedForm.state, 
+                      // selectedForm.areaName, 
+                      // selectedForm.state,
+                       selectedForm.district,
                       selectedForm.pinCode
                     ].filter(Boolean).join(", ") || "—"}
                   </p>
