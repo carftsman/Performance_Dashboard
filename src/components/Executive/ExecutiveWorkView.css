@@ -7,45 +7,77 @@
 }
 
 /* ── Stats Grid ── */
-.stats-grid {
+.workview-stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-3);
+  gap: var(--space-4);
+  margin-bottom: var(--space-1);
 }
 
-.stat-card {
+.workview-stat-card {
   background: var(--gray-0);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  border: 1px solid var(--gray-200);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.workview-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--brand-300);
+}
+
+.workview-stat-icon {
+  width: 48px;
+  height: 48px;
   border-radius: var(--radius-md);
-  padding: var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+/* Card variants */
+.workview-stat-card--total .workview-stat-icon {
+  background: var(--brand-50);
+  color: var(--brand-600);
+}
+.workview-stat-card--interested .workview-stat-icon {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+.workview-stat-card--not-interested .workview-stat-icon {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.workview-stat-info {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  border: 1px solid var(--gray-200);
-  box-shadow: var(--shadow-xs);
-  transition: all 0.2s ease;
-  gap: var(--space-2);
+  gap: 2px;
 }
 
-.stat-card:hover {
-  border-color: var(--brand-300, #a5b4fc);
-  box-shadow: var(--shadow-sm);
-  transform: translateY(-2px);
-}
-
-.stat-value {
+.workview-stat-value {
   font-size: var(--text-2xl);
   font-weight: 800;
-  color: var(--gray-800);
-  line-height: 1;
+  color: var(--gray-900);
+  line-height: 1.1;
 }
 
-.stat-label {
+.workview-stat-label {
   font-size: var(--text-xs);
-  font-weight: 600;
-  color: var(--gray-400);
+  font-weight: 700;
+  color: var(--gray-500);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.05em;
 }
 
 /* ── Card Title ── */
@@ -252,7 +284,11 @@
    ============================================================ */
 
 @media (max-width: 1024px) {
-  .stats-grid { grid-template-columns: repeat(3, 1fr); }
+  .workview-stats-grid { 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: var(--space-3);
+  }
+  .workview-stat-card--total { grid-column: span 2; }
   .data-table { font-size: var(--text-xs); }
   .data-table th, .data-table td { padding: var(--space-2) var(--space-3); }
 }
@@ -271,10 +307,14 @@
 }
 
 @media (max-width: 480px) {
-  .stats-grid { grid-template-columns: 1fr 1fr 1fr; }
-  .stat-card { padding: var(--space-2) var(--space-3); }
-  .stat-value { font-size: var(--text-xl); }
-  .stat-label { font-size: 9px; }
+  .workview-stats-grid { 
+    grid-template-columns: 1fr; 
+    gap: var(--space-3);
+  }
+  .workview-stat-card--total { grid-column: span 1; }
+  .workview-stat-card { padding: var(--space-3) var(--space-4); }
+  .workview-stat-value { font-size: var(--text-xl); }
+  .workview-stat-label { font-size: 10px; }
 
   .mobile-card-details { padding: var(--space-3); }
   .detail-row { flex-direction: column; gap: var(--space-1); }

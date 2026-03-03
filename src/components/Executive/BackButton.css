@@ -1,4 +1,4 @@
-.back-btn {
+.exec-back-btn {
   background-color: #1f1f1f;
   border: none;
   border-radius: 50%;
@@ -11,11 +11,11 @@
   transition: all 0.3s ease;
 }
 
-.back-btn:hover {
+.exec-back-btn:hover {
   background-color: #333;
   transform: scale(1.08);
 }
 
-.back-btn:active {
+.exec-back-btn:active {
   transform: scale(0.95);
 }

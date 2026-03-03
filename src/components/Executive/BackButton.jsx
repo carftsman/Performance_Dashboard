@@ -9,7 +9,7 @@ const BackButton = ({ onClick }) => {
   const handleClick = onClick || (() => navigate(-1));
 
   return (
-    <button className="back-btn" onClick={handleClick}>
+    <button className="exec-back-btn" onClick={handleClick}>
       <svg
         width="12"
         height="12"
