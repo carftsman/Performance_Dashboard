@@ -10,6 +10,8 @@ import AddExecutiveModal from '../components/TeamLead/AddExecutiveModal';
 import SearchBar from '../components/TeamLead/SearchBar';
 import AddEntryView from '../components/Executive/AddEntryView';
 import UniformNavbar from '../components/common/Navbar/UniformNavbar';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const TeamLeadDashboard = ({ user, logout }) => {
   const dashboardUser = user || JSON.parse(localStorage.getItem('user'));
@@ -135,9 +137,9 @@ const filterFormsByDate = () => {
     navigator.geolocation.getCurrentPosition(
       () => {
         setLocationAllowed(true);
-        alert("Location Permission Granted ✅");
+        toast.success("Location Permission Granted ✅");
       },
-      () => alert("Location Permission Denied ❌")
+      () => toast.error("Location Permission Denied ❌")
     );
   };
 
@@ -159,7 +161,7 @@ const filterFormsByDate = () => {
         });
         setViewMode("add-entry");
       },
-      () => alert("Unable to fetch start location")
+      () => toast.error("Unable to fetch start location")
     );
   };
 
@@ -278,6 +280,14 @@ const filterFormsByDate = () => {
   if (viewMode === "add-entry" && selectedExecutiveForForm) {
     return (
       <div className="exec-page">
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          pauseOnHover
+        />  
         <UniformNavbar
           user={dashboardUser}
           role="Team Lead"
