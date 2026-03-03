@@ -308,13 +308,23 @@
 
 @media (max-width: 480px) {
   .workview-stats-grid { 
-    grid-template-columns: 1fr; 
-    gap: var(--space-3);
+    grid-template-columns: repeat(3, 1fr); 
+    gap: var(--space-2);
+  }
+  .workview-stat-card { 
+    flex-direction: column;
+    padding: var(--space-3) var(--space-2);
+    gap: var(--space-2);
+    text-align: center;
   }
   .workview-stat-card--total { grid-column: span 1; }
-  .workview-stat-card { padding: var(--space-3) var(--space-4); }
-  .workview-stat-value { font-size: var(--text-xl); }
-  .workview-stat-label { font-size: 10px; }
+  .workview-stat-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+  .workview-stat-value { font-size: var(--text-lg); }
+  .workview-stat-label { font-size: 8px; }
 
   .mobile-card-details { padding: var(--space-3); }
   .detail-row { flex-direction: column; gap: var(--space-1); }
