@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import teamLeadService  from '../Services/teamlead.service';
+import { executiveService } from '../Services/executive.service';
 import './TeamLeadDashboard.css'; 
 import './ExecutiveDashboard.css';
 import ExecutiveWorkViewTL from '../components/Executive/ExecutiveWorkView';
@@ -34,9 +35,30 @@ const TeamLeadDashboard = ({ user, logout }) => {
 const [workStarted, setWorkStarted] = useState(false);
 const [workStartLocation, setWorkStartLocation] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [attendanceMarked, setAttendanceMarked] = useState(false);
+  const [checkingAttendance, setCheckingAttendance] = useState(true);
+  const [isLocationLoading, setIsLocationLoading] = useState(false);
+
   useEffect(() => {
+    checkAttendanceStatus();
     fetchTeamLeadForms();
   }, []);
+
+  const checkAttendanceStatus = async () => {
+    try {
+      const response = await executiveService.checkAttendance();
+      console.log("Attendance check API response:", response);
+      if (response === true) {
+        setAttendanceMarked(true);
+        setWorkStarted(true);
+        setLocationAllowed(true);
+      }
+    } catch (error) {
+      console.error("Attendance check failed:", error);
+    } finally {
+      setCheckingAttendance(false);
+    }
+  };
 
   // Update filtered forms when executiveForms or dateFilter changes
   useEffect(() => {
@@ -133,16 +155,18 @@ const filterFormsByDate = () => {
   };
 
   const handleEnableLocation = () => {
+    setIsLocationLoading(true);
     navigator.geolocation.getCurrentPosition(
       () => {
         setLocationAllowed(true);
-        toast.success("Location Permission Granted ✅");
+        alert("Location Permission Granted ✅");
       },
-      () => toast.error("Location Permission Denied ❌")
+      () => alert("Location Permission Denied ❌")
     );
   };
 
   const handleStartWork = () => {
+    setIsLocationLoading(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const startLocation = {
@@ -159,8 +183,9 @@ const filterFormsByDate = () => {
           name: dashboardUser?.userCode,
         });
         setViewMode("add-entry");
+        setIsLocationLoading(false);
       },
-      () => toast.warning("Unable to fetch start location")
+      () => alert("Unable to fetch start location")
     );
   };
 
@@ -282,8 +307,9 @@ const filterFormsByDate = () => {
         <UniformNavbar
           user={dashboardUser}
           role="Team Lead"
-          locationAllowed={locationAllowed}
+          locationAllowed={attendanceMarked}
           workStarted={workStarted}
+          locationLoading={isLocationLoading}
           loading={loading}
           showForm={true}
           onRefresh={handleRefresh}
@@ -327,8 +353,9 @@ const filterFormsByDate = () => {
         <UniformNavbar
           user={dashboardUser}
           role="Team Lead"
-          locationAllowed={locationAllowed}
+          locationAllowed={attendanceMarked}
           workStarted={workStarted}
+          locationLoading={isLocationLoading}
           loading={loading}
           showForm={false}
           onRefresh={handleRefresh}
@@ -359,11 +386,20 @@ const filterFormsByDate = () => {
   // Main team view (List Mode)
   return (
     <div className="exec-page">
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+      />
       <UniformNavbar
         user={dashboardUser}
         role="Team Lead"
-        locationAllowed={locationAllowed}
+        locationAllowed={attendanceMarked}
         workStarted={workStarted}
+        locationLoading={isLocationLoading}
         loading={loading}
         showForm={false}
         onRefresh={handleRefresh}

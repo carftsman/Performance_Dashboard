@@ -8,6 +8,7 @@ const UniformNavbar = ({
   locationAllowed,
   workStarted,
   loading,
+  locationLoading,
   showForm,
   onRefresh,
   onEnableLocation,
@@ -73,10 +74,10 @@ const UniformNavbar = ({
               {!workStarted && (
                 <button
                   className="dropdown-item"
-                  disabled={!locationAllowed}
+                  disabled={!locationAllowed || locationLoading}
                   onClick={() => { onStartWork(); setIsProfileOpen(false); }}
                 >
-                  ▶ Start Work
+                  {locationLoading ? <span className="navbar-spinner"></span> : "▶ Start Work"}
                 </button>
               )}
 
@@ -116,13 +117,17 @@ const UniformNavbar = ({
       {/* ── DESKTOP ONLY: RIGHT ACTIONS (STATUS & REFRESH ONLY) ── */}
       <div className="navbar-center-right desktop-only">
         <div 
-          className={`location-status ${locationAllowed ? "enabled" : "disabled"}`}
-          onClick={!locationAllowed ? onEnableLocation : undefined}
-          title={locationAllowed ? "Location Enabled" : "Click to Enable Location"}
+          className={`location-status ${locationAllowed ? "enabled" : "disabled"} ${locationLoading ? "loading" : ""}`}
+          onClick={!locationAllowed && !locationLoading ? onEnableLocation : undefined}
+          title={locationLoading ? "Verifying..." : locationAllowed ? "Location Enabled" : "Click to Enable Location"}
         >
-          <span className="status-dot"></span>
+          {locationLoading ? (
+            <span className="navbar-spinner"></span>
+          ) : (
+            <span className="status-dot"></span>
+          )}
           <span className="status-text">
-            {locationAllowed ? "Location Enabled" : "Location Disabled"}
+            {locationLoading ? "Verifying..." : locationAllowed ? "Location Enabled" : "Location Disabled"}
           </span>
         </div>
 
@@ -169,10 +174,10 @@ const UniformNavbar = ({
               {!workStarted && (
                 <button
                   className="drawer-item"
-                  disabled={!locationAllowed}
+                  disabled={!locationAllowed || locationLoading}
                   onClick={() => { onStartWork(); toggleMobileDrawer(); }}
                 >
-                  ▶ Start Work
+                  {locationLoading ? <span className="navbar-spinner"></span> : "▶ Start Work"}
                 </button>
               )}
 
@@ -192,11 +197,15 @@ const UniformNavbar = ({
               )}
 
               <div 
-                className={`drawer-item location-status ${locationAllowed ? "enabled" : "disabled"}`}
-                onClick={() => { if(!locationAllowed) onEnableLocation(); }}
+                className={`drawer-item location-status ${locationAllowed ? "enabled" : "disabled"} ${locationLoading ? "loading" : ""}`}
+                onClick={() => { if(!locationAllowed && !locationLoading) onEnableLocation(); }}
               >
-                <span className="status-dot"></span>
-                <span>{locationAllowed ? "Location Enabled" : "Enable Location"}</span>
+                {locationLoading ? (
+                  <span className="navbar-spinner"></span>
+                ) : (
+                  <span className="status-dot"></span>
+                )}
+                <span>{locationLoading ? "Verifying..." : locationAllowed ? "Location Enabled" : "Enable Location"}</span>
               </div>
 
               {onShowApprovedRequests && (

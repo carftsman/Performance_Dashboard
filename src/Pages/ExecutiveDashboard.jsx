@@ -56,7 +56,9 @@ const ExecutiveDashboard = ({ user, logout }) => {
      LOAD HISTORY & APPROVED REQUESTS
   ========================================== */
   useEffect(() => {
+    console.log("entered");
     checkAttendanceStatus();
+    console.log("exited");
     loadHistory();
     loadApprovedRequests();
   }, []);
@@ -64,7 +66,8 @@ const ExecutiveDashboard = ({ user, logout }) => {
   const checkAttendanceStatus = async () => {
     try {
       const response = await executiveService.checkAttendance();
-      if (response.data === true) {
+      console.log("attendance check api responce from executive dashboard",response);
+      if (response === true) {
         setAttendanceMarked(true);
         setWorkStarted(true);
       }
