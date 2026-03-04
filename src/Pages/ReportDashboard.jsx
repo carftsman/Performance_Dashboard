@@ -8,6 +8,8 @@ import {
 } from 'recharts';
 import './ReportDashboard.css';
 import ReportModal from '../components/Management/ReportModal';
+import AttendanceDownloader from './AttendanceDownloader';
+
 
 const ReportDashboard = ({ user, logout }) => {
   const dashboardUser = user || JSON.parse(localStorage.getItem('user'));
@@ -19,12 +21,17 @@ const ReportDashboard = ({ user, logout }) => {
   const [expandedRow, setExpandedRow] = useState(null);
   const [viewMode, setViewMode] = useState('charts');
   const [chartType, setChartType] = useState('overview'); // 'overview', 'teams', 'executives', 'trends'
-
+const [executiveName, setExecutiveName] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  
   // Fetch all forms
   useEffect(() => {
     fetchAllForms();
   }, []);
 
+
+  
   const fetchAllForms = async () => {
     try {
       setLoading(true);
@@ -143,44 +150,12 @@ const ReportDashboard = ({ user, logout }) => {
 
   const trendData = getTrendData();
 
-  // Get status badge style
-  const getStatusBadge = (status) => {
-    const styles = {
-      'INTERESTED': { background: '#dcfce7', color: '#166534', label: 'Interested' },
-      'NOT_INTERESTED': { background: '#fee2e2', color: '#991b1b', label: 'Not Interested' }
-    };
-    const style = styles[status] || { background: '#f1f5f9', color: '#475569', label: status };
-    
-    return (
-      <span className="badge" style={{ backgroundColor: style.background, color: style.color }}>
-        {style.label}
-      </span>
-    );
-  };
-
-  // Get tag badge style
-  const getTagBadge = (tag) => {
-    const styles = {
-      'GREEN': { background: '#dcfce7', color: '#166534' },
-      'ORANGE': { background: '#ffedd5', color: '#9a3412' },
-      'YELLOW': { background: '#fef9c3', color: '#854d0e' },
-      'RED': { background: '#fee2e2', color: '#991b1b' }
-    };
-    const style = styles[tag] || { background: '#f1f5f9', color: '#475569' };
-    
-    return (
-      <span className="badge tag-badge" style={{ backgroundColor: style.background, color: style.color }}>
-        {tag || 'N/A'}
-      </span>
-    );
-  };
-
-  const toggleRowExpand = (id) => {
-    setExpandedRow(expandedRow === id ? null : id);
-  };
-
   const handleRefresh = () => {
     fetchAllForms();
+    setExecutiveName("");  // Clear executive name
+  setStartDate("");      // Clear start date
+  setEndDate(""); 
+    
   };
   return (
     <MainLayout user={dashboardUser} logout={logout}>
@@ -193,6 +168,8 @@ const ReportDashboard = ({ user, logout }) => {
             </div>
             
             <div className="header-actions">
+            
+
                <button 
         className="btn btn-success" 
         onClick={() => setShowReportModal(true)}
@@ -200,6 +177,7 @@ const ReportDashboard = ({ user, logout }) => {
       >
         📊 Generate Report
       </button>
+     
               <button onClick={handleRefresh} className="btn btn-primary" disabled={loading}>
                 {loading ? 'Refreshing...' : 'Refresh Data'}
               </button>
@@ -207,6 +185,8 @@ const ReportDashboard = ({ user, logout }) => {
           </div>
         </div>
 
+
+    
         {/* Error Display */}
         {error && (
           <div className="card error-card">
@@ -251,6 +231,16 @@ const ReportDashboard = ({ user, logout }) => {
               </div>
             </div>
 
+
+          
+       <AttendanceDownloader
+          executiveName={executiveName}
+          setExecutiveName={setExecutiveName}
+          startDate={startDate}
+          setStartDate={setStartDate}
+          endDate={endDate}
+          setEndDate={setEndDate}
+        />
 
             {/* Chart Type Selector (only in charts mode) */}
             {viewMode === 'charts' && (

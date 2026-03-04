@@ -40,7 +40,7 @@ class ReportService {
   }
 
   // Get period label
-  getPeriodLabel(period) {
+ getPeriodLabel(period) {
     const labels = {
       'today': 'Today',
       '15days': 'Last 15 Days',
@@ -52,11 +52,23 @@ class ReportService {
     };
     return labels[period] || period;
   }
+  // ✅ NEW HELPER: Parse date string as UTC
+  _parseAsUTC(dateString) {
+    if (!dateString) return null;
+    // If string is in ISO format without timezone, add 'Z' to treat as UTC
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(dateString) && 
+        !dateString.endsWith('Z') && 
+        !dateString.includes('+') && 
+        !dateString.includes('-')) {
+      dateString += 'Z';
+    }
+    return new Date(dateString);
+  }
 
-  // Format date for reports
-  formatDate(dateString) {
+    formatDate(dateString) {
     if (!dateString) return 'N/A';
-    const date = new Date(dateString);
+    const date = this._parseAsUTC(dateString);
+    if (!date) return 'N/A';
     return date.toLocaleDateString('en-IN', {
       day: '2-digit',
       month: '2-digit',
@@ -67,10 +79,10 @@ class ReportService {
     });
   }
 
-  // Format date only (without time)
   formatDateOnly(dateString) {
     if (!dateString) return 'N/A';
-    const date = new Date(dateString);
+    const date = this._parseAsUTC(dateString);
+    if (!date) return 'N/A';
     return date.toLocaleDateString('en-IN', {
       day: '2-digit',
       month: '2-digit',
@@ -79,6 +91,49 @@ class ReportService {
     });
   }
 
+generateAttendanceExcel(attendanceData, executiveName, startDate, endDate) {
+  if (!attendanceData || attendanceData.length === 0) {
+    throw new Error("No attendance data to export");
+  }
+
+  // Build export rows with safe fallbacks
+  const exportData = attendanceData.map(item => ({
+    "Executive Name": item.executiveName || executiveName || "N/A",
+    "Team Lead": item.teamleadName || "N/A",
+    "Attendance Date": this.formatDateOnly(item.attendanceDate),
+    "Login Time": this.formatDate(item.loginTime),
+    "Latitude": item.latitude || "N/A",
+    "Longitude": item.longitude || "N/A",
+    "Created At": this.formatDate(item.createdAt)
+  }));
+
+  const wb = XLSX.utils.book_new();
+
+  // Main sheet
+  const ws = XLSX.utils.json_to_sheet(exportData);
+  XLSX.utils.book_append_sheet(wb, ws, "Attendance Data");
+
+  // Summary sheet
+  const totalDays = attendanceData.length;
+  const summarySheet = [
+    ["ATTENDANCE SUMMARY"],
+    [],
+    ["Executive Name", executiveName],
+    ["Start Date", startDate],
+    ["End Date", endDate],
+    ["Total Present Days", totalDays],
+    ["Generated On", new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })]
+  ];
+  const wsSummary = XLSX.utils.aoa_to_sheet(summarySheet);
+  XLSX.utils.book_append_sheet(wb, wsSummary, "Summary");
+
+  const fileName = `Attendance_${executiveName}_${startDate}_to_${endDate}.xlsx`;
+  const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+  const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+  saveAs(blob, fileName);
+
+  return true;
+}
   // Generate Excel report for any dashboard
   generateExcelReport(data, period, dashboardType = 'management') {
     if (!data || data.length === 0) {
