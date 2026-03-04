@@ -4,6 +4,7 @@ import axios from 'axios';
 import { managerService } from '../Services/manager.service';
 import ReportModal from '../components/Management/ReportModal';
 import './ManagementDashboard.css';
+import {toast } from "react-toastify";
 
 const ManagementDashboard = ({ user, logout }) => {
   const dashboardUser = user || JSON.parse(localStorage.getItem('user'));
@@ -221,19 +222,19 @@ const [showReportModal, setShowReportModal] = useState(false);
       if (requestViewMode === 'EXECUTIVE') {
         if (type === 'ACCEPT') {
           await managerService.approveRequest(request.id);
-          alert("Request approved successfully.");
+          toast.success("Request approved successfully.");
         } else if (type === 'REJECT') {
           await managerService.rejectRequest(request.id);
-          alert("Request rejected successfully.");
+          toast.error("Request rejected successfully.");
         }
       } else if (requestViewMode === 'BPO') {
         if (type === 'ACCEPT') {
           await managerService.approveBpoRequest(request.id, { approved: true });
-          alert("BPO Request approved successfully.");
+          toast.success("BPO Request approved successfully.");
         } else if (type === 'REJECT') {
           // Note: If backend doesn't support reject for BPO, you could alert or handle differently.
           // Assuming reject is not fully supported for BPO yet based on provided APIs
-          alert("Rejection is not currently supported for BPO requests via the API.");
+          toast.warning("Rejection is not currently supported for BPO requests via the API.");
           setIsProcessingRequest(false);
           setConfirmAction(null);
           return;
@@ -256,7 +257,7 @@ const [showReportModal, setShowReportModal] = useState(false);
       }
     } catch (err) {
       console.error(`Failed to ${type.toLowerCase()} request:`, err);
-      alert(`Failed to ${type.toLowerCase()} request. Please try again.`);
+      toast.error(`Failed to ${type.toLowerCase()} request. Please try again.`);
     } finally {
       setIsProcessingRequest(false);
     }
@@ -508,18 +509,14 @@ const [showReportModal, setShowReportModal] = useState(false);
                           <span className="detail-value">{form.teamleadName || `ID: ${form.teamleadId}`}</span>
                         </div>
                         <div className="mgmt-detail-row">
-                          <span className="detail-label">Assigned BPO</span>
-                          <span className="detail-value">{form.assignedBpoName || form.assignedBpoId || 'Not Assigned'}</span>
+                          <span className="detail-label">Assigned BPO Name</span>
+                          <span className="detail-value">{form.bpoName || 'Not Assigned'}</span>
                         </div>
                       </div>
 
                       {/* Full Width: Location */}
                       <div className="mgmt-detail-section full-width">
                         <h3>Location Details</h3>
-                        <div className="mgmt-detail-row-inline">
-                          <span className="detail-label">Door No:</span>
-                          <span className="detail-value">{form.doorNumber || 'N/A'}</span>
-                        </div>
                         <div className="mgmt-detail-row-inline">
                           <span className="detail-label">Street:</span>
                           <span className="detail-value">{form.streetName || 'N/A'}</span>
@@ -539,10 +536,6 @@ const [showReportModal, setShowReportModal] = useState(false);
                         <div className="mgmt-detail-row-inline">
                           <span className="detail-label">PIN:</span>
                           <span className="detail-value">{form.pinCode || 'N/A'}</span>
-                        </div>
-                        <div className="mgmt-detail-row-inline location-link">
-                          <span className="detail-label">GPS:</span>
-                          <span className="detail-value">{form.vendorLocation || 'N/A'}</span>
                         </div>
                       </div>
 
@@ -701,10 +694,6 @@ const [showReportModal, setShowReportModal] = useState(false);
                   <h4 style={{ margin: '0 0 12px 0', color: '#334155' }}>Location Information</h4>
                   <div className="mgr-detail-grid">
                     <div className="mgr-detail-group">
-                      <label>Door Number</label>
-                      <p>{selectedRequest.doorNumber || 'N/A'}</p>
-                    </div>
-                    <div className="mgr-detail-group">
                       <label>Street Name</label>
                       <p>{selectedRequest.streetName || 'N/A'}</p>
                     </div>
@@ -715,10 +704,6 @@ const [showReportModal, setShowReportModal] = useState(false);
                     <div className="mgr-detail-group">
                       <label>State & PIN</label>
                       <p>{selectedRequest.state || 'N/A'} {selectedRequest.pinCode || ''}</p>
-                    </div>
-                    <div className="mgr-detail-group" style={{ gridColumn: '1 / -1' }}>
-                      <label>Map Coordinates</label>
-                      <p>{selectedRequest.vendorLocation || 'N/A'}</p>
                     </div>
                   </div>
                 </div>
@@ -735,12 +720,8 @@ const [showReportModal, setShowReportModal] = useState(false);
                       <p>{selectedRequest.teamleadName || `ID: ${selectedRequest.teamleadId}`}</p>
                     </div>
                     <div className="mgr-detail-group">
-                      <label>Assigned BPO</label>
+                      <label>Assigned BPO Name</label>
                       <p>{selectedRequest.bpoName || 'N/A'}</p>
-                    </div>
-                    <div className="mgr-detail-group">
-                      <label>Solved Status</label>
-                      <p>{selectedRequest.solved !== null ? (selectedRequest.solved ? 'Yes' : 'No') : 'N/A'}</p>
                     </div>
                   </div>
                 </div>
@@ -752,22 +733,22 @@ const [showReportModal, setShowReportModal] = useState(false);
                       <label style={{ color: '#ef4444' }}>Edit Resend Reason (from Executive)</label>
                       <p style={{ borderColor: '#ef4444', backgroundColor: '#fef2f2' }}>{selectedRequest.resendReason || 'N/A'}</p>
                     </div>
-                    <div className="mgr-detail-group">
+                    {/* <div className="mgr-detail-group">
                       <label>Manager Review</label>
                       <p>{selectedRequest.review || 'N/A'}</p>
-                    </div>
-                    <div className="mgr-detail-group">
+                    </div> */}
+                    {/* <div className="mgr-detail-group">
                       <label>Executive Review</label>
                       <p>{selectedRequest.executiveReview || 'N/A'}</p>
-                    </div>
-                    <div className="mgr-detail-group">
+                    </div> */}
+                    {/* <div className="mgr-detail-group">
                       <label>Vendor Review</label>
                       <p>{selectedRequest.vendorReview || 'N/A'}</p>
-                    </div>
-                    <div className="mgr-detail-group">
+                    </div> */}
+                    {/* <div className="mgr-detail-group">
                       <label>BPO Reason / Note</label>
                       <p>{selectedRequest.bpoReason || 'N/A'}</p>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 

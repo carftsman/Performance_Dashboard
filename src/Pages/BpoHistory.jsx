@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import MainLayout from "../components/common/Layout/MainLayout";
+import {toast } from "react-toastify";
 import { 
   FiSearch, 
   FiUser, 
@@ -80,7 +81,7 @@ function BpoHistory() {
 
   const handleRequestManager = async () => {
     if (!bpoReason.trim()) {
-      alert("Please enter reason for manager request");
+      toast.error("Please enter reason for manager request");
       return;
     }
 
@@ -98,12 +99,12 @@ function BpoHistory() {
         )
       );
 
-      alert("Request sent to Manager successfully!");
+      toast.success("Request sent to Manager successfully!");
       setSelectedForm(null);
       setBpoReason("");
     } catch (error) {
       console.error("Request Error:", error);
-      alert("Failed to send request");
+      toast.warning("Failed to send request");
     } finally {
       setSubmitting(false);
     }

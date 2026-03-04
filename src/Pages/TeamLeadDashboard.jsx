@@ -386,14 +386,6 @@ const filterFormsByDate = () => {
   // Main team view (List Mode)
   return (
     <div className="exec-page">
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        pauseOnHover
-      />
       <UniformNavbar
         user={dashboardUser}
         role="Team Lead"
