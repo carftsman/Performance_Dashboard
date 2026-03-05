@@ -10,4 +10,10 @@ export const authService = {
 
   logout: () =>
     api.post("/api/auth/logout"),
+  // ✅ NEW
+  forgotPassword: (payload) =>
+    api.post("/api/auth/forgot-password", payload),
+
+  resetPassword: (payload) =>
+    api.post("/api/auth/reset-password", payload),
 };
