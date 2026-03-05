@@ -55,7 +55,7 @@ function BpoDashBoard() {
         }
       );
 
-      console.log("API Success BPO FORMS DATA FROM RESPONSE", response.data);
+      console.log("API Success BPO FORMS DATA FROM RESPONSE", response);
       setForms(response.data);
       setError(null);
     } catch (err) {

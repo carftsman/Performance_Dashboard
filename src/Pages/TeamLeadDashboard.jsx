@@ -154,16 +154,25 @@ const filterFormsByDate = () => {
     }
   };
 
-  const handleEnableLocation = () => {
-    setIsLocationLoading(true);
-    navigator.geolocation.getCurrentPosition(
-      () => {
-        setLocationAllowed(true);
-        alert("Location Permission Granted ✅");
-      },
-      () => alert("Location Permission Denied ❌")
-    );
-  };
+   const handleEnableLocation = () => {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const payload = {
+              latitude: position.coords.latitude.toString(),
+              longitude: position.coords.longitude.toString(),
+            };
+            await executiveService.markAttendance(payload);
+            setAttendanceMarked(true);
+            toast.success("Attendance Marked Successfully ✅");
+          } catch (error) {
+            console.error("Attendance marking failed:", error);
+            toast.error("Failed to mark attendance");
+          }
+        },
+        () => toast.error("Location Permission Denied ❌")
+      );
+    };
 
   const handleStartWork = () => {
     setIsLocationLoading(true);
