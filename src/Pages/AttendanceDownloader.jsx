@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { attendanceService } from '../Services/attendance.service';
 import { reportService } from '../Services/report.service';
+import './AttendanceDownloader.css';
+import { FiDownload, FiEye, FiX } from 'react-icons/fi';
 
 const AttendanceDownloader = ({ userCode, setUsercode, startDate, setStartDate, endDate, setEndDate }) => {
   const [downloading, setDownloading] = useState(false);
@@ -117,134 +119,117 @@ const AttendanceDownloader = ({ userCode, setUsercode, startDate, setStartDate, 
     }
   };
 
-  const closeModal = () => {
-    setShowModal(false);
-  };
-
-  const modalOverlayStyle = {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1000
-  };
-
-  const modalContentStyle = {
-    backgroundColor: '#fff',
-    padding: '20px',
-    borderRadius: '8px',
-    maxWidth: '90%',
-    maxHeight: '80%',
-    overflow: 'auto',
-    position: 'relative'
-  };
-
   return (
-    <div style={{ marginTop: '20px', marginBottom: '20px', padding: '15px', borderRadius: '8px', backgroundColor: 'white' }}>
-      <h2 style={{ marginBottom: '10px' }}>Attendance Report</h2>
+    <div className="attendance-downloader card">
+      <div className="attendance-header">
+        <h2 className="attendance-title">Attendance Report</h2>
+      </div>
 
-      <input
-        type="text"
-        placeholder="user code"
-        value={userCode}
-        onChange={(e) => setUsercode(e.target.value)}
-        style={{ marginRight: '10px', padding: '5px' }}
-      />
+      <div className="attendance-controls-wrapper">
+        <div className="attendance-inputs">
+          <div className="attendance-input-group">
+            <label>Executive ID / Code</label>
+            <input
+              type="text"
+              placeholder="e.g. EX001"
+              value={userCode}
+              onChange={(e) => setUsercode(e.target.value)}
+              className="attendance-input"
+            />
+          </div>
 
-      <input
-        type="date"
-        value={startDate}
-        onChange={(e) => setStartDate(e.target.value)}
-        style={{ marginRight: '10px', padding: '5px' }}
-      />
+          <div className="attendance-input-group">
+            <label>Start Date</label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="attendance-input"
+            />
+          </div>
 
-      <input
-        type="date"
-        value={endDate}
-        onChange={(e) => setEndDate(e.target.value)}
-        style={{ marginRight: '10px', padding: '5px' }}
-      />
+          <div className="attendance-input-group">
+            <label>End Date</label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="attendance-input"
+            />
+          </div>
+        </div>
 
-      <button
-        onClick={handlePreview}
-        disabled={previewLoading || downloading}
-        style={{
-          backgroundColor: "#4b5563",
-          color: "white",
-          padding: "8px 16px",
-          marginRight: '10px',
-          border: "none",
-          borderRadius: "5px",
-          cursor: (previewLoading || downloading) ? "not-allowed" : "pointer"
-        }}
-      >
-        {previewLoading ? "Loading..." : "Preview"}
-      </button>
+        <div className="attendance-actions">
+          <button
+            onClick={handlePreview}
+            disabled={previewLoading || downloading}
+            className="btn btn-secondary"
+          >
+            {previewLoading ? (
+              <span className="spin">⏳</span>
+            ) : (
+              <FiEye />
+            )}
+            {previewLoading ? "Loading..." : "Preview"}
+          </button>
 
-      <button
-        onClick={handleDownload}
-        disabled={downloading || previewLoading}
-        style={{
-          backgroundColor: downloading ? "gray" : "#2563eb",
-          color: "white",
-          padding: "8px 16px",
-          border: "none",
-          borderRadius: "5px",
-          cursor: (downloading || previewLoading) ? "not-allowed" : "pointer"
-        }}
-      >
-        {downloading ? "Downloading..." : "Download Excel"}
-      </button>
+          <button
+            onClick={handleDownload}
+            disabled={downloading || previewLoading}
+            className="btn btn-primary"
+          >
+            {downloading ? (
+              <span className="spin">⏳</span>
+            ) : (
+              <FiDownload />
+            )}
+            {downloading ? "Downloading..." : "Download Excel"}
+          </button>
+        </div>
+      </div>
 
       {/* Modal Preview */}
       {showModal && (
-        <div style={modalOverlayStyle} onClick={closeModal}>
-          <div style={modalContentStyle} onClick={(e) => e.stopPropagation()}>
-            <h3>Preview ({previewData.length} records)</h3>
-            <button
-              onClick={closeModal}
-              style={{
-                position: 'absolute',
-                top: '10px',
-                right: '10px',
-                background: 'none',
-                border: 'none',
-                fontSize: '20px',
-                cursor: 'pointer'
-              }}
-            >
-              ×
-            </button>
-            <div style={{ maxHeight: '400px', overflowY: 'auto', border: '1px solid #ccc', marginTop: '10px' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead style={{ position: 'sticky', top: 0, background: '#f1f1f1' }}>
-                  <tr>
-                    <th style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>Date</th>
-                    <th style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>Login Time</th>
-                    <th style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>Team Lead</th>
-                    <th style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>Latitude</th>
-                    <th style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>Longitude</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {previewData.map((item, index) => (
-                    <tr key={index}>
-                      <td style={{ padding: '8px', borderBottom: '1px solid #eee' }}>{item.attendanceDate}</td>
-                      <td style={{ padding: '8px', borderBottom: '1px solid #eee' }}>
-                       {item.loginTime ? new Date(item.loginTime + 'Z').toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' }) : 'N/A'}
-                      </td>
-                      <td style={{ padding: '8px', borderBottom: '1px solid #eee' }}>{item.teamleadName}</td>
-                      <td style={{ padding: '8px', borderBottom: '1px solid #eee' }}>{item.latitude}</td>
-                      <td style={{ padding: '8px', borderBottom: '1px solid #eee' }}>{item.longitude}</td>
+        <div className="attendance-modal-overlay" onClick={closeModal}>
+          <div className="attendance-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="attendance-modal-header">
+              <h3>Preview ({previewData.length} records)</h3>
+              <button
+                onClick={closeModal}
+                className="attendance-modal-close"
+                aria-label="Close modal"
+              >
+                <FiX />
+              </button>
+            </div>
+            
+            <div className="attendance-modal-body">
+              <div className="attendance-table-container">
+                <table className="attendance-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Login Time</th>
+                      <th>Team Lead</th>
+                      <th>Latitude</th>
+                      <th>Longitude</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {previewData.map((item, index) => (
+                      <tr key={index}>
+                        <td>{item.attendanceDate}</td>
+                        <td>
+                         {item.loginTime ? new Date(item.loginTime + 'Z').toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' }) : 'N/A'}
+                        </td>
+                        <td>{item.teamleadName}</td>
+                        <td>{item.latitude}</td>
+                        <td>{item.longitude}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>

@@ -420,9 +420,15 @@ const filterFormsByDate = () => {
             isOpen={showAddExecutiveModal}
             onClose={() => setShowAddExecutiveModal(false)}
             onExecutiveAdded={fetchExecutives}
-          />
-       
-
+          />         
+       <AttendanceDownloader
+          userCode={userCode}
+          setUsercode={setUsercode}
+          startDate={startDate}
+          setStartDate={setStartDate}
+          endDate={endDate}
+          setEndDate={setEndDate}
+        />
           <SearchBar
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
@@ -447,15 +453,7 @@ const filterFormsByDate = () => {
             <LoadingState/>
           )}
 
-          {/* Executive List */}
-          {!loading && !error && (
-            <ExecutiveList
-              executives={getFilteredExecutives()}
-              onExecutiveClick={handleExecutiveClick}
-              searchTerm={searchTerm}
-              onClearSearch={() => setSearchTerm("")}
-            />
-          )}
+          
 
           {/* Quick Stats Summary with Date Filter */}
           {!loading && !error && executiveForms.length > 0 && (
@@ -473,18 +471,16 @@ const filterFormsByDate = () => {
               onClearDateFilters={clearDateFilters}
             />
           )}
-          {
-                   
-       <AttendanceDownloader
-          userCode={userCode}
-          setUsercode={setUsercode}
-          startDate={startDate}
-          setStartDate={setStartDate}
-          endDate={endDate}
-          setEndDate={setEndDate}
-        />
-
-          }
+          {/* Executive List */}
+          {!loading && !error && (
+            <ExecutiveList
+              executives={getFilteredExecutives()}
+              onExecutiveClick={handleExecutiveClick}
+              searchTerm={searchTerm}
+              onClearSearch={() => setSearchTerm("")}
+            />
+          )}
+          
        
         </div>
       </main>
