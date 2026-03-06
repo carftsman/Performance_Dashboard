@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect ,lazy,Suspense} from "react";
+import React, { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -8,16 +8,14 @@ import {
 } from "react-router-dom";
 
 import Login from "./Pages/Login";
-const ExecutiveDashboard = React.lazy(()=>import ('./Pages/ExecutiveDashboard'));
-const TeamLeadDashboard = React.lazy(()=>import ('./Pages/TeamLeadDashboard'));
-const BpoDashBoard = React.lazy(()=>import('./Pages/BpoDashboard'));
-const ManagementDashboard = React.lazy(()=>import('./Pages/ManagementDashboard'));
-const AdminDashboard = React.lazy(()=>import('./Pages/AdminDashboard'));
-const ReportDashboard = React.lazy(()=>import('./Pages/ReportDashboard'));
-const BpoHistory = React.lazy(()=>import('./Pages/BpoHistory'));
+import ExecutiveDashboard from "./Pages/ExecutiveDashboard";
+import TeamLeadDashboard from "./Pages/TeamLeadDashboard";
+import BpoDashBoard from "./Pages/BpoDashboard";
+import ManagementDashboard from "./Pages/ManagementDashboard";
+import AdminDashboard from "./Pages/AdminDashboard";
+import ReportDashboard from "./Pages/ReportDashboard";
+import BpoHistory from "./Pages/BpoHistory";
 const authService = React.lazy(()=>import('./Services/authservice'));
-
-
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 // ✅ Auth Hook
@@ -77,7 +75,7 @@ function AppContent() {
   if (loading) return <h2>Loading...</h2>;
 
   return (
-        <Suspense fallback={<h1>Loading Chart...</h1>}>  
+     
      
     <Routes>
  
@@ -164,7 +162,7 @@ function AppContent() {
       <Route path="*" element={<Navigate to="/login" />} />
     </Routes>
 
-       </Suspense>
+     
   );
 }
 

@@ -1,19 +1,18 @@
-import React, { useState, useEffect, Suspense,lazy } from 'react';
+import React, { useState, useEffect} from 'react';
 import teamLeadService  from '../Services/teamlead.service';
 import { executiveService } from '../Services/executive.service';
 import './TeamLeadDashboard.css'; 
 import './ExecutiveDashboard.css';
-const SearchBar = React.lazy(()=>import('../components/TeamLead/SearchBar'));
-const TeamSummary = React.lazy(()=>import('../components/TeamLead/TeamSummary'));
-const ExecutiveWorkViewTL = React.lazy(()=>import('../components/Executive/ExecutiveWorkView'));
-const ExecutiveList = React.lazy(()=>import('../components/TeamLead/ExecutiveList'));
-const LoadingState = React.lazy(()=>import('../components/common/LoadingState'));
+import SearchBar from '../components/TeamLead/SearchBar';
+import TeamSummary from '../components/TeamLead/TeamSummary';
+import ExecutiveWorkViewTL from '../components/Executive/ExecutiveWorkView';
+import ExecutiveList from '../components/TeamLead/ExecutiveList';
+import LoadingState from '../components/common/LoadingState';
 import AddExecutiveModal from '../components/TeamLead/AddExecutiveModal';
-
-const AddEntryView = React.lazy(()=>import('../components/Executive/AddEntryView'));
+import AddEntryView from '../components/Executive/AddEntryView';
 import UniformNavbar from '../components/common/Navbar/UniformNavbar';
 import { toast } from "react-toastify";
-
+import AttendanceDownloader from './AttendanceDownloader';
 const TeamLeadDashboard = ({ user, logout }) => {
   const dashboardUser = user || JSON.parse(localStorage.getItem('user'));
   const [viewMode, setViewMode] = useState('list'); 
@@ -39,6 +38,9 @@ const [workStartLocation, setWorkStartLocation] = useState(null);
   const [attendanceMarked, setAttendanceMarked] = useState(false);
   const [checkingAttendance, setCheckingAttendance] = useState(true);
   const [isLocationLoading, setIsLocationLoading] = useState(false);
+  const [userCode,setUsercode] = useState("");
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
 
   useEffect(() => {
     checkAttendanceStatus();
@@ -327,7 +329,7 @@ const filterFormsByDate = () => {
           logout={logout}
         />
         <main className="exec-main">
-          <Suspense fallback={<h1>Loading Text....</h1>}>
+      
           <AddEntryView
             dashboardUser={dashboardUser}
             logout={logout}
@@ -343,7 +345,7 @@ const filterFormsByDate = () => {
             setWorkStartLocation={setWorkStartLocation}
             setIsSubmitting={setIsSubmitting}
           />
-          </Suspense>
+         
         </main>
       </div>
     );
@@ -413,7 +415,7 @@ const filterFormsByDate = () => {
       
       <main className="exec-main">
         <div className="teamlead-dashboard">
-          <Suspense fallback={<h1>Loading Text...</h1>}>
+         
           <AddExecutiveModal
             isOpen={showAddExecutiveModal}
             onClose={() => setShowAddExecutiveModal(false)}
@@ -471,7 +473,19 @@ const filterFormsByDate = () => {
               onClearDateFilters={clearDateFilters}
             />
           )}
-         </Suspense>
+          {
+                   
+       <AttendanceDownloader
+          userCode={userCode}
+          setUsercode={setUsercode}
+          startDate={startDate}
+          setStartDate={setStartDate}
+          endDate={endDate}
+          setEndDate={setEndDate}
+        />
+
+          }
+       
         </div>
       </main>
     </div>

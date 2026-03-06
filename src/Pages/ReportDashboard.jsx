@@ -21,7 +21,7 @@ const ReportDashboard = ({ user, logout }) => {
   const [expandedRow, setExpandedRow] = useState(null);
   const [viewMode, setViewMode] = useState('charts');
   const [chartType, setChartType] = useState('overview'); // 'overview', 'teams', 'executives', 'trends'
-const [executiveName, setExecutiveName] = useState("");
+const [userCode,setUsercode] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   
@@ -234,8 +234,8 @@ const [executiveName, setExecutiveName] = useState("");
 
           
        <AttendanceDownloader
-          executiveName={executiveName}
-          setExecutiveName={setExecutiveName}
+          userCode={userCode}
+          setUsercode={setUsercode}
           startDate={startDate}
           setStartDate={setStartDate}
           endDate={endDate}

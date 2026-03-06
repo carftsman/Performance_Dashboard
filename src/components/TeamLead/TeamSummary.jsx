@@ -26,7 +26,7 @@ const TeamSummary = ({
       variant: 'total'
     },
     {
-      label: 'Successful',
+      label: 'Interested',
       value: successfulForms,
       icon: <FiCheckCircle />,
       variant: 'success'
