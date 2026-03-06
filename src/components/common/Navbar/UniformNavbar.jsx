@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./UniformNavbar.css";
-import logo from "../../../assets/logo.png";
+import logo1 from "../../../assets/logo1.png";
 
 const UniformNavbar = ({
   user,
@@ -35,8 +35,9 @@ const UniformNavbar = ({
 
   const toggleMobileDrawer = () => setIsMobileDrawerOpen(!isMobileDrawerOpen);
 
-  const displayName = user?.userCode || user?.name || "User";
-
+  const displayName = user?.name || "User";
+  const displayId = user?.userCode || "User";
+  console.log(displayName)
   return (
     <nav className="uniform-navbar">
       {/* ── DESKTOP & MOBILE LEFT: LOGO / BRAND DROPDOWN ── */}
@@ -54,9 +55,10 @@ const UniformNavbar = ({
             className="navbar-brand clickable-desktop" 
             onClick={() => setIsProfileOpen(!isProfileOpen)}
           >
-            <img src={logo} alt="Logo" className="navbar-logo" />
+            <img src={logo1} alt="Logo" className="navbar-logo" />
             <div className="navbar-brand-info">
               <div className="navbar-brand-text">{displayName}</div>
+              <h5>{displayId}</h5>
               <div className="navbar-brand-sub">{role}</div>
             </div>
             <span className={`brand-dropdown-arrow desktop-only ${isProfileOpen ? 'open' : ''}`}>▾</span>

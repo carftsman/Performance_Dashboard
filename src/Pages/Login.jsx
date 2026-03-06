@@ -3,8 +3,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../Services/authservice";
 import "./Login.css";
-import logo from "../assets/logo.png";
- 
+import logo1 from "../assets/logo1.png";
+ import {toast } from "react-toastify";
 /* ─── Eye Icon ─────────────────────────────────────────── */
 const EyeIcon = ({ visible }) =>
   visible ? (
@@ -69,7 +69,12 @@ const Login = ({ login }) => {
   const [successMsg, setSuccessMsg] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
- 
+ // Forgot password states
+const [isForgotMode, setIsForgotMode] = useState(false);
+const [otp, setOtp] = useState("");
+const [isOtpVerified, setIsOtpVerified] = useState(false);
+const [otpSent, setOtpSent] = useState(false);
+
   const roles = [
     { value: "executive", label: "Executive" },
     { value: "teamlead", label: "Team Lead" },
@@ -139,8 +144,7 @@ const Login = ({ login }) => {
       const loggedUser = {
         userCode: response.userCode,
         role: backendRole,
-        id: response.id,
-        email: response.email,
+        name: response.name,
       };
  
       localStorage.setItem("user", JSON.stringify(loggedUser));
@@ -236,7 +240,84 @@ const Login = ({ login }) => {
       setLoading(false);
     }
   };
- 
+// otp 
+const handleGenerateOtp = async (e) => {
+  e.preventDefault();
+  resetMessages();
+
+  if (!userCode.trim()) {
+    return setError("User Code is required.");
+  }
+
+  setLoading(true);
+  try {
+    const response = await authService.forgotPassword({
+      userCode: userCode.trim(),
+    });
+
+    // Backend returns: "OTP: 292493"
+    const otpValue = response;
+    setOtp(otpValue.slice(5,11))
+
+    toast.info(otpValue); // ✅ Show OTP in alert popup
+
+    setOtpSent(true);
+    setSuccessMsg("OTP sent successfully.");
+  } catch (err) {
+    setError(err.message || "Failed to generate OTP.");
+  } finally {
+    setLoading(false);
+  }
+};
+//verify otp
+const handleVerifyOtp = () => {
+  if (!otp.trim()) {
+    return setError("Please enter OTP.");
+  }
+
+  setIsOtpVerified(true);
+  setSuccessMsg("OTP verified successfully. You can now set a new password.");
+  setError("");
+};
+//  reset password
+
+const handleResetPassword = async (e) => {
+  e.preventDefault();
+  resetMessages();
+
+  if (!otp) return setError("OTP is required.");
+  if (!password) return setError("New password is required.");
+  if (password.length < 6)
+    return setError("Password must be at least 6 characters.");
+  if (password !== confirmPassword)
+    return setError("Passwords do not match.");
+
+  setLoading(true);
+  try {
+    await authService.resetPassword({
+      token: otp,
+      newPassword: password,
+      confirmPassword,
+    });
+
+    setSuccessMsg("Password reset successful! Redirecting to login...");
+
+    setTimeout(() => {
+      setIsForgotMode(false);
+      setUserCode("");
+      setPassword("");
+      setConfirmPassword("");
+      setOtp("");
+      setOtpSent(false);
+      setIsOtpVerified(false);
+      navigate("/");
+    }, 2000);
+  } catch (err) {
+    setError(err.message || "Password reset failed.");
+  } finally {
+    setLoading(false);
+  }
+};
   /* ──────────── Render ──────────── */
   return (
     <div className="login-container">
@@ -244,7 +325,7 @@ const Login = ({ login }) => {
  
         {/* Header */}
         <div className="login-header">
-          <img src={logo} alt="Dhatvi Business Solutions" className="login-logo" />
+          <img src={logo1} alt="Dhatvi Business Solutions" className="login-logo" />
           <h1>Performance Tracking System</h1>
           <p className="login-subtitle">
             {isActivateMode ? "Activate your account to get started." : "Sign in to your account."}
@@ -264,7 +345,7 @@ const Login = ({ login }) => {
         )}
  
         {/* ── LOGIN FORM ── */}
-        {!isActivateMode && (
+        {!isActivateMode && !isForgotMode &&  (
           <form onSubmit={handleLogin} noValidate>
             {/* Role */}
             <div className="form-group">
@@ -365,7 +446,7 @@ const Login = ({ login }) => {
         )}
  
         {/* ── ACTIVATE FORM ── */}
-        {isActivateMode && (
+        {isActivateMode && !isForgotMode && (
           <form onSubmit={handleActivate} noValidate>
             {/* User Code */}
             <div className="form-group">
@@ -420,26 +501,144 @@ const Login = ({ login }) => {
               )}
             </button>
           </form>
+          
         )}
+
+        {/* ── FORGOT PASSWORD FORM ── */}
+{isForgotMode && (
+  <form onSubmit={handleResetPassword} noValidate>
+
+    {/* User Code */}
+    {!otpSent && (
+      <>
+        <div className="form-group">
+          <label>User Code</label>
+          <input
+            type="text"
+            className="input-field"
+            value={userCode}
+            onChange={(e) => setUserCode(e.target.value)}
+            placeholder="Enter your User Code"
+            required
+          />
+        </div>
+
+        <button
+          type="button"
+          className="btn-primary-action"
+          onClick={handleGenerateOtp}
+          disabled={loading}
+        >
+          {loading ? "Generating OTP..." : "Generate OTP"}
+        </button>
+      </>
+    )}
+
+    {/* OTP + Reset Section */}
+    {otpSent && (
+      <>
+        <div className="form-group">
+          <label>Enter OTP</label>
+          <input
+            type="text"
+            className="input-field"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+            placeholder="Enter OTP"
+          />
+        </div>
+
+        <div className="form-group">
+          <label>New Password</label>
+          <PasswordInput
+            id="forgot-new-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter new password"
+            disabled={!otp}   // ✅ Disabled until OTP entered
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Confirm Password</label>
+          <PasswordInput
+            id="forgot-confirm-password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Confirm password"
+            disabled={!otp}   // ✅ Disabled until OTP entered
+          />
+        </div>
+
+        <button
+          type="submit"
+          className="btn-primary-action"
+          disabled={loading || !otp}
+        >
+          {loading ? "Resetting..." : "Reset Password"}
+        </button>
+      </>
+    )}
+  </form>
+)}
+        
  
         {/* ── Toggle Link ── */}
-        <div className="login-footer">
-          {isActivateMode ? (
-            <p>
-              Already activated?{" "}
-              <button type="button" className="link-btn" onClick={switchMode}>
-                Back to Login
-              </button>
-            </p>
-          ) : (
-            <p>
-              New user?{" "}
-              <button type="button" className="link-btn" onClick={switchMode}>
-                Activate Account
-              </button>
-            </p>
-          )}
-        </div>
+       <div className="login-footer">
+  {isForgotMode ? (
+  <p>
+    Back to{" "}
+    <button
+      type="button"
+      className="link-btn"
+      onClick={() => {
+        setIsForgotMode(false);
+        resetMessages();
+      }}
+    >
+      Login
+    </button>
+  </p>
+) : isActivateMode ? (
+    <p>
+      Already activated?{" "}
+      <button type="button" className="link-btn" onClick={switchMode}>
+        Back to Login
+      </button>
+    </p>
+  ) : (
+    <>
+      <p>
+        New user?{" "}
+        <button type="button" className="link-btn" onClick={switchMode}>
+          Activate Account
+        </button>
+      </p>
+
+      <p style={{ marginTop: "6px" }}>
+        Forgot password?{" "}
+        <button
+          type="button"
+          className="link-btn"
+         onClick={() => {
+  resetMessages();
+  setIsActivateMode(false);   // ✅ close activate
+  setIsForgotMode(true);      // ✅ open forgot
+  setUserCode("");
+  setPassword("");
+  setConfirmPassword("");
+  setOtp("");
+  setOtpSent(false);
+  setIsOtpVerified(false);
+}}
+        >
+          Reset Here
+        </button>
+      </p>
+    </>
+  )}
+  
+</div>
  
       </div>
     </div>
