@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { attendanceService } from '../Services/attendance.service';
 import { reportService } from '../Services/report.service';
 
-const AttendanceDownloader = ({ executiveName, setExecutiveName, startDate, setStartDate, endDate, setEndDate }) => {
+const AttendanceDownloader = ({ userCode, setUsercode, startDate, setStartDate, endDate, setEndDate }) => {
   const [downloading, setDownloading] = useState(false);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewData, setPreviewData] = useState([]);
@@ -11,18 +11,18 @@ const AttendanceDownloader = ({ executiveName, setExecutiveName, startDate, setS
   // Clear preview when inputs change
   useEffect(() => {
     setPreviewData([]);
-  }, [executiveName, startDate, endDate]);
+  }, [userCode, startDate, endDate]);
 
   // Common function to fetch and normalize attendance data
   const fetchAttendanceData = async () => {
-    if (!executiveName || !startDate || !endDate) {
+    if (!userCode || !startDate || !endDate) {
       alert("Please select Executive and Date Range");
       return null;
     }
 
     try {
       const response = await attendanceService.getAttendancedetails(
-        executiveName,
+        userCode,
         startDate,
         endDate
       );
@@ -74,7 +74,7 @@ const AttendanceDownloader = ({ executiveName, setExecutiveName, startDate, setS
 
       // Normalize field names
       const normalized = attendanceArray.map(item => ({
-        executiveName: item.executiveName || item.executive_name || item.executive || executiveName,
+       userCode: item.userCode || item.userCode || item.userCode ||userCode,
         teamleadName: item.teamleadName || item.teamlead_name || item.teamLead,
         attendanceDate: item.attendanceDate || item.date || item.attendance_date,
         loginTime: item.loginTime || item.login_time || item.login,
@@ -111,7 +111,7 @@ const AttendanceDownloader = ({ executiveName, setExecutiveName, startDate, setS
       setDownloading(false);
     }
     if (data && data.length > 0) {
-      reportService.generateAttendanceExcel(data, executiveName, startDate, endDate);
+      reportService.generateAttendanceExcel(data,userCode, startDate, endDate);
     } else {
       alert("No data to download");
     }
@@ -151,8 +151,8 @@ const AttendanceDownloader = ({ executiveName, setExecutiveName, startDate, setS
       <input
         type="text"
         placeholder="Executive Name"
-        value={executiveName}
-        onChange={(e) => setExecutiveName(e.target.value)}
+        value={userCode}
+        onChange={(e) => setUsercode(e.target.value)}
         style={{ marginRight: '10px', padding: '5px' }}
       />
 

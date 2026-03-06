@@ -9,7 +9,6 @@ const ExecutiveWorkViewTL = React.lazy(()=>import('../components/Executive/Execu
 const ExecutiveList = React.lazy(()=>import('../components/TeamLead/ExecutiveList'));
 const LoadingState = React.lazy(()=>import('../components/common/LoadingState'));
 import AddExecutiveModal from '../components/TeamLead/AddExecutiveModal';
-
 const AddEntryView = React.lazy(()=>import('../components/Executive/AddEntryView'));
 import UniformNavbar from '../components/common/Navbar/UniformNavbar';
 import { toast } from "react-toastify";
