@@ -119,6 +119,10 @@ const AttendanceDownloader = ({ userCode, setUsercode, startDate, setStartDate, 
     }
   };
 
+  const closeModal = () => {
+    setShowModal(false);
+  };
+
   return (
     <div className="attendance-downloader card">
       <div className="attendance-header">
