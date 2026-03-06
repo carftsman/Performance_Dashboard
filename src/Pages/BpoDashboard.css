@@ -1006,6 +1006,99 @@
   background: #fef3c7;
   color: #92400e;
 }
+
+/* ── MANUAL REVIEW FORM STYLES ────────────────────────────────────────── */
+.bpo-form-group {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bpo-form-label {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--bpo-secondary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.bpo-form-label .required {
+  color: var(--bpo-error);
+}
+
+.bpo-filter-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid var(--bpo-border);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  background: #fcfcfd;
+  transition: var(--bpo-transition);
+  outline: none;
+}
+
+.bpo-filter-input:focus {
+  border-color: var(--bpo-primary);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.bpo-filter-input:disabled {
+  background: #f1f5f9;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Review Preview Section */
+.bpo-review-preview {
+  margin-top: 32px;
+  padding: 24px;
+  background: #f8fafc;
+  border-radius: 16px;
+  border: 1px solid var(--bpo-border);
+  animation: modalIn 0.3s ease-out;
+}
+
+.bpo-review-preview h4 {
+  margin: 0 0 16px 0;
+  font-size: 1.1rem;
+  color: var(--bpo-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bpo-preview-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.bpo-preview-item {
+  background: white;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--bpo-border);
+  box-shadow: var(--bpo-shadow-sm);
+}
+
+.bpo-preview-item strong {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--bpo-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.bpo-preview-item p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--bpo-secondary);
+  font-weight: 500;
+  word-break: break-word;
+}
 /* ── RESPONSIVENESS ──────────────────────────────────────────────────────── */
 @media (max-width: 1024px) {
   .detail-grid { grid-template-columns: 1fr; }

@@ -639,7 +639,7 @@ function BpoDashBoard() {
 
         {/* Review Modal */}
         {showReviewModal && selectedFormForReview && (
-          <div className="modal-overlay" onClick={handleCloseReviewModal}>
+          <div className="bpo-modal-overlay" onClick={handleCloseReviewModal}>
             <div
               className="bpo-modal-container review-modal-container"
               onClick={(e) => e.stopPropagation()}
@@ -652,7 +652,7 @@ function BpoDashBoard() {
                 <button className="bpo-modal-close" onClick={handleCloseReviewModal}>×</button>
               </div>
 
-              <div className="modal-body">
+              <div className="bpo-modal-body">
                 {/* Form Info Summary */}
                 <div className="form-info-summary">
                   <div className="info-chip">
@@ -682,13 +682,13 @@ function BpoDashBoard() {
                 )}
 
                 {/* ID Number */}
-                <div className="form-group">
-                  <label className="form-label">
+                <div className="bpo-form-group">
+                  <label className="bpo-form-label">
                     BPO ID Number <span className="required">*</span>
                   </label>
                   <input
                     type="text"
-                    className="filter-input"
+                    className="bpo-filter-input"
                     style={{ width: '100%', boxSizing: 'border-box' }}
                     placeholder="Enter ID Number"
                     value={idNumber}
@@ -698,13 +698,13 @@ function BpoDashBoard() {
                 </div>
 
                 {/* BPO Name */}
-                <div className="form-group">
-                  <label className="form-label">
+                <div className="bpo-form-group">
+                  <label className="bpo-form-label">
                     BPO Name <span className="required">*</span>
                   </label>
                   <input
                     type="text"
-                    className="filter-input"
+                    className="bpo-filter-input"
                     style={{ width: '100%', boxSizing: 'border-box' }}
                     placeholder="Enter BPO Name"
                     value={bpoName}
@@ -717,8 +717,8 @@ function BpoDashBoard() {
                 </div>
 
                 {/* Executive Review */}
-                <div className="form-group review-field-group">
-                  <label className="form-label">
+                <div className="bpo-form-group review-field-group">
+                  <label className="bpo-form-label">
                     Executive Review <span className="required">*</span>
                   </label>
                   <div className="textarea-wrapper">
@@ -737,8 +737,8 @@ function BpoDashBoard() {
                 </div>
 
                 {/* Vendor Review */}
-                <div className="form-group review-field-group">
-                  <label className="form-label">
+                <div className="bpo-form-group review-field-group">
+                  <label className="bpo-form-label">
                     Vendor Review <span className="required">*</span>
                   </label>
                   <div className="textarea-wrapper">
@@ -756,8 +756,8 @@ function BpoDashBoard() {
                   </div>
                 </div>
                 {/* Action Selection */}
-                <div className="form-group action-selection-group">
-                  <label className="form-label">
+                <div className="bpo-form-group action-selection-group">
+                  <label className="bpo-form-label">
                     Review Outcome <span className="required">*</span>
                   </label>
                   <div className="premium-action-buttons">
@@ -782,29 +782,29 @@ function BpoDashBoard() {
 
                 {/* Preview Section */}
                 {(idNumber || bpoName || executiveReview || vendorReview) && (
-                  <div className="review-preview">
+                  <div className="bpo-review-preview">
                     <h4>Preview</h4>
-                    <div className="preview-content">
+                    <div className="bpo-preview-content">
                       {idNumber && (
-                        <div className="preview-item">
+                        <div className="bpo-preview-item">
                           <strong>ID Number:</strong>
                           <p>{idNumber}</p>
                         </div>
                       )}
                       {bpoName && (
-                        <div className="preview-item">
+                        <div className="bpo-preview-item">
                           <strong>BPO Name:</strong>
                           <p>{bpoName}</p>
                         </div>
                       )}
                       {executiveReview && (
-                        <div className="preview-item">
+                        <div className="bpo-preview-item">
                           <strong>Executive Review:</strong>
                           <p>{executiveReview}</p>
                         </div>
                       )}
                       {vendorReview && (
-                        <div className="preview-item">
+                        <div className="bpo-preview-item">
                           <strong>Vendor Review:</strong>
                           <p>{vendorReview}</p>
                         </div>
