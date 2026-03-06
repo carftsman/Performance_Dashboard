@@ -150,7 +150,7 @@ const AttendanceDownloader = ({ userCode, setUsercode, startDate, setStartDate, 
 
       <input
         type="text"
-        placeholder="Executive Name"
+        placeholder="user code"
         value={userCode}
         onChange={(e) => setUsercode(e.target.value)}
         style={{ marginRight: '10px', padding: '5px' }}
