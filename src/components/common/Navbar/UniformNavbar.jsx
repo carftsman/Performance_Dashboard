@@ -18,6 +18,7 @@ const UniformNavbar = ({
   logout,
   approvedRequestsCount = 0,
   onShowApprovedRequests,
+  onShowInReview,
 }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
@@ -37,7 +38,7 @@ const UniformNavbar = ({
 
   const displayName = user?.name || "User";
   const displayId = user?.userCode || "User";
-  console.log(displayName)
+  
   return (
     <nav className="uniform-navbar">
       {/* ── DESKTOP & MOBILE LEFT: LOGO / BRAND DROPDOWN ── */}
@@ -95,6 +96,15 @@ const UniformNavbar = ({
                   onClick={() => { onShowApprovedRequests(); setIsProfileOpen(false); }}
                 >
                   📋 Approved Requests {approvedRequestsCount > 0 ? `(${approvedRequestsCount})` : ''}
+                </button>
+              )}
+
+              {onShowInReview && (
+                <button
+                  className="dropdown-item"
+                  onClick={() => { onShowInReview(); setIsProfileOpen(false); }}
+                >
+                  🕐 In Review
                 </button>
               )}
 
@@ -162,7 +172,7 @@ const UniformNavbar = ({
           <div className="mobile-drawer">
             <div className="drawer-header">
               <div className="navbar-brand">
-                <img src={logo} alt="Logo" className="navbar-logo" />
+                <img src={logo1} alt="Logo" className="navbar-logo" />
                 <div className="navbar-brand-info">
                   <div className="navbar-brand-text">{displayName}</div>
                   <div className="navbar-brand-sub">{role}</div>
@@ -216,6 +226,15 @@ const UniformNavbar = ({
                   className="drawer-item"
                 >
                   📋 Approved Requests ({approvedRequestsCount})
+                </button>
+              )}
+
+              {onShowInReview && (
+                <button
+                  className="drawer-item"
+                  onClick={() => { onShowInReview(); toggleMobileDrawer(); }}
+                >
+                  🕐 In Review
                 </button>
               )}
 

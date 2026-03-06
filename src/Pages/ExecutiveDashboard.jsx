@@ -50,15 +50,19 @@ const ExecutiveDashboard = ({ user, logout }) => {
   // ── Search state ──────────────────────────────────────────────────────────
   const [searchQuery, setSearchQuery] = useState("");
 
+  // ── In Review screen state ────────────────────────────────────────────────
+  const [showInReviewScreen, setShowInReviewScreen] = useState(false);
+  const [inReviewForms, setInReviewForms] = useState([]);
+  const [loadingInReview, setLoadingInReview] = useState(false);
+  const [selectedInReviewForm, setSelectedInReviewForm] = useState(null);
+
   if (!user) return <h2>No User Found. Please Login Again.</h2>;
 
   /* =========================================
      LOAD HISTORY & APPROVED REQUESTS
   ========================================== */
   useEffect(() => {
-    console.log("entered");
     checkAttendanceStatus();
-    console.log("exited");
     loadHistory();
     loadApprovedRequests();
   }, []);
@@ -66,7 +70,6 @@ const ExecutiveDashboard = ({ user, logout }) => {
   const checkAttendanceStatus = async () => {
     try {
       const response = await executiveService.checkAttendance();
-      console.log("attendance check api responce from executive dashboard",response);
       if (response === true) {
         setAttendanceMarked(true);
         setWorkStarted(true);
@@ -92,7 +95,6 @@ const ExecutiveDashboard = ({ user, logout }) => {
   const loadApprovedRequests = async () => {
     try {
       const response = await executiveService.getApprovedRequests();
-      console.log("approved request response from Executive dashboard", response);
       setApprovedRequests(response || []);
     } catch (error) {
       console.error("Failed to load approved requests:", error);
@@ -229,7 +231,6 @@ const ExecutiveDashboard = ({ user, logout }) => {
           "Current Location",
       };
       
-      console.log("Submitting to backend:", submissionData);
 
       await formService.createForm(submissionData);
 
@@ -280,6 +281,28 @@ const ExecutiveDashboard = ({ user, logout }) => {
   const handleCancelRequest = () => {
     setShowRequestModal(false);
     setRequestReason("");
+  };
+
+  // ── In Review Handlers ──────────────────────────────────────────────────
+  const handleOpenInReview = async () => {
+    setShowInReviewScreen(true);
+    // Lazy-load: fetch only when screen is opened for the first time or re-opened
+    setLoadingInReview(true);
+    try {
+      const data = await executiveService.getSolvedForms();
+      setInReviewForms(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Failed to load in-review forms:", error);
+      toast.error("Failed to load In Review forms.");
+      setInReviewForms([]);
+    } finally {
+      setLoadingInReview(false);
+    }
+  };
+
+  const handleCloseInReview = () => {
+    setShowInReviewScreen(false);
+    setSelectedInReviewForm(null);
   };
 
   // ── Approved Requests Handlers ────────────────────────────────────────────
@@ -399,6 +422,7 @@ const ExecutiveDashboard = ({ user, logout }) => {
         logout={logout}
         approvedRequestsCount={approvedRequests.length}
         onShowApprovedRequests={() => setShowApprovedModal(true)}
+        onShowInReview={handleOpenInReview}
       />
 
       {/* ── STATUS BAR ── */}
@@ -456,8 +480,87 @@ const ExecutiveDashboard = ({ user, logout }) => {
           </div>
         )}
 
+        {/* ── IN REVIEW SCREEN ── */}
+        {showInReviewScreen && !showForm && (
+          <section className="exec-history-section">
+            <div className="exec-history-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                <button className="exec-btn--back" onClick={handleCloseInReview}>
+                  ← Back
+                </button>
+                <h2 className="exec-history-title">
+                  🕐 In Review
+                  {!loadingInReview && (
+                    <span className="exec-history-count">{inReviewForms.length}</span>
+                  )}
+                </h2>
+              </div>
+            </div>
+
+            {loadingInReview ? (
+              <div className="exec-loading">
+                <span className="exec-spinner" />
+                Loading forms…
+              </div>
+            ) : inReviewForms.length === 0 ? (
+              <div className="exec-empty-state">
+                <span className="exec-empty-state-icon">📭</span>
+                <p className="exec-empty-state-title">No forms in review</p>
+                <p className="exec-empty-state-sub">There are currently no solved forms to display.</p>
+              </div>
+            ) : (
+              <div className="exec-cards-grid">
+                {inReviewForms.map((form) => (
+                  <div
+                    key={form.id}
+                    className="exec-card exec-card--clickable"
+                    onClick={() => setSelectedInReviewForm(form)}
+                  >
+                    <div className="exec-card-header">
+                      <span className="exec-card-id">#{form.id}</span>
+                      <span className={getStatusBadgeClass(form.status)}>
+                        {form.status?.replace(/_/g, " ") || "—"}
+                      </span>
+                    </div>
+
+                    <h3 className="exec-card-shop">
+                      🏪 {form.vendorShopName || "Unnamed Shop"}
+                    </h3>
+
+                    <div className="exec-card-body">
+                      <div className="exec-card-row">
+                        <span className="exec-card-row-icon">👤</span>
+                        <span className="exec-card-truncate">
+                          {form.vendorName || "—"}
+                        </span>
+                      </div>
+                      <div className="exec-card-row">
+                        <span className="exec-card-row-icon">📍</span>
+                        <span className="exec-card-truncate">
+                          {[form.areaName, form.district, form.state].filter(Boolean).join(", ") || "—"}
+                        </span>
+                      </div>
+                      {form.vendorType && (
+                        <div className="exec-card-row">
+                          <span className="exec-card-row-icon">🏷️</span>
+                          <span className="exec-card-truncate">{form.vendorType}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="exec-card-footer">
+                      <span>📅 {formatDate(form.createdAt)}</span>
+                      <span className="exec-card-action-text">View Details →</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
         {/* ── HISTORY SECTION ── */}
-        {!showForm && (
+        {!showForm && !showInReviewScreen && (
           <section className="exec-history-section">
             <div className="exec-history-header">
               <h2 className="exec-history-title">
@@ -667,6 +770,206 @@ const ExecutiveDashboard = ({ user, logout }) => {
                 onClick={() => setShowRequestModal(true)}
               >
                 📤 Request to Manager
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── IN REVIEW DETAIL MODAL ── */}
+      {selectedInReviewForm && (
+        <div className="exec-modal-overlay" onClick={() => setSelectedInReviewForm(null)}>
+          <div className="exec-modal exec-modal--large" onClick={(e) => e.stopPropagation()}>
+            <div className="exec-modal-header">
+              <h3 className="exec-modal-title">🕐 In Review — Form Details</h3>
+              <button
+                className="exec-modal-close"
+                onClick={() => setSelectedInReviewForm(null)}
+                aria-label="Close modal"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="exec-modal-body">
+              {/* Top Banner */}
+              <div className="exec-modal-banner">
+                <div className="exec-modal-banner-main">
+                  <h4>{selectedInReviewForm.vendorShopName || "Unnamed Shop"}</h4>
+                  <span className="exec-modal-id">#{selectedInReviewForm.id}</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
+                  <span className={getStatusBadgeClass(selectedInReviewForm.status)}>
+                    {selectedInReviewForm.status?.replace(/_/g, " ") || "—"}
+                  </span>
+                  {selectedInReviewForm.tag && (
+                    <span className={`exec-badge ${
+                      selectedInReviewForm.tag === "GREEN"
+                        ? "exec-badge--interested"
+                        : selectedInReviewForm.tag === "RED"
+                        ? "exec-badge--not-interested"
+                        : selectedInReviewForm.tag === "YELLOW"
+                        ? "exec-badge--yellow"
+                        : "exec-badge--default"
+                    }`}>
+                      {selectedInReviewForm.tag}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Group 1: Vendor Info */}
+              <div className="exec-modal-grid">
+                <div className="exec-modal-field">
+                  <label>Owner Name</label>
+                  <p>{selectedInReviewForm.vendorName || "—"}</p>
+                </div>
+                <div className="exec-modal-field">
+                  <label>Contact Number</label>
+                  <p>{selectedInReviewForm.contactNumber || "—"}</p>
+                </div>
+                <div className="exec-modal-field">
+                  <label>Email ID</label>
+                  <p>{selectedInReviewForm.mailId || "—"}</p>
+                </div>
+                <div className="exec-modal-field">
+                  <label>Vendor Type</label>
+                  <p>{selectedInReviewForm.vendorType || "—"}</p>
+                </div>
+                <div className="exec-modal-field">
+                  <label>Visit Date</label>
+                  <p>{formatDate(selectedInReviewForm.createdAt)}</p>
+                </div>
+                {selectedInReviewForm.reappearDate && (
+                  <div className="exec-modal-field">
+                    <label>Reappear Date</label>
+                    <p>{formatDate(selectedInReviewForm.reappearDate)}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="exec-modal-divider" />
+
+              {/* Group 2: Address */}
+              <div className="exec-modal-grid">
+                <div className="exec-modal-field exec-modal-field--full">
+                  <label>Full Address</label>
+                  <p>
+                    {[
+                      selectedInReviewForm.doorNumber,
+                      selectedInReviewForm.streetName,
+                      selectedInReviewForm.areaName,
+                      selectedInReviewForm.district,
+                      selectedInReviewForm.state,
+                      selectedInReviewForm.pinCode,
+                    ].filter(Boolean).join(", ") || "—"}
+                  </p>
+                </div>
+                <div className="exec-modal-field">
+                  <label>Vendor Location (Area)</label>
+                  <p>{selectedInReviewForm.vendorLocation || "—"}</p>
+                </div>
+                <div className="exec-modal-field">
+                  <label>Coordinates</label>
+                  <p>
+                    {selectedInReviewForm.latitude && selectedInReviewForm.longitude
+                      ? `${selectedInReviewForm.latitude}, ${selectedInReviewForm.longitude}`
+                      : "—"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="exec-modal-divider" />
+
+              {/* Group 3: Team & BPO */}
+              <div className="exec-modal-grid">
+                <div className="exec-modal-field">
+                  <label>Executive</label>
+                  <p>{selectedInReviewForm.executiveName || "—"}</p>
+                </div>
+                <div className="exec-modal-field">
+                  <label>Team Lead</label>
+                  <p>{selectedInReviewForm.teamleadName || "—"}</p>
+                </div>
+                <div className="exec-modal-field">
+                  <label>BPO Name</label>
+                  <p>{selectedInReviewForm.bpoName || "—"}</p>
+                </div>
+                {selectedInReviewForm.idNumber && (
+                  <div className="exec-modal-field">
+                    <label>ID Number</label>
+                    <p>{selectedInReviewForm.idNumber}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Group 4: Reviews (shown only when at least one exists) */}
+              {(selectedInReviewForm.review || selectedInReviewForm.executiveReview || selectedInReviewForm.vendorReview || selectedInReviewForm.vendorMessage) && (
+                <>
+                  <div className="exec-modal-divider" />
+                  <div className="exec-modal-grid">
+                    {selectedInReviewForm.review && (
+                      <div className="exec-modal-field exec-modal-field--full">
+                        <label>Review / Comments</label>
+                        <div className="exec-card-review">"{selectedInReviewForm.review}"</div>
+                      </div>
+                    )}
+                    {selectedInReviewForm.executiveReview && (
+                      <div className="exec-modal-field exec-modal-field--full">
+                        <label>Executive Review</label>
+                        <div className="exec-card-review">"{selectedInReviewForm.executiveReview}"</div>
+                      </div>
+                    )}
+                    {selectedInReviewForm.vendorReview && (
+                      <div className="exec-modal-field exec-modal-field--full">
+                        <label>Vendor Review</label>
+                        <div className="exec-card-review">"{selectedInReviewForm.vendorReview}"</div>
+                      </div>
+                    )}
+                    {selectedInReviewForm.vendorMessage && (
+                      <div className="exec-modal-field exec-modal-field--full">
+                        <label>Vendor Message</label>
+                        <div className="exec-card-review">"{selectedInReviewForm.vendorMessage}"</div>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+
+              {/* Group 5: Resend / Approval meta (only rendered when present) */}
+              {(selectedInReviewForm.resendRequested || selectedInReviewForm.resendReason || selectedInReviewForm.resendApproved != null) && (
+                <>
+                  <div className="exec-modal-divider" />
+                  <div className="exec-modal-grid">
+                    {selectedInReviewForm.resendRequested != null && (
+                      <div className="exec-modal-field">
+                        <label>Resend Requested</label>
+                        <p>{String(selectedInReviewForm.resendRequested)}</p>
+                      </div>
+                    )}
+                    {selectedInReviewForm.resendApproved != null && (
+                      <div className="exec-modal-field">
+                        <label>Resend Approved</label>
+                        <p>{String(selectedInReviewForm.resendApproved)}</p>
+                      </div>
+                    )}
+                    {selectedInReviewForm.resendReason && (
+                      <div className="exec-modal-field exec-modal-field--full">
+                        <label>Resend Reason</label>
+                        <p>{selectedInReviewForm.resendReason}</p>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="exec-modal-footer">
+              <button
+                className="exec-prompt-btn exec-prompt-btn--cancel"
+                onClick={() => setSelectedInReviewForm(null)}
+              >
+                Close
               </button>
             </div>
           </div>
