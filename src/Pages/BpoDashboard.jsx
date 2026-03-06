@@ -32,6 +32,10 @@ function BpoDashBoard() {
   const [vendorReady, setVendorReady] = useState(false);
   const [onboardInDays, setOnboardInDays] = useState(0);
 
+  // Re-visit forms feature state
+  const [activeTab, setActiveTab] = useState("FORMS"); // 'FORMS' or 'REVISITS'
+  const [reappearForms, setReappearForms] = useState([]);
+
   // ── Approved Requests Feature State ───────────────────────────────────────
   const [approvedRequests, setApprovedRequests] = useState([]);
   const [showApprovedModal, setShowApprovedModal] = useState(false);
@@ -42,8 +46,27 @@ function BpoDashBoard() {
   const navigate = useNavigate();
   useEffect(() => {
     fetchForms();
+    fetchReappearForms();
     fetchApprovedRequests();
   }, []);
+
+  const fetchReappearForms = async () => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/api/bpo/reappear-forms`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true
+        }
+      );
+      console.log("API Success BPO REAPPEAR FORMS DATA", response);
+      setReappearForms(response.data || []);
+    } catch (err) {
+      console.error("Error fetching reappear forms:", err);
+    }
+  };
 
   const fetchForms = async () => {
     try {
@@ -291,17 +314,19 @@ function BpoDashBoard() {
     setSelectedForm(form);
   };
 
+  const activeData = activeTab === "FORMS" ? forms : reappearForms;
+
   // Calculate statistics
   const stats = {
-    total: forms.length,
-    interested: forms.filter(f => f.status === 'INTERESTED').length,
-    onboarded: forms.filter(f => f.status === 'ONBOARDED').length,
-    notInterested: forms.filter(f => f.status === 'NOT_INTERESTED').length
+    total: activeData.length,
+    interested: activeData.filter(f => f.status === 'INTERESTED').length,
+    onboarded: activeData.filter(f => f.status === 'ONBOARDED').length,
+    notInterested: activeData.filter(f => f.status === 'NOT_INTERESTED').length
   };
   // Generate unique districts (Alphabetical Order)
   const uniqueDistricts = [
     ...new Set(
-      forms
+      activeData
         .map(form => form.district)
         .filter(district => district && district.trim() !== "")
     )
@@ -310,13 +335,13 @@ function BpoDashBoard() {
   // Generate unique vendor types
   const uniqueVendorTypes = [
     ...new Set(
-      forms
+      activeData
         .map(form => form.vendorType)
         .filter(type => type && type.trim() !== "")
     )
   ].sort((a, b) => a.localeCompare(b));
   // Filter forms
-  const filteredForms = forms.filter((form) => {
+  const filteredForms = activeData.filter((form) => {
     const searchValue = searchTerm.toLowerCase();
 
     const matchesSearch =
@@ -362,10 +387,26 @@ function BpoDashBoard() {
         <div className="dashboard-header">
           <div className="header-title-group">
             <h1>BPO Performance Dashboard</h1>
-            <p>Manage and review vendor submissions ({forms.length} total)</p>
+            <p>Manage and review vendor submissions ({activeTab === 'FORMS' ? forms.length : reappearForms.length} total)</p>
           </div>
 
           <div className="header-actions">
+            <div className="view-toggle-group" style={{ display: 'flex', gap: '8px', marginRight: '8px' }}>
+              <button 
+                className={`bpo-btn-ghost ${activeTab === 'FORMS' ? 'active-tab' : ''}`}
+                onClick={() => setActiveTab('FORMS')}
+                style={activeTab === 'FORMS' ? { backgroundColor: '#e0e7ff', color: '#4f46e5', borderColor: '#4f46e5' } : {}}
+              >
+                📝 All Forms
+              </button>
+              <button 
+                className={`bpo-btn-ghost ${activeTab === 'REVISITS' ? 'active-tab' : ''}`}
+                onClick={() => setActiveTab('REVISITS')}
+                style={activeTab === 'REVISITS' ? { backgroundColor: '#e0e7ff', color: '#4f46e5', borderColor: '#4f46e5' } : {}}
+              >
+                🔄 Re Visits {reappearForms.length > 0 && `(${reappearForms.length})`}
+              </button>
+            </div>
             <button
               className="back-btn-dashboard"
               onClick={() => navigate("/bpo-history")}
@@ -382,7 +423,7 @@ function BpoDashBoard() {
               </button>
               <span className="bpo-badge-count">{approvedRequests.length}</span>
             </div>
-            <button className="refresh-btn" onClick={() => { fetchForms(); fetchApprovedRequests(); }}>
+            <button className="refresh-btn" onClick={() => { fetchForms(); fetchReappearForms(); fetchApprovedRequests(); }}>
               {Icons.refresh} Refresh
             </button>
           </div>
