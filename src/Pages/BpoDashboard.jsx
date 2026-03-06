@@ -28,6 +28,10 @@ function BpoDashBoard() {
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(null);
 
+  // Onboarding Readiness States
+  const [vendorReady, setVendorReady] = useState(false);
+  const [onboardInDays, setOnboardInDays] = useState(0);
+
   // ── Approved Requests Feature State ───────────────────────────────────────
   const [approvedRequests, setApprovedRequests] = useState([]);
   const [showApprovedModal, setShowApprovedModal] = useState(false);
@@ -35,7 +39,6 @@ function BpoDashBoard() {
   const [editFormData, setEditFormData] = useState(null);
   const [isFetchingApproved, setIsFetchingApproved] = useState(false);
   const [isResubmitting, setIsResubmitting] = useState(false);
-
   const navigate = useNavigate();
   useEffect(() => {
     fetchForms();
@@ -126,7 +129,9 @@ function BpoDashBoard() {
         idNumber: idNumber.trim(),
         bpoName: bpoName.trim(),
         executiveReview: executiveReview.trim(),
-        vendorReview: vendorReview.trim()
+        vendorReview: vendorReview.trim(),
+        vendorReady: vendorReady,
+        onboardInDays: vendorReady ? parseInt(onboardInDays) || 0 : 0
       };
 
       console.log("Submitting review:", payload);
@@ -156,6 +161,8 @@ function BpoDashBoard() {
         setIdNumber("");
         setBpoName("");
         setSelectedAction("SOLVED");
+        setVendorReady(false);
+        setOnboardInDays(0);
         setSubmitError(null);
         // We do NOT clear submitSuccess here so it stays visible outside
         setIsSubmitting(false);
@@ -186,7 +193,10 @@ function BpoDashBoard() {
     setVendorReview("");
     setIdNumber("");
     setBpoName("");
+    setBpoName("");
     setSelectedAction("SOLVED");
+    setVendorReady(false);
+    setOnboardInDays(0);
     setSubmitError(null);
     setSubmitSuccess(null);
     setShowReviewModal(true);
@@ -200,7 +210,10 @@ function BpoDashBoard() {
     setVendorReview("");
     setIdNumber("");
     setBpoName("");
+    setBpoName("");
     setSelectedAction("SOLVED");
+    setVendorReady(false);
+    setOnboardInDays(0);
     setSubmitError(null);
     setSubmitSuccess(null);
     setIsSubmitting(false);
@@ -755,6 +768,44 @@ function BpoDashBoard() {
                     </div>
                   </div>
                 </div>
+                 {/* Onboarding Readiness */}
+                <div className="bpo-form-group">
+                  <label className="bpo-form-label">
+                    Onboarding Readiness <span className="required">*</span>
+                  </label>
+                  <select
+                    className="bpo-filter-input"
+                    value={vendorReady ? "READY" : "NOT_READY"}
+                    onChange={(e) => {
+                      setVendorReady(e.target.value === "READY");
+                      if (e.target.value !== "READY") setOnboardInDays(0);
+                    }}
+                    disabled={isSubmitting}
+                  >
+                    <option value="NOT_READY">Not ready to onboard</option>
+                    <option value="READY">Ready to onboard</option>
+                  </select>
+                </div>
+
+                {/* Onboard In Days (Conditional) */}
+                {vendorReady && (
+                  <div className="bpo-form-group">
+                    <label className="bpo-form-label">
+                      How many days he wants to onboard <span className="required">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      className="bpo-filter-input"
+                      placeholder="Enter number of days"
+                      value={onboardInDays}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "");
+                        setOnboardInDays(val);
+                      }}
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                )}
                 {/* Action Selection */}
                 <div className="bpo-form-group action-selection-group">
                   <label className="bpo-form-label">
@@ -779,6 +830,8 @@ function BpoDashBoard() {
                     </button>
                   </div>
                 </div>
+
+               
 
                 {/* Preview Section */}
                 {(idNumber || bpoName || executiveReview || vendorReview) && (
@@ -807,6 +860,16 @@ function BpoDashBoard() {
                         <div className="bpo-preview-item">
                           <strong>Vendor Review:</strong>
                           <p>{vendorReview}</p>
+                        </div>
+                      )}
+                      <div className="bpo-preview-item">
+                        <strong>Ready to Onboard:</strong>
+                        <p>{vendorReady ? "Yes" : "No"}</p>
+                      </div>
+                      {vendorReady && (
+                        <div className="bpo-preview-item">
+                          <strong>Onboard in Days:</strong>
+                          <p>{onboardInDays}</p>
                         </div>
                       )}
                     </div>
