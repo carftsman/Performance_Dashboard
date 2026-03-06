@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense,lazy } from 'react';
 import teamLeadService  from '../Services/teamlead.service';
 import { executiveService } from '../Services/executive.service';
 import './TeamLeadDashboard.css'; 
 import './ExecutiveDashboard.css';
-import ExecutiveWorkViewTL from '../components/Executive/ExecutiveWorkView';
-import TeamSummary from '../components/TeamLead/TeamSummary';
-import ExecutiveList from '../components/TeamLead/ExecutiveList';
-import LoadingState from '../components/common/LoadingState';
+const SearchBar = React.lazy(()=>import('../components/TeamLead/SearchBar'));
+const TeamSummary = React.lazy(()=>import('../components/TeamLead/TeamSummary'));
+const ExecutiveWorkViewTL = React.lazy(()=>import('../components/Executive/ExecutiveWorkView'));
+const ExecutiveList = React.lazy(()=>import('../components/TeamLead/ExecutiveList'));
+const LoadingState = React.lazy(()=>import('../components/common/LoadingState'));
 import AddExecutiveModal from '../components/TeamLead/AddExecutiveModal';
-import SearchBar from '../components/TeamLead/SearchBar';
-import AddEntryView from '../components/Executive/AddEntryView';
+
+const AddEntryView = React.lazy(()=>import('../components/Executive/AddEntryView'));
 import UniformNavbar from '../components/common/Navbar/UniformNavbar';
 import { toast } from "react-toastify";
 
@@ -154,25 +155,16 @@ const filterFormsByDate = () => {
     }
   };
 
-   const handleEnableLocation = () => {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          try {
-            const payload = {
-              latitude: position.coords.latitude.toString(),
-              longitude: position.coords.longitude.toString(),
-            };
-            await executiveService.markAttendance(payload);
-            setAttendanceMarked(true);
-            toast.success("Attendance Marked Successfully ✅");
-          } catch (error) {
-            console.error("Attendance marking failed:", error);
-            toast.error("Failed to mark attendance");
-          }
-        },
-        () => toast.error("Location Permission Denied ❌")
-      );
-    };
+  const handleEnableLocation = () => {
+    setIsLocationLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      () => {
+        setLocationAllowed(true);
+        alert("Location Permission Granted ✅");
+      },
+      () => alert("Location Permission Denied ❌")
+    );
+  };
 
   const handleStartWork = () => {
     setIsLocationLoading(true);
@@ -335,6 +327,7 @@ const filterFormsByDate = () => {
           logout={logout}
         />
         <main className="exec-main">
+          <Suspense fallback={<h1>Loading Text....</h1>}>
           <AddEntryView
             dashboardUser={dashboardUser}
             logout={logout}
@@ -350,6 +343,7 @@ const filterFormsByDate = () => {
             setWorkStartLocation={setWorkStartLocation}
             setIsSubmitting={setIsSubmitting}
           />
+          </Suspense>
         </main>
       </div>
     );
@@ -419,11 +413,13 @@ const filterFormsByDate = () => {
       
       <main className="exec-main">
         <div className="teamlead-dashboard">
+          <Suspense fallback={<h1>Loading Text...</h1>}>
           <AddExecutiveModal
             isOpen={showAddExecutiveModal}
             onClose={() => setShowAddExecutiveModal(false)}
             onExecutiveAdded={fetchExecutives}
           />
+       
 
           <SearchBar
             searchTerm={searchTerm}
@@ -475,6 +471,7 @@ const filterFormsByDate = () => {
               onClearDateFilters={clearDateFilters}
             />
           )}
+         </Suspense>
         </div>
       </main>
     </div>

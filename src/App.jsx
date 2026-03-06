@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect ,lazy,Suspense} from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -8,14 +8,16 @@ import {
 } from "react-router-dom";
 
 import Login from "./Pages/Login";
-import ExecutiveDashboard from "./Pages/ExecutiveDashboard";
-import TeamLeadDashboard from "./Pages/TeamLeadDashboard";
-import ManagementDashboard from "./Pages/ManagementDashboard";
-import BpoDashBoard from "./Pages/BpoDashboard"
-import { authService } from './Services/authservice';
-import AdminDashboard from "./Pages/AdminDashboard";
-import ReportDashboard from "./Pages/ReportDashboard";
-import BpoHistory from "./Pages/BpoHistory";
+const ExecutiveDashboard = React.lazy(()=>import ('./Pages/ExecutiveDashboard'));
+const TeamLeadDashboard = React.lazy(()=>import ('./Pages/TeamLeadDashboard'));
+const BpoDashBoard = React.lazy(()=>import('./Pages/BpoDashboard'));
+const ManagementDashboard = React.lazy(()=>import('./Pages/ManagementDashboard'));
+const AdminDashboard = React.lazy(()=>import('./Pages/AdminDashboard'));
+const ReportDashboard = React.lazy(()=>import('./Pages/ReportDashboard'));
+const BpoHistory = React.lazy(()=>import('./Pages/BpoHistory'));
+const authService = React.lazy(()=>import('./Services/authservice'));
+
+
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 // ✅ Auth Hook
@@ -75,11 +77,13 @@ function AppContent() {
   if (loading) return <h2>Loading...</h2>;
 
   return (
+        <Suspense fallback={<h1>Loading Chart...</h1>}>  
+     
     <Routes>
+ 
       {/* LOGIN */}
-      <Route
-        path="/login"
-        element={
+     
+          <Route path="/login" element={
           user ? (
             <Navigate to={`/${user.role}`} />
           ) : (
@@ -87,7 +91,10 @@ function AppContent() {
           )
         }
       />
+    
+    
 
+  
       {/* EXECUTIVE */}
       <Route
         path="/executive"
@@ -97,7 +104,7 @@ function AppContent() {
           </ProtectedRoute>
         }
       />
-
+ 
       {/* TEAMLEAD */}
       <Route
         path="/teamlead"
@@ -156,6 +163,8 @@ function AppContent() {
       <Route path="/" element={<Navigate to="/login" />} />
       <Route path="*" element={<Navigate to="/login" />} />
     </Routes>
+
+       </Suspense>
   );
 }
 
