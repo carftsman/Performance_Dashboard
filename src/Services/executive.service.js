@@ -29,8 +29,5 @@ export const executiveService = {
   getSolvedForms: () => {
     return api.get('/api/bpo/solved-forms');
   }
-<<<<<<< HEAD
 
-=======
->>>>>>> a0886ef0ea34a624080bdc79d704fde22dc5e506
 };
