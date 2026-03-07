@@ -42,7 +42,7 @@ const [showReportModal, setShowReportModal] = useState(false);
     try {
       setLoading(true);
       const response = await axios.get(
-        "https://mft-zwy7.onrender.com/api/data/forms",
+        "https://fieldconnectapi.dhatvibs.com/api/data/forms",
         {
           headers: {
             'Content-Type': 'application/json',
