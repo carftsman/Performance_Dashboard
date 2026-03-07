@@ -1,0 +1,240 @@
+/* AttendanceDownloader.css */
+
+.attendance-downloader {
+  margin-bottom: var(--space-4);
+}
+
+.attendance-header {
+  margin-bottom: var(--space-4);
+}
+
+.attendance-title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--gray-800);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.attendance-controls-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  align-items: flex-end;
+}
+
+/* Reusing similar layout to DateFilter */
+.attendance-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  flex: 1;
+  align-items: flex-end;
+}
+
+.attendance-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1;
+  min-width: 140px;
+}
+
+.attendance-input-group label {
+  font-size: 10px;
+  color: var(--gray-500);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.attendance-input {
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--gray-200);
+  background: var(--gray-0);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--gray-800);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.attendance-input:focus {
+  border-color: var(--brand-400);
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+}
+
+.attendance-actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+/* Modal specific */
+.attendance-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--space-4);
+}
+
+.attendance-modal-content {
+  background: var(--gray-0);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 95%;
+  max-width: 800px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalFadeIn 0.2s ease-out;
+  /* Fix glitch/jitter */
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-font-smoothing: antialiased;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.attendance-modal-header {
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--gray-200);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--gray-50);
+}
+
+.attendance-modal-header h3 {
+  margin: 0;
+  font-size: var(--text-lg);
+  color: var(--gray-800);
+  font-weight: 600;
+}
+
+.attendance-modal-close {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  color: var(--gray-500);
+  cursor: pointer;
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  transition: all 0.2s;
+}
+
+.attendance-modal-close:hover {
+  background: var(--gray-200);
+  color: var(--gray-800);
+}
+
+.attendance-modal-body {
+  padding: var(--space-5);
+  overflow-y: auto;
+  flex: 1;
+}
+
+.attendance-table-container {
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+}
+
+.attendance-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  text-align: left;
+}
+
+.attendance-table th {
+  background: var(--gray-50);
+  padding: var(--space-3) var(--space-4);
+  font-weight: 600;
+  color: var(--gray-600);
+  border-bottom: 1px solid var(--gray-200);
+  white-space: nowrap;
+}
+
+.attendance-table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--gray-100);
+  color: var(--gray-800);
+}
+
+.attendance-table tr:last-child td {
+  border-bottom: none;
+}
+
+.attendance-table tr:hover td {
+  background-color: var(--gray-50);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .attendance-controls-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .attendance-inputs {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .attendance-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .attendance-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .attendance-modal-overlay {
+    padding: var(--space-2);
+  }
+  
+  .attendance-modal-header {
+    padding: var(--space-3) var(--space-4);
+  }
+  
+  .attendance-modal-header h3 {
+    font-size: var(--text-md);
+  }
+
+  .attendance-modal-body {
+    padding: var(--space-2);
+  }
+  
+  .attendance-table th, 
+  .attendance-table td {
+    padding: var(--space-2) var(--space-3);
+    font-size: 12px;
+  }
+
+  .attendance-input {
+    font-size: 16px; /* prevent iOS zoom */
+  }
+}

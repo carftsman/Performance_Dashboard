@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import MainLayout from '../components/common/Layout/MainLayout';
+import React, { useState, useEffect} from 'react';
 import teamLeadService  from '../Services/teamlead.service';
-import './TeamLeadDashboard.css'; // We'll create this CSS file
-import ExecutiveWorkViewTL from '../components/Executive/ExecutiveWorkView';
+import { executiveService } from '../Services/executive.service';
+import './TeamLeadDashboard.css'; 
+import './ExecutiveDashboard.css';
+import SearchBar from '../components/TeamLead/SearchBar';
 import TeamSummary from '../components/TeamLead/TeamSummary';
+import ExecutiveWorkViewTL from '../components/Executive/ExecutiveWorkView';
 import ExecutiveList from '../components/TeamLead/ExecutiveList';
 import LoadingState from '../components/common/LoadingState';
 import AddExecutiveModal from '../components/TeamLead/AddExecutiveModal';
-import SearchBar from '../components/TeamLead/SearchBar';
 import AddEntryView from '../components/Executive/AddEntryView';
-import DashboardHeader from '../components/TeamLead/DashboardHeader';
-
+import UniformNavbar from '../components/common/Navbar/UniformNavbar';
+import { toast } from "react-toastify";
+import AttendanceDownloader from './AttendanceDownloader';
 const TeamLeadDashboard = ({ user, logout }) => {
   const dashboardUser = user || JSON.parse(localStorage.getItem('user'));
   const [viewMode, setViewMode] = useState('list'); 
@@ -33,9 +35,33 @@ const TeamLeadDashboard = ({ user, logout }) => {
 const [workStarted, setWorkStarted] = useState(false);
 const [workStartLocation, setWorkStartLocation] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [attendanceMarked, setAttendanceMarked] = useState(false);
+  const [checkingAttendance, setCheckingAttendance] = useState(true);
+  const [isLocationLoading, setIsLocationLoading] = useState(false);
+  const [userCode,setUsercode] = useState("");
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+
   useEffect(() => {
+    checkAttendanceStatus();
     fetchTeamLeadForms();
   }, []);
+
+  const checkAttendanceStatus = async () => {
+    try {
+      const response = await executiveService.checkAttendance();
+      console.log("Attendance check API response:", response);
+      if (response === true) {
+        setAttendanceMarked(true);
+        setWorkStarted(true);
+        setLocationAllowed(true);
+      }
+    } catch (error) {
+      console.error("Attendance check failed:", error);
+    } finally {
+      setCheckingAttendance(false);
+    }
+  };
 
   // Update filtered forms when executiveForms or dateFilter changes
   useEffect(() => {
@@ -123,13 +149,49 @@ const filterFormsByDate = () => {
   };
 
   const fetchExecutives = async () => {
-  try {
-    const res = await teamLeadService.getExecutives();
-    setExecutives(res.data);
-  } catch (err) {
-    console.error("Failed to fetch executives", err);
-  }
-};
+    try {
+      const res = await teamLeadService.getExecutives();
+      setExecutives(res.data);
+    } catch (err) {
+      console.error("Failed to fetch executives", err);
+    }
+  };
+
+  const handleEnableLocation = () => {
+    setIsLocationLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      () => {
+        setLocationAllowed(true);
+        alert("Location Permission Granted ✅");
+      },
+      () => alert("Location Permission Denied ❌")
+    );
+  };
+
+  const handleStartWork = () => {
+    setIsLocationLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const startLocation = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          timestamp: new Date().toISOString(),
+        };
+
+        setWorkStartLocation(startLocation);
+        setWorkStarted(true);
+        // If we want to automatically open the entry form for the TL themselves
+        setSelectedExecutiveForForm({
+          id: dashboardUser?.id,
+          name: dashboardUser?.userCode,
+        });
+        setViewMode("add-entry");
+        setIsLocationLoading(false);
+      },
+      () => alert("Unable to fetch start location")
+    );
+  };
+
   const handleFormSubmit = async (formData) => {
     try {
       setIsSubmitting(true);
@@ -243,76 +305,137 @@ const filterFormsByDate = () => {
 
  
   if (viewMode === "add-entry" && selectedExecutiveForForm) {
-  return (
-    <AddEntryView
-      dashboardUser={dashboardUser}
-      logout={logout}
-      selectedExecutive={selectedExecutiveForForm}
-      onBack={handleBackToTeam}
-      submitSuccess={submitSuccess}
-      handleFormSubmit={handleFormSubmit}
-      isSubmitting={isSubmitting}
-      locationAllowed={locationAllowed}
-      setLocationAllowed={setLocationAllowed}
-  workStarted={workStarted}
-  setWorkStarted={setWorkStarted}
-  setWorkStartLocation={setWorkStartLocation}
-  setIsSubmitting={setIsSubmitting}
-    />
-  );
-}
+    return (
+      <div className="exec-page">
+        <UniformNavbar
+          user={dashboardUser}
+          role="Team Lead"
+          locationAllowed={attendanceMarked}
+          workStarted={workStarted}
+          locationLoading={isLocationLoading}
+          loading={loading}
+          showForm={true}
+          onRefresh={handleRefresh}
+          onEnableLocation={handleEnableLocation}
+          onStartWork={handleStartWork}
+          onAddExecutive={() => setShowAddExecutiveModal(true)}
+          onAddEntry={() => {
+            setSelectedExecutiveForForm({
+              id: dashboardUser?.id,
+              name: dashboardUser?.userCode,
+            });
+            setViewMode("add-entry");
+          }}
+          logout={logout}
+        />
+        <main className="exec-main">
+      
+          <AddEntryView
+            dashboardUser={dashboardUser}
+            logout={logout}
+            selectedExecutive={selectedExecutiveForForm}
+            onBack={handleBackToTeam}
+            submitSuccess={submitSuccess}
+            handleFormSubmit={handleFormSubmit}
+            isSubmitting={isSubmitting}
+            locationAllowed={locationAllowed}
+            setLocationAllowed={setLocationAllowed}
+            workStarted={workStarted}
+            setWorkStarted={setWorkStarted}
+            setWorkStartLocation={setWorkStartLocation}
+            setIsSubmitting={setIsSubmitting}
+          />
+         
+        </main>
+      </div>
+    );
+  }
 
   // If in work mode, show executive work view
   if (viewMode === 'work' && selectedExecutive) {
     return (
-      <MainLayout user={dashboardUser} logout={logout}>
-        <ExecutiveWorkViewTL 
-          executive={selectedExecutive}
-          onBack={handleBackToTeam}
+      <div className="exec-page">
+        <UniformNavbar
+          user={dashboardUser}
+          role="Team Lead"
+          locationAllowed={attendanceMarked}
+          workStarted={workStarted}
+          locationLoading={isLocationLoading}
+          loading={loading}
+          showForm={false}
           onRefresh={handleRefresh}
-          onAddEntry={() => handleAddEntry(selectedExecutive)}
+          onEnableLocation={handleEnableLocation}
+          onStartWork={handleStartWork}
+          onAddExecutive={() => setShowAddExecutiveModal(true)}
+          onAddEntry={() => {
+            setSelectedExecutiveForForm({
+              id: dashboardUser?.id,
+              name: dashboardUser?.userCode,
+            });
+            setViewMode("add-entry");
+          }}
+          logout={logout}
         />
-      </MainLayout>
+        <main className="exec-main">
+          <ExecutiveWorkViewTL 
+            executive={selectedExecutive}
+            onBack={handleBackToTeam}
+            onRefresh={handleRefresh}
+            onAddEntry={() => handleAddEntry(selectedExecutive)}
+          />
+        </main>
+      </div>
     );
   }
 
   // Main team view (List Mode)
   return (
-    <MainLayout user={dashboardUser} logout={logout}>
-      <div className="teamlead-dashboard">
-            <DashboardHeader
-  dashboardUser={dashboardUser}
-  loading={loading}
-  onAddExecutive={() => setShowAddExecutiveModal(true)}
-  onAddEntry={() => {
-    setSelectedExecutiveForForm({
-      id: dashboardUser?.id,
-      name: dashboardUser?.userCode,
-    });
-    setViewMode("add-entry");
-  }}
-  onRefresh={handleRefresh}
-
-  /* 🔥 ADD THESE */
-  locationAllowed={locationAllowed}
-  setLocationAllowed={setLocationAllowed}
-  workStarted={workStarted}
-  setWorkStarted={setWorkStarted}
-  setWorkStartLocation={setWorkStartLocation}
-/>
-            <AddExecutiveModal
-              isOpen={showAddExecutiveModal}
-              onClose={() => setShowAddExecutiveModal(false)}
-              onExecutiveAdded={fetchExecutives}
-            />
-
-            <SearchBar
+    <div className="exec-page">
+      <UniformNavbar
+        user={dashboardUser}
+        role="Team Lead"
+        locationAllowed={attendanceMarked}
+        workStarted={workStarted}
+        locationLoading={isLocationLoading}
+        loading={loading}
+        showForm={false}
+        onRefresh={handleRefresh}
+        onEnableLocation={handleEnableLocation}
+        onStartWork={handleStartWork}
+        onAddExecutive={() => setShowAddExecutiveModal(true)}
+        onAddEntry={() => {
+          setSelectedExecutiveForForm({
+            id: dashboardUser?.id,
+            name: dashboardUser?.userCode,
+          });
+          setViewMode("add-entry");
+        }}
+        logout={logout}
+      />
+      
+      <main className="exec-main">
+        <div className="teamlead-dashboard">
+         
+          <AddExecutiveModal
+            isOpen={showAddExecutiveModal}
+            onClose={() => setShowAddExecutiveModal(false)}
+            onExecutiveAdded={fetchExecutives}
+          />         
+       <AttendanceDownloader
+          userCode={userCode}
+          setUsercode={setUsercode}
+          startDate={startDate}
+          setStartDate={setStartDate}
+          endDate={endDate}
+          setEndDate={setEndDate}
+        />
+          <SearchBar
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
             onClear={() => setSearchTerm("")}
           />
 
-        {/* Error Display */}
+          {/* Error Display */}
           {error && (
             <div className="card error-card">
               <p>{error}</p>
@@ -327,37 +450,41 @@ const filterFormsByDate = () => {
 
           {/* Loading State */}
           {loading && (
-          <LoadingState/>
+            <LoadingState/>
           )}
 
-              {/* Executive List */}
-          {!loading && !error && (
-          <ExecutiveList
-          executives={getFilteredExecutives()}
-          onExecutiveClick={handleExecutiveClick}
-          searchTerm={searchTerm}
-          onClearSearch={() => setSearchTerm("")}
-        />
-      )}
+          
 
-        {/* Quick Stats Summary with Date Filter */}
-      {!loading && !error && executiveForms.length > 0 && (
-        <TeamSummary
-            executives={getExecutivesWithForms()}
-            totalForms={filteredForms.length}
-            successfulForms={filteredForms.filter(
-              (f) => f.status === "INTERESTED" || f.status === "ONBOARDED"
-            ).length}
-            notInterestedForms={filteredForms.filter(
-              (f) => f.status === "NOT_INTERESTED"
-            ).length}
-            dateFilter={dateFilter}
-            onDateFilterChange={handleDateFilterChange}
-            onClearDateFilters={clearDateFilters}
-           />
-      )}
-      </div>
-    </MainLayout>
+          {/* Quick Stats Summary with Date Filter */}
+          {!loading && !error && executiveForms.length > 0 && (
+            <TeamSummary
+              executives={getExecutivesWithForms()}
+              totalForms={filteredForms.length}
+              successfulForms={filteredForms.filter(
+                (f) => f.status === "INTERESTED" || f.status === "ONBOARDED"
+              ).length}
+              notInterestedForms={filteredForms.filter(
+                (f) => f.status === "NOT_INTERESTED"
+              ).length}
+              dateFilter={dateFilter}
+              onDateFilterChange={handleDateFilterChange}
+              onClearDateFilters={clearDateFilters}
+            />
+          )}
+          {/* Executive List */}
+          {!loading && !error && (
+            <ExecutiveList
+              executives={getFilteredExecutives()}
+              onExecutiveClick={handleExecutiveClick}
+              searchTerm={searchTerm}
+              onClearSearch={() => setSearchTerm("")}
+            />
+          )}
+          
+       
+        </div>
+      </main>
+    </div>
   );
 };
 

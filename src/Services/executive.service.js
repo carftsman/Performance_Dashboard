@@ -23,6 +23,14 @@ export const executiveService = {
   // Check if today's attendance already marked
   checkAttendance: () => {
     return api.get('/api/executive/attendance/check');
-  }
+  },
 
+  // Get solved forms
+  getSolvedForms: () => {
+    return api.get('/api/bpo/solved-forms');
+  }
+<<<<<<< HEAD
+
+=======
+>>>>>>> a0886ef0ea34a624080bdc79d704fde22dc5e506
 };

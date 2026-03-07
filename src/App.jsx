@@ -10,12 +10,14 @@ import {
 import Login from "./Pages/Login";
 import ExecutiveDashboard from "./Pages/ExecutiveDashboard";
 import TeamLeadDashboard from "./Pages/TeamLeadDashboard";
+import BpoDashBoard from "./Pages/BpoDashboard";
 import ManagementDashboard from "./Pages/ManagementDashboard";
-import BpoDashBoard from "./Pages/BpoDashboard"
-import { authService } from './Services/authservice';
 import AdminDashboard from "./Pages/AdminDashboard";
 import ReportDashboard from "./Pages/ReportDashboard";
 import BpoHistory from "./Pages/BpoHistory";
+const authService = React.lazy(()=>import('./Services/authservice'));
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 // ✅ Auth Hook
 const useAuth = () => {
   const [user, setUser] = useState(null);
@@ -73,11 +75,13 @@ function AppContent() {
   if (loading) return <h2>Loading...</h2>;
 
   return (
+     
+     
     <Routes>
+ 
       {/* LOGIN */}
-      <Route
-        path="/login"
-        element={
+     
+          <Route path="/login" element={
           user ? (
             <Navigate to={`/${user.role}`} />
           ) : (
@@ -85,7 +89,10 @@ function AppContent() {
           )
         }
       />
+    
+    
 
+  
       {/* EXECUTIVE */}
       <Route
         path="/executive"
@@ -95,7 +102,7 @@ function AppContent() {
           </ProtectedRoute>
         }
       />
-
+ 
       {/* TEAMLEAD */}
       <Route
         path="/teamlead"
@@ -154,12 +161,22 @@ function AppContent() {
       <Route path="/" element={<Navigate to="/login" />} />
       <Route path="*" element={<Navigate to="/login" />} />
     </Routes>
+
+     
   );
 }
 
 export default function App() {
   return (
     <Router>
+       <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+      />
       <AppContent />
     </Router>
   );

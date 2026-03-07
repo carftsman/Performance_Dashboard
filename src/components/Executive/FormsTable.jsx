@@ -1,3 +1,5 @@
+import './FormsTable.css';
+import { useState, useEffect } from 'react';
 
 const StatusBadge = ({ status }) => {
   const styles = {
@@ -64,187 +66,209 @@ const formatDate = (dateString) => {
   });
 };
 
-const FormsTable = ({ forms }) => {
+// ── Detail Row helper for the bottom sheet ──
+const SheetRow = ({ label, value }) => {
+  if (!value && value !== 0) return null;
+  return (
+    <div className="ft-detail-row">
+      <span className="ft-detail-label">{label}</span>
+      <span className="ft-detail-value">{value}</span>
+    </div>
+  );
+};
+
+// ── Bottom Sheet Modal (mobile only) ──
+const FormBottomSheet = ({ form, onClose }) => {
+  // Prevent body scroll while sheet is open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, []);
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [onClose]);
+
+  const location = [
+    form.areaName,
+    form.state,
+    form.pinCode ? `PIN: ${form.pinCode}` : null,
+  ]
+    .filter(Boolean)
+    .join(', ');
+
   return (
     <>
-    <style>{`
-      /* Table Container */
-.table-container {
-  width: 100%;
-  overflow-x: auto;
-  margin-top: 1rem;
-  font-family: 'Arial', sans-serif;
-}
+      {/* Backdrop — click to close */}
+      <div
+        className="ft-backdrop"
+        onClick={onClose}
+        aria-hidden="true"
+      />
 
-/* Table Styles */
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 800px; /* allow horizontal scroll on small screens */
-}
+      {/* Bottom Sheet */}
+      <div
+        className="ft-bottom-sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Details for ${form.vendorShopName}`}
+      >
+        {/* Drag handle bar (visual cue) */}
+        <div className="ft-sheet-handle" />
 
-.data-table th,
-.data-table td {
-  padding: 0.75rem 1rem;
-  text-align: left;
-  vertical-align: middle;
-  border-bottom: 1px solid #e0e0e0;
-}
+        {/* Sheet Header */}
+        <div className="ft-sheet-header">
+          <div className="ft-sheet-title-row">
+            <span className="ft-sheet-shop-name">{form.vendorShopName}</span>
+            <button
+              className="ft-sheet-close-btn"
+              onClick={onClose}
+              aria-label="Close details"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="ft-sheet-badges">
+            <StatusBadge status={form.status} />
+            <TagBadge tag={form.tag} />
+          </div>
+        </div>
 
-.data-table th {
-  background-color: #f8f9fa;
-  font-weight: 600;
-  color: #333;
-  font-size: 0.95rem;
-}
+        {/* Sheet Body — all fields */}
+        <div className="ft-sheet-body">
+          <SheetRow label="Vendor Name"    value={form.vendorName} />
+          <SheetRow label="Contact"        value={form.contactNumber} />
+          <SheetRow label="Email"          value={form.mailId} />
+          <SheetRow label="Location"       value={location} />
+          <SheetRow label="Review"         value={form.review} />
+          <SheetRow
+            label="Date & Time"
+            value={formatDate(form.createdAt || form.date)}
+          />
+        </div>
+      </div>
+    </>
+  );
+};
 
-.data-table td {
-  font-size: 0.9rem;
-  color: #444;
-}
+const FormsTable = ({ forms }) => {
+  const [activeForm, setActiveForm] = useState(null);
 
-/* Zebra striping */
-.data-table tbody tr:nth-child(even) {
-  background-color: #fafafa;
-}
+  const openSheet  = (form) => setActiveForm(form);
+  const closeSheet = ()     => setActiveForm(null);
 
-/* Hover effect */
-.data-table tbody tr:hover {
-  background-color: #f1f3f5;
-}
-
-/* Responsive adjustments for mobile */
-@media (max-width: 768px) {
-  .data-table {
-    min-width: 600px;
-  }
-
-  .data-table th,
-  .data-table td {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.85rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .data-table {
-    min-width: 400px;
-  }
-
-  .data-table th,
-  .data-table td {
-    padding: 0.4rem 0.5rem;
-    font-size: 0.8rem;
-  }
-}
-
-/* Empty state */
-.empty-state {
-  text-align: center;
-  padding: 2rem;
-  color: #666;
-  font-size: 0.95rem;
-  background-color: #f8f9fa;
-  border-radius: 6px;
-  margin-top: 1rem;
-}
-
-/* Status & Tag Badges */
-.data-table td span {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-/* Vendor Info */
-.data-table td div {
-  line-height: 1.3;
-}
-
-/* Optional: make table horizontally scrollable */
-.table-container::-webkit-scrollbar {
-  height: 6px;
-}
-
-.table-container::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 3px;
-}
-
-.table-container::-webkit-scrollbar-track {
-  background-color: rgba(0, 0, 0, 0.05);
-}
-    `}</style>
-    <div className="table-container desktop-view">
-      <table className="data-table">
-        <thead>
-          <tr>
-            <th>Date & Time</th>
-            <th>Shop Name</th>
-            <th>Vendor Info</th>
-            <th>Location</th>
-            <th>Review</th>
-            <th>Status</th>
-            <th>Tag</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {forms.map((form) => (
-            <tr key={form.id}>
-              {/* Date */}
-              <td>{formatDate(form.createdAt || form.date)}</td>
-
-              {/* Shop Name */}
-              <td>
-                <strong>{form.vendorShopName}</strong>
-              </td>
-
-              {/* Vendor Info */}
-              <td>
-                <div>
-                  <strong>{form.vendorName}</strong>
-                </div>
-                <div style={{ fontSize: "12px", color: "#666" }}>
-                  📞 {form.contactNumber} <br />
-                  {form.mailId && <>✉️ {form.mailId}</>}
-                </div>
-              </td>
-
-              {/* Location */}
-              <td>
-                {form.areaName}, {form.state}
-                <br />
-                {form.pinCode && <span>PIN: {form.pinCode}</span>}
-              </td>
-
-              {/* Review */}
-              <td>
-                {form.review ? (
-                  <span title={form.review}>
-                    {form.review.substring(0, 30)}
-                    {form.review.length > 30 && "..."}
-                  </span>
-                ) : (
-                  "—"
-                )}
-              </td>
-
-              {/* Status */}
-              <td>
-                <StatusBadge status={form.status} />
-              </td>
-
-              {/* Tag */}
-              <td>
-                <TagBadge tag={form.tag} />
-              </td>
+  return (
+    <div className="forms-section">
+      {/* ── Desktop Table View (unchanged) ── */}
+      <div className="table-wrapper">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Date &amp; Time</th>
+              <th>Shop Name</th>
+              <th>Vendor Info</th>
+              <th>Location</th>
+              <th>Review</th>
+              <th>Status</th>
+              <th>Tag</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            {forms.map((form) => (
+              <tr key={form.id}>
+                {/* Date */}
+                <td>{formatDate(form.createdAt || form.date)}</td>
+
+                {/* Shop Name */}
+                <td>
+                  <strong>{form.vendorShopName}</strong>
+                </td>
+
+                {/* Vendor Info */}
+                <td>
+                  <div>
+                    <strong>{form.vendorName}</strong>
+                  </div>
+                  <div style={{ fontSize: "12px", color: "#666" }}>
+                    📞 {form.contactNumber} <br />
+                    {form.mailId && <>✉️ {form.mailId}</>}
+                  </div>
+                </td>
+
+                {/* Location */}
+                <td>
+                  {form.areaName}, {form.state}
+                  <br />
+                  {form.pinCode && <span>PIN: {form.pinCode}</span>}
+                </td>
+
+                {/* Review */}
+                <td>
+                  {form.review ? (
+                    <span title={form.review}>
+                      {form.review.substring(0, 30)}
+                      {form.review.length > 30 && "..."}
+                    </span>
+                  ) : (
+                    "—"
+                  )}
+                </td>
+
+                {/* Status */}
+                <td>
+                  <StatusBadge status={form.status} />
+                </td>
+
+                {/* Tag */}
+                <td>
+                  <TagBadge tag={form.tag} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* ── Mobile Compact Cards (tap to expand) ── */}
+      <div className="mobile-cards-container">
+        {forms.map((form) => (
+          <div
+            key={form.id}
+            className="mobile-form-card ft-compact-card"
+            onClick={() => openSheet(form)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && openSheet(form)}
+            aria-label={`View details for ${form.vendorShopName}`}
+          >
+            {/* Top row: shop name + status */}
+            <div className="ft-compact-header">
+              <span className="ft-compact-shop-name">{form.vendorShopName}</span>
+              <StatusBadge status={form.status} />
+            </div>
+
+            {/* Middle: vendor name */}
+            <div className="ft-compact-vendor">{form.vendorName}</div>
+
+            {/* Bottom row: date + tap hint */}
+            <div className="ft-compact-footer">
+              <span className="ft-compact-date">
+                {formatDate(form.createdAt || form.date)}
+              </span>
+              <span className="ft-tap-hint">Tap for details ›</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Bottom Sheet Modal ── */}
+      {activeForm && (
+        <FormBottomSheet form={activeForm} onClose={closeSheet} />
+      )}
 
       {forms.length === 0 && (
         <div className="empty-state">
@@ -252,8 +276,6 @@ const FormsTable = ({ forms }) => {
         </div>
       )}
     </div>
-   
-    </>
   );
 };
 

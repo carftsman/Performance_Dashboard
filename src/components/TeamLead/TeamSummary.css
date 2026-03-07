@@ -1,0 +1,168 @@
+/* TeamSummary.css — Modern, clean redesign matching the dashboard theme */
+
+/* ── Section ── */
+.ts-summary-section {
+  width: 100%;
+  background: var(--gray-0);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-6);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--gray-200);
+}
+
+/* ── Header ── */
+.ts-summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-5);
+}
+
+.ts-summary-title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--gray-900);
+  margin: 0;
+}
+
+/* ── Stats Grid ── */
+.ts-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+}
+
+/* ── Stat Card ── */
+.ts-stat-card {
+  background: var(--gray-0);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  border: 1px solid var(--gray-200);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.ts-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--brand-300);
+}
+
+/* ── Icon ── */
+.ts-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+/* Variant styles for icons */
+.ts-stat-card--executives .ts-stat-icon {
+  background: var(--brand-50);
+  color: var(--brand-600);
+}
+.ts-stat-card--total .ts-stat-icon {
+  background: var(--brand-50);
+  color: var(--brand-600);
+}
+.ts-stat-card--success .ts-stat-icon {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+.ts-stat-card--not-interested .ts-stat-icon {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+/* ── Info ── */
+.ts-stat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ts-stat-value {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  color: var(--gray-900);
+  line-height: 1.1;
+}
+
+.ts-stat-label {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+/* Tablet Table Viewport */
+@media (max-width: 1200px) {
+  .ts-stats-grid { gap: var(--space-3); }
+  .ts-stat-card { padding: var(--space-3) var(--space-4); gap: var(--space-3); }
+  .ts-stat-value { font-size: var(--text-xl); }
+}
+
+/* Tablet ≤ 1024px — 2×2 grid */
+@media (max-width: 1024px) {
+  .ts-stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Mobile ≤ 768px */
+@media (max-width: 768px) {
+  .ts-summary-section {
+    padding: var(--space-4);
+  }
+  .ts-summary-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+  .ts-summary-header > *:last-child {
+    width: 100%;
+  }
+  .ts-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+}
+
+/* Small Mobile ≤ 480px — 2×2 compact */
+@media (max-width: 480px) {
+  .ts-summary-section { padding: var(--space-3); }
+  .ts-stats-grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-2); }
+  .ts-stat-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: var(--space-3);
+    gap: var(--space-2);
+  }
+  .ts-stat-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+  .ts-stat-value { font-size: var(--text-lg); }
+  .ts-stat-label { font-size: 8px; }
+}
+
+/* Ultra Wide ≥ 1440px */
+@media (min-width: 1440px) {
+  .ts-stats-grid { gap: var(--space-5); }
+}

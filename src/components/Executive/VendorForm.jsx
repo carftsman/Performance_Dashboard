@@ -17,7 +17,7 @@ const VendorForm = ({
     contactNumber:  "",
     vendorType: "",
     mailId:         "",
-    doorNumber:     "",
+    doorNumber:     null,
     streetName:     "",
     areaName:       "",
     pinCode:        "",
@@ -54,55 +54,156 @@ const VendorForm = ({
 
   // ── Field validation ───────────────────────────────────────────────────────
   const statusOptions = ["INTERESTED", "NOT_INTERESTED"];
+// ── Handle Input Change with Real-time Validation ──
+const handleChange = (e) => {
+  const { name, value } = e.target;
+  let updatedValue = value;
+  let errorMsg = "";
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
-  };
+  // SHOP NAME
+  if (name === "vendorShopName") {
+    if (!/^[A-Za-z\s]*$/.test(value)) {
+      errorMsg = "Shop name should contain only alphabets";
+    }
+  }
 
-  const validateForm = () => {
-    const newErrors = {};
+  // OWNER NAME
+  if (name === "vendorName") {
+    if (!/^[A-Za-z\s]*$/.test(value)) {
+      errorMsg = "Owner name should contain only alphabets";
+    }
+  }
 
-    if (!formData.vendorShopName.trim())
-      newErrors.vendorShopName = "Vendor shop name is required";
+  // CONTACT NUMBER
+  if (name === "contactNumber") {
+    updatedValue = value.replace(/\D/g, "");
 
-    if (!formData.vendorName.trim())
-      newErrors.vendorName = "Vendor name is required";
+    if (updatedValue.length > 10) return;
 
-    if (!formData.contactNumber.trim())
-      newErrors.contactNumber = "Contact number is required";
-    else if (!/^\d{10}$/.test(formData.contactNumber))
-      newErrors.contactNumber = "Contact number must be 10 digits";
-    if (!formData.vendorType.trim())
-  newErrors.vendorType = "Vendor type is required";
-    if (formData.mailId && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.mailId))
-      newErrors.mailId = "Invalid email format";
+    if (updatedValue && !/^[6-9]/.test(updatedValue)) {
+      errorMsg = "Mobile number must start with 6-9";
+    }
 
-    if (!formData.doorNumber.trim())
-      newErrors.doorNumber = "Door number is required";
+    if (updatedValue.length === 10 && !/^[6-9]\d{9}$/.test(updatedValue)) {
+      errorMsg = "Enter valid 10 digit mobile number";
+    }
+  }
 
-    if (!formData.streetName.trim())
-      newErrors.streetName = "Street name is required";
+  // EMAIL
+  if (name === "mailId") {
+    if (
+      value &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+    ) {
+      errorMsg = "Enter valid email address";
+    }
+  }
 
-    if (!formData.areaName.trim())
-      newErrors.areaName = "Area name is required";
+  // STREET NAME
+  if (name === "streetName") {
+    if (!/^[A-Za-z0-9\s-]*$/.test(value)) {
+      errorMsg = "Street name can contain alphabets, numbers and -";
+    }
+  }
 
-    if (!formData.pinCode.trim())
-      newErrors.pinCode = "Pin code is required";
-    else if (!/^\d{6}$/.test(formData.pinCode))
-      newErrors.pinCode = "Pin code must be 6 digits";
+  // AREA NAME
+  if (name === "areaName") {
+    if (!/^[A-Za-z0-9\s-]*$/.test(value)) {
+      errorMsg = "Area name can contain alphabets, numbers and -";
+    }
+  }
 
-    if (!formData.state.trim())
-      newErrors.state = "State is required";
+  // DISTRICT
+  if (name === "district") {
+    if (!/^[A-Za-z\s]*$/.test(value)) {
+      errorMsg = "District should contain only alphabets";
+    }
+  }
 
-    if (!formData.district.trim())
-      newErrors.district = "District is required";
+  // STATE
+  if (name === "state") {
+    if (!/^[A-Za-z\s]*$/.test(value)) {
+      errorMsg = "State should contain only alphabets";
+    }
+  }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  // PINCODE
+  if (name === "pinCode") {
+    updatedValue = value.replace(/\D/g, "");
 
+    if (updatedValue.length > 6) return;
+
+    if (updatedValue && updatedValue.startsWith("0")) {
+      errorMsg = "Pin code cannot start with 0";
+    }
+
+    if (updatedValue.length === 6 && !/^[1-9][0-9]{5}$/.test(updatedValue)) {
+      errorMsg = "Invalid pin code";
+    }
+  }
+
+  // REVIEW
+  if (name === "review") {
+    if (!/^[A-Za-z\s]*$/.test(value)) {
+      errorMsg = "Review should contain only alphabets";
+    }
+  }
+
+  setFormData((prev) => ({
+    ...prev,
+    [name]: updatedValue,
+  }));
+
+  setErrors((prev) => ({
+    ...prev,
+    [name]: errorMsg,
+  }));
+};
+
+const validateForm = () => {
+  const newErrors = {};
+
+  if (!formData.vendorShopName.trim())
+    newErrors.vendorShopName = "Shop name is required";
+
+  if (!formData.vendorName.trim())
+    newErrors.vendorName = "Owner name is required";
+
+  if (!formData.contactNumber)
+    newErrors.contactNumber = "Contact number is required";
+  else if (!/^[6-9]\d{9}$/.test(formData.contactNumber))
+    newErrors.contactNumber = "Enter valid 10 digit mobile number";
+
+  if (!formData.vendorType)
+    newErrors.vendorType = "Vendor type is required";
+
+  if (
+    formData.mailId &&
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.mailId)
+  )
+    newErrors.mailId = "Invalid email format";
+
+  if (!formData.streetName.trim())
+    newErrors.streetName = "Street name is required";
+
+  if (!formData.areaName.trim())
+    newErrors.areaName = "Area name is required";
+
+  if (!formData.district.trim())
+    newErrors.district = "District is required";
+
+  if (!formData.state.trim())
+    newErrors.state = "State is required";
+
+  if (!formData.pinCode)
+    newErrors.pinCode = "Pin code is required";
+  else if (!/^[1-9][0-9]{5}$/.test(formData.pinCode))
+    newErrors.pinCode = "Pin code must be 6 digits and cannot start with 0";
+
+  setErrors(newErrors);
+
+  return Object.keys(newErrors).length === 0;
+};
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -121,7 +222,7 @@ const VendorForm = ({
     setFormData({
       vendorShopName: "",
       vendorName:     "",
-      vendorType: "",
+      vendorType:     "",
       contactNumber:  "",
       mailId:         "",
       doorNumber:     "",
@@ -272,7 +373,7 @@ const VendorForm = ({
           </h4>
           <div className="vendor-grid">
 
-            <div className="vendor-group">
+            {/* <div className="vendor-group">
               <label htmlFor="doorNumber" className="vendor-label">
                 Door Number <span className="vendor-label-required">*</span>
               </label>
@@ -283,7 +384,7 @@ const VendorForm = ({
                 placeholder="e.g. 1A / Flat 204" disabled={isDisabled} required
               />
               {errors.doorNumber && <p className="vendor-error-text">⚠ {errors.doorNumber}</p>}
-            </div>
+            </div> */}
 
             <div className="vendor-group">
               <label htmlFor="streetName" className="vendor-label">

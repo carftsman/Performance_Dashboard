@@ -1,8 +1,10 @@
 import React, { useState, useMemo } from 'react';
+import { FiLayers, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import LocationForm from '../Executive/VendorForm';
 import HeaderSection from '../Executive/HeaderSection';
 import FilterSection from '../Executive/FilterSection';
 import FormsTable from '../Executive/FormsTable';
+import './ExecutiveWorkView.css';
 
 const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
   const [viewMode, setViewMode] = useState('list');
@@ -151,31 +153,38 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
         <>
           {/* Filter Section */}
           <FilterSection
-  filterType={filterType}
-  onFilterChange={handleFilterChange}
-  customDate={customDate}
-  onDateChange={setCustomDate}
-  getTodayDate={getTodayDate}
-  filteredCount={filteredForms.length}
-/>
+            filterType={filterType}
+            onFilterChange={handleFilterChange}
+            customDate={customDate}
+            onDateChange={setCustomDate}
+            getTodayDate={getTodayDate}
+            filteredCount={filteredForms.length}
+            />
 
           {/* Quick Stats Cards */}
-          <div className="stats-grid">
-            <div className="stat-card">
-              <div className="stat-value" style={{color:'black'}}>{stats.total}</div>
-              <div className="stat-label" style={{color:'black'}}>Total Entries</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-value" style={{ color: 'black' }}>
-                {stats.interested}
+          <div className="workview-stats-grid">
+            <div className="workview-stat-card workview-stat-card--total">
+              <div className="workview-stat-icon"><FiLayers /></div>
+              <div className="workview-stat-info">
+                <div className="workview-stat-value">{stats.total}</div>
+                <div className="workview-stat-label">Total Entries</div>
               </div>
-              <div className="stat-label" style={{color:'black'}}>Interested</div>
             </div>
-            <div className="stat-card">
-              <div className="stat-value" style={{ color: 'black' }}>
-                {stats.notInterested}
+            
+            <div className="workview-stat-card workview-stat-card--interested">
+              <div className="workview-stat-icon"><FiCheckCircle /></div>
+              <div className="workview-stat-info">
+                <div className="workview-stat-value">{stats.interested}</div>
+                <div className="workview-stat-label">Interested</div>
               </div>
-              <div className="stat-label" style={{color:'black'}}>Not Interested</div>
+            </div>
+            
+            <div className="workview-stat-card workview-stat-card--not-interested">
+              <div className="workview-stat-icon"><FiXCircle /></div>
+              <div className="workview-stat-info">
+                <div className="workview-stat-value">{stats.notInterested}</div>
+                <div className="workview-stat-label">Not Interested</div>
+              </div>
             </div>
           </div>
 

@@ -462,18 +462,14 @@ const [showReportModal, setShowReportModal] = useState(false);
                           <span className="detail-value">{form.teamleadName || `ID: ${form.teamleadId}`}</span>
                         </div>
                         <div className="mgmt-detail-row">
-                          <span className="detail-label">Assigned BPO</span>
-                          <span className="detail-value">{form.assignedBpoName || form.assignedBpoId || 'Not Assigned'}</span>
+                          <span className="detail-label">Assigned BPO Name</span>
+                          <span className="detail-value">{form.assignedBpoName|| 'Not Assigned'}</span>
                         </div>
                       </div>
 
                       {/* Full Width: Location */}
                       <div className="mgmt-detail-section full-width">
                         <h3>Location Details</h3>
-                        <div className="mgmt-detail-row-inline">
-                          <span className="detail-label">Door No:</span>
-                          <span className="detail-value">{form.doorNumber || 'N/A'}</span>
-                        </div>
                         <div className="mgmt-detail-row-inline">
                           <span className="detail-label">Street:</span>
                           <span className="detail-value">{form.streetName || 'N/A'}</span>
@@ -482,6 +478,10 @@ const [showReportModal, setShowReportModal] = useState(false);
                           <span className="detail-label">Area/City:</span>
                           <span className="detail-value">{form.areaName || 'N/A'}</span>
                         </div>
+                         <div className="mgmt-detail-row-inline">
+                          <span className="detail-label">District:</span>
+                          <span className="detail-value">{form.District || 'N/A'}</span>
+                        </div>
                         <div className="mgmt-detail-row-inline">
                           <span className="detail-label">State:</span>
                           <span className="detail-value">{form.state || 'N/A'}</span>
@@ -489,10 +489,6 @@ const [showReportModal, setShowReportModal] = useState(false);
                         <div className="mgmt-detail-row-inline">
                           <span className="detail-label">PIN:</span>
                           <span className="detail-value">{form.pinCode || 'N/A'}</span>
-                        </div>
-                        <div className="mgmt-detail-row-inline location-link">
-                          <span className="detail-label">GPS:</span>
-                          <span className="detail-value">{form.vendorLocation || 'N/A'}</span>
                         </div>
                       </div>
 

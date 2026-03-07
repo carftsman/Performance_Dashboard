@@ -1,0 +1,247 @@
+/* DashboardHeader.css — Mobile-first redesign */
+
+/* ── Header Card ── */
+.header-card {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-6);
+  margin-bottom: 0;
+  border: none;
+  box-shadow: 0 8px 32px rgba(79, 70, 229, 0.28);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decorative circle blobs */
+.header-card::before {
+  content: '';
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 50%;
+  top: -60px;
+  right: -40px;
+  pointer-events: none;
+}
+.header-card::after {
+  content: '';
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 50%;
+  bottom: -30px;
+  left: 20px;
+  pointer-events: none;
+}
+
+/* ── Layout ── */
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  position: relative;
+  z-index: 1;
+}
+
+.header-left {
+  min-width: 0;
+  flex: 1;
+}
+
+/* ── Title ── */
+.header-title {
+  font-size: var(--text-xl);
+  font-weight: 800;
+  margin: 0;
+  color: #ffffff;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+
+.header-user-code {
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.header-subtitle {
+  display: block;
+  font-size: var(--text-xs);
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: var(--space-1);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 600;
+}
+
+/* ── Actions Row ── */
+.header-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* ── Base button ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  min-height: 38px;
+}
+
+/* Glass-style buttons on dark gradient header */
+.btn-primary {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(8px);
+}
+.btn-primary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+}
+.btn-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Exec-style buttons ── */
+.exec-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  min-height: 38px;
+}
+
+.exec-btn--location {
+  background: rgba(254, 202, 202, 0.25);
+  color: #fecdd3;
+  border: 1px solid rgba(254, 202, 202, 0.3);
+}
+.exec-btn--location:hover:not(:disabled) {
+  background: rgba(254, 202, 202, 0.35);
+  transform: translateY(-1px);
+}
+.exec-btn--location:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.exec-btn--start {
+  background: #10b981;
+  color: white;
+  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0 3px 12px rgba(16,185,129,0.35);
+}
+.exec-btn--start:hover:not(:disabled) {
+  background: #059669;
+  transform: translateY(-1px);
+}
+.exec-btn--start:disabled {
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.4);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.exec-btn--new-entry {
+  background: white;
+  color: var(--brand-600);
+  border: none;
+  font-weight: 700;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+}
+.exec-btn--new-entry:hover:not(:disabled) {
+  background: #f0f0ff;
+  transform: translateY(-1px);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+/* Tablet ≤ 1024px */
+@media (max-width: 1024px) {
+  .header-card {
+    padding: var(--space-4) var(--space-5);
+  }
+  .header-title {
+    font-size: var(--text-lg);
+  }
+}
+
+/* Mobile ≤ 768px */
+@media (max-width: 768px) {
+  .header-card {
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+  }
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+  .header-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+  }
+  .btn,
+  .exec-btn {
+    padding: 0.75rem var(--space-3);
+    font-size: var(--text-sm);
+    min-height: 44px;
+    width: 100%;
+  }
+}
+
+/* Small Mobile ≤ 480px */
+@media (max-width: 480px) {
+  .header-card {
+    padding: var(--space-4) var(--space-3);
+  }
+  .header-title {
+    font-size: var(--text-lg);
+  }
+  .header-actions {
+    grid-template-columns: 1fr;
+  }
+}

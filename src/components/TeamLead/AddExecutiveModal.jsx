@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import teamLeadService from "../../Services/teamlead.service";
+import './AddExecutiveModal.css';
 
 const AddExecutiveModal = ({ 
   isOpen, 
@@ -59,7 +60,7 @@ const AddExecutiveModal = ({
       setIsAddingExecutive(true);
       setExecutiveAddSuccess(null);
       const response = await teamLeadService.createExecutive(newExecutive);
-      console.log('Execuitve added',response);
+      console.log('Executive added', response);
       
       setExecutiveAddSuccess({
         type: "success",
@@ -84,190 +85,27 @@ const AddExecutiveModal = ({
     }
   };
 
+  // Click-outside-to-close overlay handler
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget && !isAddingExecutive) {
+      onClose();
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
-   <>
-    <style>{`
-    /* Modal Overlay */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-  box-sizing: border-box;
-}
-
-/* Modal Content */
-.modal-content {
-  background: #fff;
-  border-radius: 8px;
-  width: 100%;
-  max-width: 500px;
-  padding: 1.5rem;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-/* Header */
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.modal-header h2 {
-  margin: 0;
-  font-size: 1.5rem;
-  color:white;
-  
-}
-
-.btn-close {
-  background: transparent;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: white;
-  transition: color 0.2s;
-}
-
-.btn-close:hover:not(:disabled) {
-  color: white;
-}
-
-/* Alerts */
-.alert {
-  padding: 0.75rem 1rem;
-  border-radius: 5px;
-  font-size: 0.95rem;
-}
-
-.alert-success {
-  background-color: #e6ffed;
-  color: #2d7a46;
-  border: 1px solid #2d7a46;
-}
-
-.alert-error {
-  background-color: #ffe6e6;
-  color: #c72c2c;
-  border: 1px solid #c72c2c;
-}
-
-/* Form */
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.form-group label {
-  font-weight: 500;
-  color: #444;
-  font-size: 0.95rem;
-}
-
-.form-group input {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 1rem;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.form-group input:focus:not(:disabled) {
-  border-color: #007bff;
-}
-
-/* Modal Actions */
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.modal-actions .btn {
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  font-size: 1rem;
-  border: none;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.btn-primary {
-  background-color: #007bff;
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background-color: #0056b3;
-}
-
-.btn-secondary {
-  background-color: #6c757d;
-  color: white;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background-color: #545b62;
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* Responsive adjustments */
-@media (max-width: 600px) {
-  .modal-content {
-    padding: 1rem;
-  }
-
-  .modal-header h2 {
-    font-size: 1.25rem;
-  }
-
-  .form-group input {
-    font-size: 0.95rem;
-  }
-
-  .modal-actions {
-    flex-direction: column;
-    gap: 0.5rem;
-    align-items: stretch;
-  }
-}
-    `}</style>
-     <div className="modal-overlay">
+    <div className="modal-overlay" onClick={handleOverlayClick} role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <div className="modal-content">
 
         {/* Header */}
         <div className="modal-header">
-          <h2>Add New Executive</h2>
+          <h2 id="modal-title">Add New Executive</h2>
           <button
             onClick={onClose}
-            className="btn-close"
+            className="close-btn"
             disabled={isAddingExecutive}
+            aria-label="Close modal"
           >
             ×
           </button>
@@ -281,7 +119,7 @@ form {
         )}
 
         {/* Form */}
-        <form onSubmit={handleAddExecutive}>
+        <form onSubmit={handleAddExecutive} noValidate>
 
           <div className="form-group">
             <label htmlFor="executiveCode">Executive Code</label>
@@ -332,7 +170,7 @@ form {
             <button
               type="button"
               onClick={onClose}
-              className="btn btn-secondary"
+              className="modal-btn modal-btn--cancel"
               disabled={isAddingExecutive}
             >
               Cancel
@@ -340,7 +178,7 @@ form {
 
             <button
               type="submit"
-              className="btn btn-primary"
+              className="modal-btn modal-btn--submit"
               disabled={isAddingExecutive}
             >
               {isAddingExecutive ? "Adding..." : "Add Executive"}
@@ -350,7 +188,6 @@ form {
         </form>
       </div>
     </div>
-   </>
   );
 };
 
