@@ -11,7 +11,7 @@ import "./ExecutiveDashboard.css";
 
 const ExecutiveDashboard = ({ user, logout }) => {
 
-  const [locationAllowed, setLocationAllowed] = useState(false);
+  // const [locationAllowed, setLocationAllowed] = useState(false);
   const [workStarted, setWorkStarted] = useState(false);
 
   const [workStartLocation, setWorkStartLocation] = useState(null);
@@ -48,15 +48,15 @@ const ExecutiveDashboard = ({ user, logout }) => {
   // ── Search state ──────────────────────────────────────────────────────────
   const [searchQuery, setSearchQuery] = useState("");
 
+
   if (!user) return <h2>No User Found. Please Login Again.</h2>;
 
   /* =========================================
-     LOAD HISTORY & APPROVED REQUESTS
+     LOAD HISTORY (RESTORED)
   ========================================== */
   useEffect(() => {
     checkAttendanceStatus();
     loadHistory();
-    loadApprovedRequests();
   }, []);
 
   const checkAttendanceStatus = async () => {
@@ -287,6 +287,7 @@ const ExecutiveDashboard = ({ user, logout }) => {
       contactNumber: req.contactNumber || "",
       mailId: req.mailId || "",
       vendorType: req.vendorType || "RESTAURANT",
+   
       vendorLocation: req.vendorLocation || "",
       doorNumber: req.doorNumber || "",
       streetName: req.streetName || "",
@@ -406,29 +407,20 @@ const ExecutiveDashboard = ({ user, logout }) => {
             </button>
           )}
 
-          {workStarted && !showForm && (
-            <button
-              className="exec-btn exec-btn--new-entry"
-              onClick={() => setShowForm(true)}
-            >
-              + New Entry
-            </button>
-          )}
+  {workStarted && !showForm && (
+    <button
+      className="exec-btn exec-btn--new-entry"
+      onClick={() => setShowForm(true)}
+    >
+      + New Entry
+    </button>
+  )}
 
-          <button 
-            className="exec-btn exec-btn--requests"
-            onClick={() => setShowApprovedModal(true)}
-          >
-            📋 Approved Requests
-            {approvedRequests.length > 0 && (
-              <span className="exec-badge-count">{approvedRequests.length}</span>
-            )}
-          </button>
+  <button className="exec-btn exec-btn--logout" onClick={logout}>
+    Logout
+  </button>
 
-          <button className="exec-btn exec-btn--logout" onClick={logout}>
-            Logout
-          </button>
-        </div>
+</div>
       </nav>
 
       {/* ── STATUS BAR ── */}

@@ -25,5 +25,4 @@ export const executiveService = {
     return api.get('/api/executive/attendance/check');
   }
 
-
 };
