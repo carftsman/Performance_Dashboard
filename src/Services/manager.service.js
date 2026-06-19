@@ -22,4 +22,8 @@ export const managerService = {
   // Approve a specific BPO edit request
   approveBpoRequest: (formId, payload = { approved: true }) =>
     api.put(`/api/bpo-request/manager/approve/${formId}`, payload),
+
+  // Get all forms worked on by executives
+  getExecutiveForms: () =>
+    api.get("/api/form/executive-forms"),
 };

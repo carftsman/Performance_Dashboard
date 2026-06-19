@@ -10,7 +10,9 @@ const ManagementDashboard = ({ user, logout }) => {
   const dashboardUser = user || JSON.parse(localStorage.getItem('user'));
 // Report Generation State
 const [showReportModal, setShowReportModal] = useState(false);
-  const [forms, setForms] = useState([]);
+  const [bpoForms, setBpoForms] = useState([]);
+  const [executiveForms, setExecutiveForms] = useState([]);
+  const [activeTab, setActiveTab] = useState('BPO_RESOLVED'); // 'BPO_RESOLVED' | 'EXECUTIVE'
   const [filteredForms, setFilteredForms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -19,6 +21,9 @@ const [showReportModal, setShowReportModal] = useState(false);
   const [teamFilter, setTeamFilter] = useState('all');
   const [dateRange, setDateRange] = useState('all');
   const [expandedRow, setExpandedRow] = useState(null);
+
+  // Derived state for the currently active tab's forms
+  const forms = activeTab === 'BPO_RESOLVED' ? bpoForms : executiveForms;
 
   // ── Requests Feature State ────────────────────────────────────────────────
   const [editRequests, setEditRequests] = useState([]);
@@ -41,7 +46,8 @@ const [showReportModal, setShowReportModal] = useState(false);
   const fetchAllForms = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
+      // Fetch BPO resolved forms
+      const bpoResponse = await axios.get(
         "https://performance-dashboard-be.onrender.com/api/data/forms",
         {
           headers: {
@@ -51,17 +57,28 @@ const [showReportModal, setShowReportModal] = useState(false);
         }
       );
 
-      console.log("All Forms:", response.data);
+      // Fetch Executive forms
+      let execData = [];
+      try {
+        execData = await managerService.getExecutiveForms();
+      } catch (err) {
+        console.error("Error fetching executive forms:", err);
+      }
+
+      console.log("BPO Forms:", bpoResponse.data);
+      console.log("Executive Forms:", execData);
       
-      const formsData = Array.isArray(response.data) ? response.data : [];
-      setForms(formsData);
-      setFilteredForms(formsData);
+      const bpoFormsData = Array.isArray(bpoResponse.data) ? bpoResponse.data : [];
+      const execFormsData = Array.isArray(execData) ? execData : [];
+      
+      setBpoForms(bpoFormsData);
+      setExecutiveForms(execFormsData);
       setError(null);
     } catch (error) {
       console.error("Error fetching forms:", error);
       setError("Failed to load data. Please try again.");
-      setForms([]);
-      setFilteredForms([]);
+      setBpoForms([]);
+      setExecutiveForms([]);
     } finally {
       setLoading(false);
     }
@@ -344,6 +361,30 @@ const [showReportModal, setShowReportModal] = useState(false);
                 <div className="stat-value" style={{color:'black'}}>{stats.totalTeamLeads}</div>
                 <div className="stat-label" style={{color:'black'}}>Team Leads</div>
               </div>
+            </div>
+
+            {/* Dashboard Tabs switcher */}
+            <div className="dashboard-tabs">
+              <button 
+                className={`dashboard-tab ${activeTab === 'BPO_RESOLVED' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveTab('BPO_RESOLVED');
+                  setExpandedRow(null);
+                }}
+              >
+                📥 BPO Resolved Forms
+                <span className="tab-count-badge">{bpoForms.length}</span>
+              </button>
+              <button 
+                className={`dashboard-tab ${activeTab === 'EXECUTIVE' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveTab('EXECUTIVE');
+                  setExpandedRow(null);
+                }}
+              >
+                👷 Executive Submissions
+                <span className="tab-count-badge">{executiveForms.length}</span>
+              </button>
             </div>
 
             {/* Filters */}
