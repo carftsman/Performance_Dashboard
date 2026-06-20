@@ -62,7 +62,7 @@ tr:hover {
 /* Desktop Icon Styles */
 .view-btn {
   background: #f1f5f9;
-  color: #4f46e5;
+  color: var(--brand-gradient-start, #385FB7);
   border: none;
   padding: 6px 12px;
   border-radius: 6px;
@@ -73,7 +73,7 @@ tr:hover {
 }
 
 .view-btn:hover {
-  background: #4f46e5;
+  background: var(--brand-gradient-start, #385FB7);
   color: white;
 }
 
@@ -107,9 +107,9 @@ tr:hover {
 
 .mobile-form-card.ft-compact-card:hover,
 .mobile-form-card.ft-compact-card:focus {
-  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.12);
+  box-shadow: 0 4px 16px rgba(56, 95, 183, 0.12);
   transform: translateY(-1px);
-  border-color: #c7d2fe;
+  border-color: rgba(56, 95, 183, 0.3);
   outline: none;
 }
 
@@ -161,7 +161,7 @@ tr:hover {
 .ft-tap-hint {
   font-size: 11px;
   font-weight: 600;
-  color: #6366f1;
+  color: var(--brand-gradient-start, #385FB7);
   letter-spacing: 0.01em;
 }
 

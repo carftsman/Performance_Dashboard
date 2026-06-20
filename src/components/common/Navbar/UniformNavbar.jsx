@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./UniformNavbar.css";
-import logo1 from "../../../assets/logo1.png";
+import ZestBotLogo from "../../../assets/ZestBotLogo";
 
 const UniformNavbar = ({
   user,
@@ -56,7 +56,7 @@ const UniformNavbar = ({
             className="navbar-brand clickable-desktop" 
             onClick={() => setIsProfileOpen(!isProfileOpen)}
           >
-            <img src={logo1} alt="Logo" className="navbar-logo" />
+            <ZestBotLogo fill="#FFFFFF" width={60} height={50} className="navbar-logo" />
             <div className="navbar-brand-info">
               <div className="navbar-brand-text">{displayName}</div>
               <h5>{displayId}</h5>
@@ -172,7 +172,7 @@ const UniformNavbar = ({
           <div className="mobile-drawer">
             <div className="drawer-header">
               <div className="navbar-brand">
-                <img src={logo1} alt="Logo" className="navbar-logo" />
+                <ZestBotLogo fill="#FFFFFF" width={60} height={50} className="navbar-logo" />
                 <div className="navbar-brand-info">
                   <div className="navbar-brand-text">{displayName}</div>
                   <div className="navbar-brand-sub">{role}</div>

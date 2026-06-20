@@ -88,8 +88,8 @@
 /* ================= FILTER SECTION ================= */
 
 .filters-card {
-  background: #eef2ff;
-  border: 1px solid #c7d2fe;
+  background: rgba(56, 95, 183, 0.12);
+  border: 1px solid rgba(56, 95, 183, 0.3);
 }
 
 .filters-header {
@@ -138,7 +138,7 @@
   background: white;
   border-radius: 12px;
   padding: 18px;
-  border-left: 6px solid #3b82f6;
+  border-left: 6px solid var(--brand-gradient-start, #385FB7);
   box-shadow: 0 3px 8px rgba(0,0,0,0.05);
 }
 
@@ -168,14 +168,14 @@
   padding: 8px 16px;
   border-radius: 8px;
   border: none;
-  background: #e0e7ff;
-  color: #1e40af;
+  background: rgba(56, 95, 183, 0.2);
+  color: var(--brand-gradient-start, #385FB7);
   font-weight: 600;
   cursor: pointer;
 }
 
 .chart-type-btn.active {
-  background: #1d4ed8;
+  background: var(--brand-gradient-end, #192A51);
   color: white;
 }
 
@@ -210,7 +210,7 @@
 
 /* Expanded row */
 .expanded-row {
-  background: #eef2ff;
+  background: rgba(56, 95, 183, 0.12);
 }
 
 .detail-label {
@@ -230,7 +230,7 @@
   background: white;
   border-radius: 14px;
   padding: 14px;
-  border-left: 5px solid #6366f1;
+  border-left: 5px solid var(--brand-gradient-start, #385FB7);
   box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
@@ -280,7 +280,7 @@
 }
 
 .btn-primary {
-  background: #2563eb;
+  background: var(--brand-gradient-start, #385FB7);
   color: white;
 }
 

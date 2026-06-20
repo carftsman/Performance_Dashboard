@@ -4,11 +4,11 @@
 
 :root {
   /* Core Palette */
-  --bpo-primary: #4f46e5;         /* Indigo 600 */
-  --bpo-primary-light: #6366f1;   /* Indigo 500 */
-  --bpo-primary-dark: #3730a3;    /* Indigo 800 */
-  --bpo-secondary: #0f172a;       /* Slate 900 */
-  --bpo-accent: #f59e0b;          /* Amber 500 */
+  --bpo-primary: #385FB7;         /* ZestBot Brand Blue */
+  --bpo-primary-light: #4d74cc;   /* Brand Blue Light */
+  --bpo-primary-dark: #192A51;    /* Brand Dark Navy */
+  --bpo-secondary: #181725;       /* Primary Dark */
+  --bpo-accent: #FFBB00;          /* Warning Yellow */
   
   /* Neutral Palette */
   --bpo-bg: #f8fafc;              /* Slate 50 */
@@ -90,13 +90,13 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+  box-shadow: 0 4px 10px rgba(56, 95, 183, 0.2);
 }
 
 .bpo-btn-primary:hover, .refresh-btn:hover {
   background: var(--bpo-primary-dark);
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(79, 70, 229, 0.3);
+  box-shadow: 0 6px 15px rgba(56, 95, 183, 0.3);
 }
 
 .bpo-btn-ghost {
@@ -146,7 +146,7 @@
 
 .search-input-wrapper input:focus {
   border-color: var(--bpo-primary);
-  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+  box-shadow: 0 0 0 4px rgba(56, 95, 183, 0.1);
 }
 
 .filter-select {
@@ -696,7 +696,7 @@
 .bpo-form-group textarea:focus {
   border-color: var(--bpo-primary);
   background: white;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  box-shadow: 0 0 0 3px rgba(56, 95, 183, 0.1);
 }
 
 .bpo-action-select {

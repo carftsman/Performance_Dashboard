@@ -2,12 +2,12 @@
 
 /* ── Header Card ── */
 .header-card {
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  background: var(--brand-gradient, linear-gradient(135deg, #385FB7 0%, #192A51 100%));
   border-radius: var(--radius-lg);
   padding: var(--space-5) var(--space-6);
   margin-bottom: 0;
   border: none;
-  box-shadow: 0 8px 32px rgba(79, 70, 229, 0.28);
+  box-shadow: 0 8px 32px rgba(56, 95, 183, 0.28);
   position: relative;
   overflow: hidden;
 }

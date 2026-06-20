@@ -17,6 +17,8 @@ const [showReportModal, setShowReportModal] = useState(false);
   const [statusFilter, setStatusFilter] = useState('all');
   const [teamFilter, setTeamFilter] = useState('all');
   const [dateRange, setDateRange] = useState('all');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [expandedRow, setExpandedRow] = useState(null);
 
   // ── Requests Feature State ────────────────────────────────────────────────
@@ -99,10 +101,14 @@ const [showReportModal, setShowReportModal] = useState(false);
 
     // Apply date range filter
     if (dateRange !== 'all') {
-      const now = new Date();
-      const today = new Date(now.setHours(0, 0, 0, 0));
-      const weekAgo = new Date(now.setDate(now.getDate() - 7));
-      const monthAgo = new Date(now.setMonth(now.getMonth() - 1));
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const weekAgo = new Date(today);
+      weekAgo.setDate(weekAgo.getDate() - 7);
+
+      const monthAgo = new Date(today);
+      monthAgo.setMonth(monthAgo.getMonth() - 1);
 
       filtered = filtered.filter(form => {
         const formDate = new Date(form.createdAt);
@@ -112,13 +118,26 @@ const [showReportModal, setShowReportModal] = useState(false);
           return formDate >= weekAgo;
         } else if (dateRange === 'month') {
           return formDate >= monthAgo;
+        } else if (dateRange === 'custom') {
+          let matches = true;
+          if (startDate) {
+            const start = new Date(startDate);
+            start.setHours(0, 0, 0, 0);
+            matches = matches && formDate >= start;
+          }
+          if (endDate) {
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+            matches = matches && formDate <= end;
+          }
+          return matches;
         }
         return true;
       });
     }
 
     setFilteredForms(filtered);
-  }, [searchTerm, statusFilter, teamFilter, dateRange, forms]);
+  }, [searchTerm, statusFilter, teamFilter, dateRange, startDate, endDate, forms]);
 
   // Get unique team leads for filter
   const teamLeads = [...new Set(forms.map(form => form.teamleadName).filter(Boolean))];
@@ -332,16 +351,40 @@ const [showReportModal, setShowReportModal] = useState(false);
                   <option value="today">Today</option>
                   <option value="week">Last 7 Days</option>
                   <option value="month">Last 30 Days</option>
+                  <option value="custom">Custom Range</option>
                 </select>
 
+                {dateRange === 'custom' && (
+                  <>
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="filter-input"
+                      placeholder="Start Date"
+                      title="Start Date"
+                    />
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="filter-input"
+                      placeholder="End Date"
+                      title="End Date"
+                    />
+                  </>
+                )}
+
                  
-                {(searchTerm || statusFilter !== 'all' || teamFilter !== 'all' || dateRange !== 'all') && (
+                {(searchTerm || statusFilter !== 'all' || teamFilter !== 'all' || dateRange !== 'all' || startDate || endDate) && (
                   <button 
                     onClick={() => {
                       setSearchTerm('');
                       setStatusFilter('all');
                       setTeamFilter('all');
                       setDateRange('all');
+                      setStartDate('');
+                      setEndDate('');
                     }}
                     className="btn btn-outline"
                   >

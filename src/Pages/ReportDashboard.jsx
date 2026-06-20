@@ -380,7 +380,7 @@ const [userCode,setUsercode] = useState("");
                           <YAxis type="category" dataKey="name" width={120} />
                           <Tooltip />
                           <Legend />
-                          <Bar dataKey="total" fill="#3b82f6" name="Total Entries" />
+                          <Bar dataKey="total" fill="#385FB7" name="Total Entries" />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>
@@ -399,7 +399,7 @@ const [userCode,setUsercode] = useState("");
                           <YAxis />
                           <Tooltip />
                           <Legend />
-                          <Area type="monotone" dataKey="total" stackId="1" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.6} name="Total Entries" />
+                          <Area type="monotone" dataKey="total" stackId="1" stroke="#385FB7" fill="#385FB7" fillOpacity={0.6} name="Total Entries" />
                           <Area type="monotone" dataKey="interested" stackId="2" stroke="#166534" fill="#166534" fillOpacity={0.6} name="Interested" />
                          
                         </AreaChart>
@@ -416,7 +416,7 @@ const [userCode,setUsercode] = useState("");
                           <YAxis />
                           <Tooltip />
                           <Legend />
-                          <Line type="monotone" dataKey="total" stroke="#3b82f6" name="Total Entries" strokeWidth={2} />
+                          <Line type="monotone" dataKey="total" stroke="#385FB7" name="Total Entries" strokeWidth={2} />
                           <Line type="monotone" dataKey="interested" stroke="#166534" name="Interested" strokeWidth={2} />
                          
                         </LineChart>
@@ -434,7 +434,7 @@ const [userCode,setUsercode] = useState("");
                           <YAxis yAxisId="right" orientation="right" />
                           <Tooltip />
                           <Legend />
-                          <Bar yAxisId="left" dataKey="total" fill="#3b82f6" name="Total Entries" />
+                          <Bar yAxisId="left" dataKey="total" fill="#385FB7" name="Total Entries" />
                           <Line yAxisId="right" type="monotone" dataKey="interested" stroke="#166534" name="Interested" />
 
                         </ComposedChart>

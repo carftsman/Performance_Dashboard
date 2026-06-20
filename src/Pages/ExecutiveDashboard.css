@@ -12,13 +12,13 @@
 
 /* ── Top Navbar ──────────────────────────────────────── */
 .exec-navbar {
-  background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+  background: var(--header-gradient);
   padding: 0 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: 60px;
-  box-shadow: 0 2px 12px rgba(79, 70, 229, 0.3);
+  box-shadow: 0 2px 12px rgba(56, 95, 183, 0.3);
   position: sticky;
   top: 0;
   z-index: 200;
@@ -107,11 +107,11 @@
 
 .exec-btn--new-entry {
   background: #fff;
-  color: #4f46e5;
+  color: var(--brand-gradient-start, #385FB7);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 .exec-btn--new-entry:hover {
-  background: #eef2ff;
+  background: rgba(56, 95, 183, 0.12);
   transform: translateY(-1px);
 }
 
@@ -248,8 +248,8 @@
 }
 
 .exec-history-count {
-  background: #eef2ff;
-  color: #4f46e5;
+  background: rgba(56, 95, 183, 0.12);
+  color: var(--brand-gradient-start, #385FB7);
   border-radius: 20px;
   padding: 2px 10px;
   font-size: 0.78rem;
@@ -289,8 +289,8 @@
 }
 
 .exec-search-input:focus {
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  border-color: var(--brand-gradient-start, #385FB7);
+  box-shadow: 0 0 0 3px rgba(56, 95, 183, 0.1);
 }
 
 .exec-search-input::placeholder {
@@ -348,7 +348,7 @@
 .exec-card--clickable:hover {
   transform: translateY(-3px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-  border-color: #c7d2fe;
+  border-color: rgba(56, 95, 183, 0.3);
 }
 
 .exec-card-header {
@@ -434,7 +434,7 @@
 
 .exec-card-review {
   background: #f8fafc;
-  border-left: 3px solid #c7d2fe;
+  border-left: 3px solid rgba(56, 95, 183, 0.3);
   padding: 8px 10px;
   border-radius: 0 6px 6px 0;
   font-size: 0.8rem;
@@ -463,7 +463,7 @@
 
 .exec-card-action-text {
   font-weight: 600;
-  color: #4f46e5;
+  color: var(--brand-gradient-start, #385FB7);
 }
 
 /* ── Empty States ────────────────────────────────────── */
@@ -508,7 +508,7 @@
   width: 20px;
   height: 20px;
   border: 2px solid #e2e8f0;
-  border-top-color: #4f46e5;
+  border-top-color: var(--brand-gradient-start, #385FB7);
   border-radius: 50%;
   animation: exec-spin 0.7s linear infinite;
   flex-shrink: 0;
@@ -626,7 +626,7 @@
 .exec-modal-id {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #3b82f6;
+  color: var(--brand-gradient-start, #385FB7);
 }
 
 .exec-modal-grid {
@@ -803,13 +803,13 @@
 }
 
 .exec-prompt-btn--proceed {
-  background: #4f46e5;
+  background: var(--brand-gradient-start, #385FB7);
   color: #fff;
-  box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+  box-shadow: 0 2px 4px rgba(56, 95, 183, 0.2);
 }
 
 .exec-prompt-btn--proceed:hover:not(:disabled) {
-  background: #4338ca;
+  background: var(--brand-gradient-end, #192A51);
   transform: translateY(-1px);
 }
 
@@ -918,8 +918,8 @@
 .exec-form-group input:focus,
 .exec-form-group select:focus,
 .exec-form-group textarea:focus {
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  border-color: var(--brand-gradient-start, #385FB7);
+  box-shadow: 0 0 0 3px rgba(56, 95, 183, 0.1);
 }
 
 /* ── Responsive ──────────────────────────────────────── */

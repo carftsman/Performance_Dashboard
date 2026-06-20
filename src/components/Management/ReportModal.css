@@ -30,7 +30,7 @@
 
 /* Header */
 .rm-modal-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--brand-gradient);
   padding: 24px 28px;
   border-radius: 24px 24px 0 0;
   display: flex;
@@ -199,8 +199,8 @@
 
 .rm-period-select:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  border-color: var(--brand-gradient-start, #385FB7);
+  box-shadow: 0 0 0 4px rgba(56, 95, 183, 0.1);
 }
 
 .rm-period-select:disabled {
@@ -350,14 +350,14 @@
 }
 
 .rm-btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--brand-gradient);
   color: white;
-  box-shadow: 0 10px 20px -10px #667eea;
+  box-shadow: 0 10px 20px -10px var(--brand-gradient-start, #385FB7);
 }
 
 .rm-btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 15px 25px -10px #667eea;
+  box-shadow: 0 15px 25px -10px var(--brand-gradient-start, #385FB7);
 }
 
 .rm-btn-primary:active:not(:disabled) {

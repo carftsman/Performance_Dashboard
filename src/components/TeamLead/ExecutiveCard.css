@@ -23,7 +23,7 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  background: linear-gradient(90deg, var(--brand-500), var(--brand-700));
   opacity: 0;
   transition: opacity 0.22s;
 }
@@ -53,7 +53,7 @@
 .avatar {
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
   color: white;
   border-radius: var(--radius-full);
   display: flex;
@@ -62,7 +62,7 @@
   font-size: 19px;
   font-weight: 800;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+  box-shadow: 0 4px 12px rgba(56, 95, 183, 0.3);
   letter-spacing: -0.5px;
 }
 

@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../Services/authservice";
 import "./Login.css";
-import logo1 from "../assets/logo1.png";
+import ZestBotLogo from "../assets/ZestBotLogo";
  import {toast } from "react-toastify";
 /* ─── Eye Icon ─────────────────────────────────────────── */
 const EyeIcon = ({ visible }) =>
@@ -325,7 +324,7 @@ const handleResetPassword = async (e) => {
  
         {/* Header */}
         <div className="login-header">
-          <img src={logo1} alt="Dhatvi Business Solutions" className="login-logo" />
+          <ZestBotLogo fill="#192A51" width={110} height={92} className="login-logo" />
           <h1>Performance Tracking System</h1>
           <p className="login-subtitle">
             {isActivateMode ? "Activate your account to get started." : "Sign in to your account."}

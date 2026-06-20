@@ -38,10 +38,10 @@
 }
 
 .filter-btn.active {
-  background: #4f46e5;
+  background: var(--brand-gradient-start, #385FB7);
   color: white;
-  border-color: #4f46e5;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+  border-color: var(--brand-gradient-start, #385FB7);
+  box-shadow: 0 4px 12px rgba(56, 95, 183, 0.2);
 }
 
 .date-picker-group {
@@ -61,7 +61,7 @@
 }
 
 .date-picker-group input:focus {
-  border-color: #4f46e5;
+  border-color: var(--brand-gradient-start, #385FB7);
 }
 
 /* ================= RESPONSIVE ================= */
