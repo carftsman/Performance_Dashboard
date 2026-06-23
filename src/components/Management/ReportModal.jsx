@@ -5,35 +5,37 @@ import './ReportModal.css'; // Create this CSS file
 const ReportModal = ({ isOpen, onClose, forms }) => {
   const [reportType, setReportType] = useState('excel');
   const [reportPeriod, setReportPeriod] = useState('all');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [generating, setGenerating] = useState(false);
 
   // Helper function to get count for any period
   const getCountForPeriod = (period) => {
     if (!forms || forms.length === 0) return 0;
-    return reportService.filterDataByPeriod(forms, period)?.length || 0;
+    return reportService.filterDataByPeriod(forms, period, startDate, endDate)?.length || 0;
   };
 
   // Memoized filtered count for selected period
   const filteredCount = useMemo(() => {
     return getCountForPeriod(reportPeriod);
-  }, [forms, reportPeriod]);
+  }, [forms, reportPeriod, startDate, endDate]);
 
   if (!isOpen) return null;
 
   const handleGenerate = async () => {
     setGenerating(true);
     try {
-      const filteredData = reportService.filterDataByPeriod(forms, reportPeriod);
+      const filteredData = reportService.filterDataByPeriod(forms, reportPeriod, startDate, endDate);
 
       if (!filteredData || filteredData.length === 0) {
-        alert(`No data found for ${reportService.getPeriodLabel(reportPeriod)}!`);
+        alert(`No data found for ${reportService.getPeriodLabel(reportPeriod, startDate, endDate)}!`);
         return;
       }
 
       if (reportType === "excel") {
-        reportService.generateExcelReport(filteredData, reportPeriod);
+        reportService.generateExcelReport(filteredData, reportPeriod, 'management', startDate, endDate);
       } else if (reportType === "pdf") {
-        reportService.generatePDFReport(filteredData, reportPeriod);
+        reportService.generatePDFReport(filteredData, reportPeriod, 'management', startDate, endDate);
       } 
 
       onClose();
@@ -122,6 +124,7 @@ const ReportModal = ({ isOpen, onClose, forms }) => {
                 <option value="3months">📉 Last 3 Months ({getCountForPeriod('3months')} records)</option>
                 <option value="6months">📊 Last 6 Months ({getCountForPeriod('6months')} records)</option>
                 <option value="annual">📅 Annual ({getCountForPeriod('annual')} records)</option>
+                <option value="custom">📅 Custom Range ({getCountForPeriod('custom')} records)</option>
               </select>
               <div className="rm-select-arrow">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -129,6 +132,33 @@ const ReportModal = ({ isOpen, onClose, forms }) => {
                 </svg>
               </div>
             </div>
+
+            {reportPeriod === 'custom' && (
+              <div className="rm-custom-range-inputs">
+                <div className="rm-date-input-group">
+                  <label htmlFor="rm-start-date">Start Date</label>
+                  <input
+                    id="rm-start-date"
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="rm-date-input"
+                    disabled={generating}
+                  />
+                </div>
+                <div className="rm-date-input-group">
+                  <label htmlFor="rm-end-date">End Date</label>
+                  <input
+                    id="rm-end-date"
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="rm-date-input"
+                    disabled={generating}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Summary Info Box */}
@@ -141,7 +171,7 @@ const ReportModal = ({ isOpen, onClose, forms }) => {
               <div className="rm-summary-row">
                 <span className="rm-summary-label">Selected Period</span>
                 <span className="rm-summary-value rm-period-badge">
-                  {reportService.getPeriodLabel(reportPeriod)}
+                  {reportService.getPeriodLabel(reportPeriod, startDate, endDate)}
                 </span>
               </div>
               <div className="rm-summary-row rm-highlight-row">

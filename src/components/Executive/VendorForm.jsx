@@ -200,6 +200,9 @@ const validateForm = () => {
   else if (!/^[1-9][0-9]{5}$/.test(formData.pinCode))
     newErrors.pinCode = "Pin code must be 6 digits and cannot start with 0";
 
+  if (!formData.review || !formData.review.trim())
+    newErrors.review = "Review / Comments is required";
+
   setErrors(newErrors);
 
   return Object.keys(newErrors).length === 0;
@@ -487,15 +490,17 @@ const validateForm = () => {
 
             <div className="vendor-group vendor-group--full">
               <label htmlFor="review" className="vendor-label">
-                Review / Comments
+                Review / Comments <span className="vendor-label-required">*</span>
               </label>
               <textarea
                 id="review" name="review"
                 value={formData.review} onChange={handleChange}
-                className="vendor-input"
+                className={`vendor-input ${errors.review ? "vendor-input--error" : ""}`}
                 placeholder="Add any additional notes about the visit..."
                 disabled={isDisabled}
+                required
               />
+              {errors.review && <p className="vendor-error-text">⚠ {errors.review}</p>}
             </div>
 
           </div>

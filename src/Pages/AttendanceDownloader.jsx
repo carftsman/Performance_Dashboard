@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { attendanceService } from '../Services/attendance.service';
 import { reportService } from '../Services/report.service';
 import './AttendanceDownloader.css';
 import { FiDownload, FiEye, FiX } from 'react-icons/fi';
 
-const AttendanceDownloader = ({ userCode, setUsercode, startDate, setStartDate, endDate, setEndDate }) => {
+const AttendanceDownloader = ({ userCode, setUsercode, startDate, setStartDate, endDate, setEndDate, isManagement = false }) => {
   const [downloading, setDownloading] = useState(false);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewData, setPreviewData] = useState([]);
@@ -17,17 +18,32 @@ const AttendanceDownloader = ({ userCode, setUsercode, startDate, setStartDate, 
 
   // Common function to fetch and normalize attendance data
   const fetchAttendanceData = async () => {
-    if (!userCode || !startDate || !endDate) {
-      alert("Please select Executive and Date Range");
-      return null;
+    if (isManagement && !userCode) {
+      if (!startDate || !endDate) {
+        alert("Please select Date Range");
+        return null;
+      }
+    } else {
+      if (!userCode || !startDate || !endDate) {
+        alert("Please select Executive and Date Range");
+        return null;
+      }
     }
 
     try {
-      const response = await attendanceService.getAttendancedetails(
-        userCode,
-        startDate,
-        endDate
-      );
+      let response;
+      if (isManagement && !userCode) {
+        response = await attendanceService.getAllAttendanceDetails(
+          startDate,
+          endDate
+        );
+      } else {
+        response = await attendanceService.getAttendancedetails(
+          userCode,
+          startDate,
+          endDate
+        );
+      }
 
       // Handle response (array directly or Axios wrapper)
       let rawData;
@@ -75,15 +91,37 @@ const AttendanceDownloader = ({ userCode, setUsercode, startDate, setStartDate, 
       }
 
       // Normalize field names
-      const normalized = attendanceArray.map(item => ({
-       userCode: item.userCode || item.userCode || item.userCode ||userCode,
-        teamleadName: item.teamleadName || item.teamlead_name || item.teamLead,
+      let normalized = attendanceArray.map(item => ({
+        userCode: item.userCode || item.usercode || item.executiveCode || userCode || "N/A",
+        teamleadName: item.teamleadName || item.teamlead_name || item.teamLead || "N/A",
+        executiveName: item.executiveName || item.executive_name || item.executive || "N/A",
         attendanceDate: item.attendanceDate || item.date || item.attendance_date,
         loginTime: item.loginTime || item.login_time || item.login,
         latitude: item.latitude,
         longitude: item.longitude,
         createdAt: item.createdAt || item.created_at || item.created
       }));
+
+      // Fallback client-side date filtering
+      if (startDate) {
+        normalized = normalized.filter(item => {
+          if (!item.attendanceDate) return false;
+          const itemDate = item.attendanceDate.split('T')[0];
+          return itemDate >= startDate;
+        });
+      }
+      if (endDate) {
+        normalized = normalized.filter(item => {
+          if (!item.attendanceDate) return false;
+          const itemDate = item.attendanceDate.split('T')[0];
+          return itemDate <= endDate;
+        });
+      }
+
+      if (normalized.length === 0) {
+        alert("No attendance records match the selected date range");
+        return null;
+      }
 
       return normalized;
     } catch (error) {
@@ -113,7 +151,7 @@ const AttendanceDownloader = ({ userCode, setUsercode, startDate, setStartDate, 
       setDownloading(false);
     }
     if (data && data.length > 0) {
-      reportService.generateAttendanceExcel(data,userCode, startDate, endDate);
+      reportService.generateAttendanceExcel(data, userCode || "All_Executives", startDate, endDate);
     } else {
       alert("No data to download");
     }
@@ -126,16 +164,16 @@ const AttendanceDownloader = ({ userCode, setUsercode, startDate, setStartDate, 
   return (
     <div className="attendance-downloader card">
       <div className="attendance-header">
-        <h2 className="attendance-title">Attendance Report</h2>
+        <h2 className="attendance-title">{isManagement ? "All Executives Attendance" : "Attendance Report"}</h2>
       </div>
 
       <div className="attendance-controls-wrapper">
         <div className="attendance-inputs">
           <div className="attendance-input-group">
-            <label>Executive ID / Code</label>
+            <label>{isManagement ? "Executive ID / Code (Optional)" : "Executive ID / Code"}</label>
             <input
               type="text"
-              placeholder="e.g. EX001"
+              placeholder={isManagement ? "Leave blank for all" : "e.g. EX001"}
               value={userCode}
               onChange={(e) => setUsercode(e.target.value)}
               className="attendance-input"
@@ -193,7 +231,7 @@ const AttendanceDownloader = ({ userCode, setUsercode, startDate, setStartDate, 
       </div>
 
       {/* Modal Preview */}
-      {showModal && (
+      {showModal && createPortal(
         <div className="attendance-modal-overlay" onClick={closeModal}>
           <div className="attendance-modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="attendance-modal-header">
@@ -212,23 +250,38 @@ const AttendanceDownloader = ({ userCode, setUsercode, startDate, setStartDate, 
                 <table className="attendance-table">
                   <thead>
                     <tr>
+                      <th>Executive Name</th>
+                      <th>Executive Code</th>
+                      <th>Team Lead</th>
                       <th>Date</th>
                       <th>Login Time</th>
-                      <th>Team Lead</th>
-                      <th>Latitude</th>
-                      <th>Longitude</th>
+                      <th>Location Map</th>
                     </tr>
                   </thead>
                   <tbody>
                     {previewData.map((item, index) => (
                       <tr key={index}>
+                        <td>{item.executiveName}</td>
+                        <td>{item.userCode}</td>
+                        <td>{item.teamleadName}</td>
                         <td>{item.attendanceDate}</td>
                         <td>
-                         {item.loginTime ? new Date(item.loginTime + 'Z').toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' }) : 'N/A'}
+                          {item.loginTime ? new Date(item.loginTime + 'Z').toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' }) : 'N/A'}
                         </td>
-                        <td>{item.teamleadName}</td>
-                        <td>{item.latitude}</td>
-                        <td>{item.longitude}</td>
+                        <td>
+                          {item.latitude && item.longitude ? (
+                            <a 
+                              href={`https://www.google.com/maps?q=${item.latitude},${item.longitude}`} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="location-link"
+                              title="View on Google Maps"
+                              style={{ color: '#385fb7', textDecoration: 'underline', fontWeight: 'bold' }}
+                            >
+                              📍 View Map
+                            </a>
+                          ) : 'N/A'}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -236,7 +289,8 @@ const AttendanceDownloader = ({ userCode, setUsercode, startDate, setStartDate, 
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

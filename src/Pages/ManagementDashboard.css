@@ -70,6 +70,18 @@
   cursor: not-allowed;
 }
 
+.btn-attendance {
+  background-color: #f0fdf4;
+  color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+
+.btn-attendance:hover:not(:disabled) {
+  background-color: #dcfce7;
+  color: #f0fdf4;
+}
+
+
 /* Modal Styles */
 .modal-overlay {
   position: fixed;

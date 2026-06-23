@@ -37,21 +37,70 @@ body {
    Top Header
 ========================= */
 .top-header {
-  background-color: #ffffff;
-  padding: 15px 30px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 12px 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: sticky;
   top: 0;
   z-index: 100;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Zestbot Logo */
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+
+.logo-icon {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 18px;
+  box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);
+}
+
+.logo-text {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1e293b;
+  letter-spacing: -0.5px;
+}
+
+.logo-accent {
+  color: #ff6b6b;
+}
+
+.header-divider {
+  width: 1px;
+  height: 20px;
+  background-color: #cbd5e1;
 }
 
 .header-title {
-  font-size: 20px;
-  color: #2c3e50;
-  font-weight: 600;
+  font-size: 14px;
+  color: #64748b;
+  font-weight: 500;
+  letter-spacing: 0.1px;
 }
 
 .header-actions {
@@ -60,26 +109,115 @@ body {
   gap: 20px;
 }
 
-/* =========================
-   Logout Button
-========================= */
-.btn-logout {
-  padding: 8px 20px;
-  background-color: #ef4444;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+/* User Profile Card */
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8fafc;
+  padding: 4px 12px 4px 6px;
+  border-radius: 30px;
+  border: 1px solid #e2e8f0;
 }
 
-.btn-logout:hover {
-  background-color: #dc2626;
+.user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.2);
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.user-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.user-code {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.user-separator {
+  color: #cbd5e1;
+}
+
+.user-role {
+  text-transform: uppercase;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.user-role.role-manager {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.user-role.role-bpo {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.user-role.role-admin {
+  background: #f3e8ff;
+  color: #7c3aed;
+}
+
+.user-role.role-analyst {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+/* Modern Logout Button */
+.btn-logout-new {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: #ffffff;
+  color: #ef4444;
+  border: 1px solid #fee2e2;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-logout-new:hover {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3);
+}
+
+.btn-logout-new:active {
+  transform: translateY(0);
 }
 
 /* =========================
@@ -118,26 +256,32 @@ body {
   }
 
   .top-header {
-    flex-direction: row;        /* Keep side-by-side */
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
     padding: 12px 16px;
   }
 
-  .header-title {
-    font-size: 16px;
+  .header-brand {
+    justify-content: space-between;
+  }
+
+  .header-divider, .header-title {
+    display: none; /* Hide subtitle on mobile for cleaner look */
   }
 
   .header-actions {
-    display: flex;
-    align-items: center;
+    justify-content: space-between;
+    width: 100%;
   }
 
-  .btn-logout {
-    width: auto;                /* Prevent full width */
-    padding: 16px 12px;
-    margin-left: 140px;
-    font-size: 13px;
+  .user-profile {
+    flex: 1;
+    max-width: calc(100% - 100px);
+  }
+
+  .btn-logout-new {
+    padding: 6px 12px;
   }
 
   .page-content {

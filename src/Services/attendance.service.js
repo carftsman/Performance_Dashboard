@@ -5,5 +5,10 @@ export const attendanceService = {
   getAttendancedetails: (userCode, startDate, endDate) =>
     api.get(`/api/executive/attendance/${encodeURIComponent(userCode)}`, {
       params: { startDate, endDate }   // send dates as query parameters
+    }),
+  getAllAttendanceDetails: (startDate, endDate) =>
+    api.get(`/api/executive/attendance/all`, {
+      params: { startDate, endDate }
     })
 };
+

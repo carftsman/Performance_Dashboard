@@ -5,7 +5,25 @@ import autoTable from "jspdf-autotable";
 
 class ReportService {
   // Filter data by date period
-  filterDataByPeriod(data, period) {
+  filterDataByPeriod(data, period, customStartDate = null, customEndDate = null) {
+    if (period === 'custom') {
+      return data.filter(item => {
+        const formDate = new Date(item.createdAt);
+        let matches = true;
+        if (customStartDate) {
+          const start = new Date(customStartDate);
+          start.setHours(0, 0, 0, 0);
+          matches = matches && formDate >= start;
+        }
+        if (customEndDate) {
+          const end = new Date(customEndDate);
+          end.setHours(23, 59, 59, 999);
+          matches = matches && formDate <= end;
+        }
+        return matches;
+      });
+    }
+
     const now = new Date();
     const today = new Date(now.setHours(0, 0, 0, 0));
     
@@ -40,7 +58,12 @@ class ReportService {
   }
 
   // Get period label
- getPeriodLabel(period) {
+ getPeriodLabel(period, customStartDate = null, customEndDate = null) {
+    if (period === 'custom') {
+      const start = customStartDate ? this.formatDateOnly(customStartDate) : 'Beginning';
+      const end = customEndDate ? this.formatDateOnly(customEndDate) : 'Present';
+      return `Custom Range (${start} to ${end})`;
+    }
     const labels = {
       'today': 'Today',
       '15days': 'Last 15 Days',
@@ -135,7 +158,7 @@ generateAttendanceExcel(attendanceData, executiveName, startDate, endDate) {
   return true;
 }
   // Generate Excel report for any dashboard
-  generateExcelReport(data, period, dashboardType = 'management') {
+  generateExcelReport(data, period, dashboardType = 'management', customStartDate = null, customEndDate = null) {
     if (!data || data.length === 0) {
       throw new Error("No data to export");
     }
@@ -159,12 +182,15 @@ generateAttendanceExcel(attendanceData, executiveName, startDate, endDate) {
     XLSX.utils.book_append_sheet(wb, ws, `${dashboardType} Data`);
 
     // Add summary sheet
-    const summaryData = this.prepareSummaryData(data, period, dashboardType);
+    const summaryData = this.prepareSummaryData(data, period, dashboardType, customStartDate, customEndDate);
     const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
     XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
 
     // Generate filename and save
-    const fileName = `Report For Selected TIme Period${period}_${new Date().toISOString().split('T')[0]}.xlsx`;
+    const periodStr = period === 'custom' 
+      ? `Custom_${customStartDate || 'start'}_to_${customEndDate || 'end'}` 
+      : period;
+    const fileName = `Report For Selected TIme Period_${periodStr}_${new Date().toISOString().split('T')[0]}.xlsx`;
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
     saveAs(blob, fileName);
@@ -256,7 +282,7 @@ generateAttendanceExcel(attendanceData, executiveName, startDate, endDate) {
   }
 
   // Prepare summary data
-  prepareSummaryData(data, period, dashboardType) {
+  prepareSummaryData(data, period, dashboardType, customStartDate = null, customEndDate = null) {
     const statusSummary = data.reduce((acc, form) => {
       const status = form.status || 'UNKNOWN';
       acc[status] = (acc[status] || 0) + 1;
@@ -284,7 +310,7 @@ generateAttendanceExcel(attendanceData, executiveName, startDate, endDate) {
     const summaryData = [
       ['REPORT SUMMARY'],
       ['Generated On', new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })],
-      ['Report Period', this.getPeriodLabel(period)],
+      ['Report Period', this.getPeriodLabel(period, customStartDate, customEndDate)],
       ['Dashboard Type', dashboardType.toUpperCase()],
       ['Total Records', data.length.toString()],
       [],
@@ -335,7 +361,7 @@ generateAttendanceExcel(attendanceData, executiveName, startDate, endDate) {
   }
 
   // Generate PDF report
-  generatePDFReport(data, period, dashboardType = 'management') {
+  generatePDFReport(data, period, dashboardType = 'management', customStartDate = null, customEndDate = null) {
     if (!data || data.length === 0) {
       throw new Error("No data to export");
     }
@@ -349,7 +375,7 @@ generateAttendanceExcel(attendanceData, executiveName, startDate, endDate) {
 
     // Metadata
     doc.setFontSize(10);
-    doc.text(`Period: ${this.getPeriodLabel(period)}`, 14, 25);
+    doc.text(`Period: ${this.getPeriodLabel(period, customStartDate, customEndDate)}`, 14, 25);
     doc.text(`Generated: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}`, 14, 30);
     doc.text(`Total Records: ${data.length}`, 14, 35);
 
@@ -393,7 +419,10 @@ generateAttendanceExcel(attendanceData, executiveName, startDate, endDate) {
       margin: { top: yPos + 20 }
     });
 
-    const fileName = `Report For Selected Time Period${period}_${new Date().toISOString().split('T')[0]}.pdf`;
+    const periodStr = period === 'custom' 
+      ? `Custom_${customStartDate || 'start'}_to_${customEndDate || 'end'}` 
+      : period;
+    const fileName = `Report For Selected Time Period_${periodStr}_${new Date().toISOString().split('T')[0]}.pdf`;
     doc.save(fileName);
 
     return true;

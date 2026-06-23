@@ -334,8 +334,8 @@ const ExecutiveDashboard = ({ user, logout }) => {
   };
 
   const handleUpdateAndResubmit = async () => {
-    if (!editFormData.vendorShopName || !editFormData.vendorName || !editFormData.district) {
-      toast.warning("Vendor Shop Name, Vendor Name, and District are required.");
+    if (!editFormData.vendorShopName || !editFormData.vendorName || !editFormData.district || !editFormData.review?.trim()) {
+      toast.warning("Vendor Shop Name, Vendor Name, District, and Review Notes are required.");
       return;
     }
 
@@ -1126,8 +1126,8 @@ const ExecutiveDashboard = ({ user, logout }) => {
                       </select>
                     </div>
                     <div className="exec-form-group" style={{ gridColumn: "1 / -1" }}>
-                      <label>Review Notes</label>
-                      <textarea name="review" rows="3" value={editFormData.review} onChange={handleEditChange} />
+                      <label>Review Notes*</label>
+                      <textarea name="review" rows="3" value={editFormData.review} onChange={handleEditChange} required />
                     </div>
                   </div>
                 </div>
@@ -1146,7 +1146,7 @@ const ExecutiveDashboard = ({ user, logout }) => {
                 className="exec-prompt-btn exec-prompt-btn--proceed"
                 style={{ background: '#10b981', color: 'white', border: 'none' }}
                 onClick={handleUpdateAndResubmit}
-                disabled={isResubmitting || !editFormData.vendorShopName || !editFormData.vendorName || !editFormData.district}
+                disabled={isResubmitting || !editFormData.vendorShopName || !editFormData.vendorName || !editFormData.district || !editFormData.review?.trim()}
               >
                 {isResubmitting ? "Resubmitting..." : "Update & Resubmit"}
               </button>

@@ -3,13 +3,18 @@ import MainLayout from '../components/common/Layout/MainLayout';
 import axios from 'axios';
 import { managerService } from '../Services/manager.service';
 import ReportModal from '../components/Management/ReportModal';
+import AttendanceDownloader from './AttendanceDownloader';
 import './ManagementDashboard.css';
 import {toast } from "react-toastify";
 
 const ManagementDashboard = ({ user, logout }) => {
   const dashboardUser = user || JSON.parse(localStorage.getItem('user'));
-// Report Generation State
-const [showReportModal, setShowReportModal] = useState(false);
+const [showReportModal, 
+  setShowReportModal] = useState(false);
+  const [showAttendanceModal, setShowAttendanceModal] = useState(false);
+  const [attendanceUserCode, setAttendanceUserCode] = useState('');
+  const [attendanceStartDate, setAttendanceStartDate] = useState('');
+  const [attendanceEndDate, setAttendanceEndDate] = useState('');
   const [bpoForms, setBpoForms] = useState([]);
   const [executiveForms, setExecutiveForms] = useState([]);
   const [activeTab, setActiveTab] = useState('BPO_RESOLVED'); // 'BPO_RESOLVED' | 'EXECUTIVE'
@@ -326,7 +331,12 @@ const [showReportModal, setShowReportModal] = useState(false);
             </div>
              
             <div className="header-actions">
-               
+              <button 
+                className="btn btn-attendance" 
+                onClick={() => setShowAttendanceModal(true)}
+              >
+                📋 Attendance
+              </button>
               <button 
                 className="btn btn-requests" 
                 onClick={() => setShowRequestsModal(true)}
@@ -896,6 +906,34 @@ const [showReportModal, setShowReportModal] = useState(false);
     console.log('Report generated successfully');
   }}
 />
+
+        {/* Attendance Modal */}
+        {showAttendanceModal && (
+          <div className="mgr-modal-overlay" onClick={() => setShowAttendanceModal(false)}>
+            <div className="mgr-list-modal" style={{ maxWidth: '800px', width: '90%' }} onClick={e => e.stopPropagation()}>
+              <div className="mgr-modal-header" style={{ padding: '20px 24px' }}>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: 'bold' }}>📅 Executive Attendance Management</h2>
+                <button className="mgr-close-btn" style={{ fontSize: '1.8rem' }} onClick={() => setShowAttendanceModal(false)}>×</button>
+              </div>
+              <div className="mgr-modal-body" style={{ padding: '24px' }}>
+                <AttendanceDownloader
+                  userCode={attendanceUserCode}
+                  setUsercode={setAttendanceUserCode}
+                  startDate={attendanceStartDate}
+                  setStartDate={setAttendanceStartDate}
+                  endDate={attendanceEndDate}
+                  setEndDate={setAttendanceEndDate}
+                  isManagement={true}
+                />
+              </div>
+              <div className="mgr-modal-footer">
+                <button className="btn btn-outline" onClick={() => setShowAttendanceModal(false)}>
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </MainLayout>
   );
