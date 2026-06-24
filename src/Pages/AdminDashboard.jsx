@@ -3,6 +3,7 @@ import MainLayout from '../components/common/Layout/MainLayout';
 import axios from 'axios';
 import { managerService } from '../Services/manager.service';
 import ReportModal from '../components/Management/ReportModal';
+import { parseAsUTC } from '../utils/helpers';
 import './ManagementDashboard.css';
 
 const AdminDashboard = ({ user, logout }) => {
@@ -111,7 +112,8 @@ const [showReportModal, setShowReportModal] = useState(false);
       monthAgo.setMonth(monthAgo.getMonth() - 1);
 
       filtered = filtered.filter(form => {
-        const formDate = new Date(form.createdAt);
+        const formDate = parseAsUTC(form.createdAt);
+        if (!formDate) return false;
         if (dateRange === 'today') {
           return formDate >= today;
         } else if (dateRange === 'week') {
@@ -157,15 +159,15 @@ const [showReportModal, setShowReportModal] = useState(false);
 
   // Format date
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-IN', {
+    const date = parseAsUTC(dateString);
+    return date ? date.toLocaleDateString('en-IN', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
       timeZone: 'Asia/Kolkata'
-    });
+    }) : '—';
   };
 
   // Get status badge style

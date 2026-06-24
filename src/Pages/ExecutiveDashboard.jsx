@@ -1,12 +1,8 @@
-
-
-
-
-
 import React, { useEffect, useState } from "react";
 import VendorForm from "../components/Executive/VendorForm";
 import { formService } from "../Services/form.service";
 import { executiveService } from "../Services/executive.service";
+import { parseAsUTC } from "../utils/helpers";
 import "./ExecutiveDashboard.css";
 import {toast } from "react-toastify";
 import UniformNavbar from "../components/common/Navbar/UniformNavbar";
@@ -392,12 +388,13 @@ const ExecutiveDashboard = ({ user, logout }) => {
 
   const formatDate = (iso) => {
     if (!iso) return "—";
-    return new Date(iso).toLocaleDateString("en-IN", {
+    const date = parseAsUTC(iso);
+    return date ? date.toLocaleDateString("en-IN", {
       day: "2-digit",
       month: "short",
       year: "numeric",
       timeZone: "Asia/Kolkata",
-    });
+    }) : "—";
   };
 
   /* =========================================

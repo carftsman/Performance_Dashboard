@@ -1,5 +1,6 @@
 import './FormsTable.css';
 import { useState, useEffect } from 'react';
+import { parseAsUTC } from '../../utils/helpers';
 
 const StatusBadge = ({ status }) => {
   const styles = {
@@ -55,15 +56,15 @@ const TagBadge = ({ tag }) => {
 
 // Date Formatter
 const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-IN", {
+  const date = parseAsUTC(dateString);
+  return date ? date.toLocaleDateString("en-IN", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
     timeZone: "Asia/Kolkata",
-  });
+  }) : "—";
 };
 
 // ── Detail Row helper for the bottom sheet ──

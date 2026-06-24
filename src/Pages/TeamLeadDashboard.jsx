@@ -1,6 +1,7 @@
 import React, { useState, useEffect} from 'react';
 import teamLeadService  from '../Services/teamlead.service';
 import { executiveService } from '../Services/executive.service';
+import { formService } from '../Services/form.service';
 import './TeamLeadDashboard.css'; 
 import './ExecutiveDashboard.css';
 import SearchBar from '../components/TeamLead/SearchBar';
@@ -204,23 +205,20 @@ const filterFormsByDate = () => {
   const handleFormSubmit = async (formData) => {
     try {
       setIsSubmitting(true);
-      const res = await teamLeadService.createForm(formData); // 🔥 REAL API
-
-      console.log("API Response:", res);
-      setSubmitSuccess(null);
 
       // Add team lead information to form data
       const submissionData = {
         ...formData,
-        teamleadId: dashboardUser?.id , 
+        teamleadId: dashboardUser?.id, 
         teamleadName: dashboardUser?.userCode,
         executiveId: selectedExecutiveForForm?.id,
         executiveName: selectedExecutiveForForm?.name
       };
 
       console.log('Submitting form:', submissionData);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
+      const res = await formService.createForm(submissionData); // 🔥 REAL API
+      console.log("API Response:", res);
+      
       setSubmitSuccess({ type: 'success', message: 'Entry added successfully!' });
       
       // Refresh data after successful submission

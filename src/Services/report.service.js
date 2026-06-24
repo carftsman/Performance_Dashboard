@@ -8,7 +8,7 @@ class ReportService {
   filterDataByPeriod(data, period, customStartDate = null, customEndDate = null) {
     if (period === 'custom') {
       return data.filter(item => {
-        const formDate = new Date(item.createdAt);
+        const formDate = this._parseAsUTC(item.createdAt);
         let matches = true;
         if (customStartDate) {
           const start = new Date(customStartDate);
@@ -52,7 +52,7 @@ class ReportService {
     }
 
     return data.filter(item => {
-      const itemDate = new Date(item.createdAt);
+      const itemDate = this._parseAsUTC(item.createdAt);
       return itemDate >= startDate;
     });
   }
@@ -78,14 +78,29 @@ class ReportService {
   // ✅ NEW HELPER: Parse date string as UTC
   _parseAsUTC(dateString) {
     if (!dateString) return null;
-    // If string is in ISO format without timezone, add 'Z' to treat as UTC
-    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(dateString) && 
-        !dateString.endsWith('Z') && 
-        !dateString.includes('+') && 
-        !dateString.includes('-')) {
-      dateString += 'Z';
+    if (dateString instanceof Date) return dateString;
+    
+    let s = String(dateString).trim();
+    
+    // If it's a numeric timestamp
+    if (/^\d+$/.test(s)) {
+      return new Date(Number(s));
     }
-    return new Date(dateString);
+    
+    // If it has timezone offset/designator (Z, +xx:xx, etc.)
+    if (s.endsWith('Z') || /[+-]\d{2}:?\d{2}$/.test(s)) {
+      return new Date(s);
+    }
+    
+    // If it's a datetime string without timezone (e.g. "2026-06-24 11:24:38" or "2026-06-24T11:24:38")
+    if (/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}/.test(s)) {
+      s = s.replace(' ', 'T');
+      if (!s.endsWith('Z')) {
+        s += 'Z';
+      }
+    }
+    
+    return new Date(s);
   }
 
     formatDate(dateString) {

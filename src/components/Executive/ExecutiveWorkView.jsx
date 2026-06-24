@@ -4,6 +4,7 @@ import LocationForm from '../Executive/VendorForm';
 import HeaderSection from '../Executive/HeaderSection';
 import FilterSection from '../Executive/FilterSection';
 import FormsTable from '../Executive/FormsTable';
+import { parseAsUTC } from '../../utils/helpers';
 import './ExecutiveWorkView.css';
 
 const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
@@ -26,33 +27,35 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
       return executive.forms;
     }
 
-    const filterDate = new Date(customDate);
-    filterDate.setHours(0, 0, 0, 0);
+    // Use India-based date comparison
+    const filterDateStr = new Date(customDate).toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' }); // YYYY-MM-DD
+    const localFilterDate = new Date(customDate);
 
     return executive.forms.filter(form => {
-      const formDate = new Date(form.createdAt || form.date || new Date());
-      formDate.setHours(0, 0, 0, 0);
+      const rawDate = parseAsUTC(form.createdAt || form.date);
+      if (!rawDate) return false;
+      const formDateStr = rawDate.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
 
       switch (filterType) {
         case 'day':
           // Show forms from the selected day
-          return formDate.getTime() === filterDate.getTime();
+          return formDateStr === filterDateStr;
 
         case 'week':
           // Show forms from the week containing the selected date
-          const weekStart = new Date(filterDate);
-          weekStart.setDate(filterDate.getDate() - filterDate.getDay()); // Start of week (Sunday)
+          const weekStart = new Date(localFilterDate);
+          weekStart.setDate(localFilterDate.getDate() - localFilterDate.getDay()); // Sunday
+          weekStart.setHours(0, 0, 0, 0);
           
           const weekEnd = new Date(weekStart);
-          weekEnd.setDate(weekStart.getDate() + 6); // End of week (Saturday)
+          weekEnd.setDate(weekStart.getDate() + 6); // Saturday
           weekEnd.setHours(23, 59, 59, 999);
           
-          return formDate >= weekStart && formDate <= weekEnd;
+          return rawDate >= weekStart && rawDate <= weekEnd;
 
         case 'month':
           // Show forms from the month of selected date
-          return formDate.getMonth() === filterDate.getMonth() && 
-                 formDate.getFullYear() === filterDate.getFullYear();
+          return formDateStr.substring(0, 7) === filterDateStr.substring(0, 7);
 
         default:
           return true;
@@ -132,15 +135,15 @@ const ExecutiveWorkView = ({ executive, onBack, onRefresh }) => {
 
   // Format date
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-IN', {
+    const date = parseAsUTC(dateString);
+    return date ? date.toLocaleDateString('en-IN', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
       timeZone: 'Asia/Kolkata'
-    });
+    }) : '—';
   };
 
   return (

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import MainLayout from "../components/common/Layout/MainLayout";
+import { parseAsUTC } from "../utils/helpers";
 import "./BpoDashboard.css";
 import { useNavigate } from "react-router-dom";
 import { FiSearch } from "react-icons/fi";
@@ -541,7 +542,7 @@ function BpoDashBoard() {
                       <span>📍 {form.district || form.areaName || form.vendorLocation?.split(',')[0] || "N/A"}</span>
                     </div>
                     <div className="meta-item">
-                      <span>📅 {new Date(form.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}</span>
+                      <span>📅 {parseAsUTC(form.createdAt)?.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' }) || 'N/A'}</span>
                     </div>
                   </div>
                 </div>
@@ -557,7 +558,7 @@ function BpoDashBoard() {
               <div className="bpo-modal-header">
                 <div className="modal-header-info">
                   <h2>{selectedForm.vendorShopName || "Unnamed Shop"}</h2>
-                  <p>Form ID: #{selectedForm.id} • Submitted on {new Date(selectedForm.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}</p>
+                  <p>Form ID: #{selectedForm.id} • Submitted on {parseAsUTC(selectedForm.createdAt)?.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' }) || 'N/A'}</p>
                 </div>
                 <button className="bpo-modal-close" onClick={() => setSelectedForm(null)}>×</button>
               </div>
@@ -984,7 +985,7 @@ function BpoDashBoard() {
                         </div>
 
                         <div className="card-footer">
-                          <span className="date">📅 {new Date(req.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}</span>
+                          <span className="date">📅 {parseAsUTC(req.createdAt)?.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' }) || 'N/A'}</span>
                           <button
                             className="bpo-btn-primary"
                             onClick={() => handleEditRequest(req)}

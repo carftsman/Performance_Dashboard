@@ -89,10 +89,7 @@ const AddEntryView = ({
       return;
     }
   
-    setIsSubmitting(true);
-  
     try {
-  
       const submissionData = {
         ...formData,
   
@@ -105,69 +102,58 @@ const AddEntryView = ({
           geocodedAddress?.areaName ||
           geocodedAddress?.streetName ||
           "Current Location",
-  
-        // DO NOT send workStartLocation
       };
   
       console.log("Submitting to backend:", submissionData);
   
-      await formService.createForm(submissionData);
-  
-      alert("Form submitted successfully!");
+      await handleFormSubmit(submissionData);
   
       setVendorLocation(null);
       setGeocodedAddress(null);
-      setShowForm(false);
-  
-      loadHistory();
   
     } catch (error) {
-      console.error("Submission failed:", error.response?.data);
-      alert("Submission failed");
-    } finally {
-      setIsSubmitting(false);
+      console.error("Submission failed:", error);
     }
   };
 
   return (
-      <div className="teamlead-dashboard">
-        <div className="card">
-          
-          {/* Header */}
-          <div className="form-header">
-            <div className="form-header-left">
-              <button onClick={onBack} className="btn btn-secondary">
-                ← Back to Dashboard
-              </button>
-            </div>
+    <div className="teamlead-dashboard">
+      <div className="card">
+        
+        {/* Header */}
+        <div className="form-header">
+          <div className="form-header-left">
+            <button onClick={onBack} className="btn btn-secondary">
+              ← Back to Dashboard
+            </button>
           </div>
-
-          {/* Success/Error Message */}
-          {submitSuccess && (
-            <div
-              className={`alert ${
-                submitSuccess.type === "success"
-                  ? "alert-success"
-                  : "alert-error"
-              }`}
-            >
-              {submitSuccess.message}
-            </div>
-          )}
-
-           <VendorForm
-              onSubmit={handleSubmitDailyLog}
-              locationCaptured={!!vendorLocation}
-              onGetLocation={captureVendorLocation}
-              isGettingLocation={isGettingLocation}
-              isSubmitting={isSubmitting}
-              geocodedAddress={geocodedAddress}
-              onBack={() => setShowForm(false)}
-            />
-
         </div>
+
+        {/* Success/Error Message */}
+        {submitSuccess && (
+          <div
+            className={`alert ${
+              submitSuccess.type === "success"
+                ? "alert-success"
+                : "alert-error"
+            }`}
+          >
+            {submitSuccess.message}
+          </div>
+        )}
+
+         <VendorForm
+            onSubmit={handleSubmitDailyLog}
+            locationCaptured={!!vendorLocation}
+            onGetLocation={captureVendorLocation}
+            isGettingLocation={isGettingLocation}
+            isSubmitting={isSubmitting}
+            geocodedAddress={geocodedAddress}
+            onBack={onBack}
+          />
+
       </div>
-    
+    </div>
   );
 };
 

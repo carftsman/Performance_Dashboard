@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { attendanceService } from '../Services/attendance.service';
 import { reportService } from '../Services/report.service';
+import { parseAsUTC } from '../utils/helpers';
 import './AttendanceDownloader.css';
 import { FiDownload, FiEye, FiX } from 'react-icons/fi';
 
@@ -266,7 +267,7 @@ const AttendanceDownloader = ({ userCode, setUsercode, startDate, setStartDate, 
                         <td>{item.teamleadName}</td>
                         <td>{item.attendanceDate}</td>
                         <td>
-                          {item.loginTime ? new Date(item.loginTime + 'Z').toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' }) : 'N/A'}
+                          {item.loginTime ? parseAsUTC(item.loginTime)?.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' }) : 'N/A'}
                         </td>
                         <td>
                           {item.latitude && item.longitude ? (

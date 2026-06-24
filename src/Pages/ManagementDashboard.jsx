@@ -4,6 +4,7 @@ import axios from 'axios';
 import { managerService } from '../Services/manager.service';
 import ReportModal from '../components/Management/ReportModal';
 import AttendanceDownloader from './AttendanceDownloader';
+import { parseAsUTC } from '../utils/helpers';
 import './ManagementDashboard.css';
 import {toast } from "react-toastify";
 
@@ -150,7 +151,8 @@ const [showReportModal,
       monthAgo.setMonth(monthAgo.getMonth() - 1);
 
       filtered = filtered.filter(form => {
-        const formDate = new Date(form.createdAt);
+        const formDate = parseAsUTC(form.createdAt);
+        if (!formDate) return false;
         if (dateRange === 'today') {
           return formDate >= today;
         } else if (dateRange === 'week') {
@@ -196,15 +198,15 @@ const [showReportModal,
 
   // Format date
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-IN', {
+    const date = parseAsUTC(dateString);
+    return date ? date.toLocaleDateString('en-IN', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
       timeZone: 'Asia/Kolkata'
-    });
+    }) : '—';
   };
 
   // Get status badge style

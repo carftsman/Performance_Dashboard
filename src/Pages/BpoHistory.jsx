@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import MainLayout from "../components/common/Layout/MainLayout";
+import { parseAsUTC } from "../utils/helpers";
 import {toast } from "react-toastify";
 import { 
   FiSearch, 
@@ -71,9 +72,14 @@ function BpoHistory() {
     
     // Date filter
     if (dateFilter) {
-      filtered = filtered.filter(form => 
-        form.createdAt && new Date(form.createdAt).toDateString() === new Date(dateFilter).toDateString()
-      );
+      filtered = filtered.filter(form => {
+        if (!form.createdAt) return false;
+        const formDate = parseAsUTC(form.createdAt);
+        const filterDate = new Date(dateFilter);
+        const formDateStr = formDate.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+        const filterDateStr = filterDate.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+        return formDateStr === filterDateStr;
+      });
     }
     
     setFilteredForms(filtered);
@@ -124,12 +130,13 @@ function BpoHistory() {
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('en-IN', {
+    const date = parseAsUTC(dateString);
+    return date ? date.toLocaleDateString('en-IN', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
       timeZone: 'Asia/Kolkata'
-    });
+    }) : 'N/A';
   };
 
   return (
