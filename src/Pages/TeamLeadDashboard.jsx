@@ -14,6 +14,7 @@ import AddEntryView from '../components/Executive/AddEntryView';
 import UniformNavbar from '../components/common/Navbar/UniformNavbar';
 import { toast } from "react-toastify";
 import AttendanceDownloader from './AttendanceDownloader';
+import { getPreciseLocation, getGeolocationErrorMessage } from '../utils/geolocation';
 const TeamLeadDashboard = ({ user, logout }) => {
   const dashboardUser = user || JSON.parse(localStorage.getItem('user'));
   const [viewMode, setViewMode] = useState('list'); 
@@ -158,48 +159,54 @@ const filterFormsByDate = () => {
     }
   };
 
- const handleEnableLocation = () => {
-     navigator.geolocation.getCurrentPosition(
-       async (position) => {
-         try {
-           const payload = {
-             latitude: position.coords.latitude.toString(),
-             longitude: position.coords.longitude.toString(),
-           };
-           await executiveService.markAttendance(payload);
-           setAttendanceMarked(true);
-           toast.success("Attendance Marked Successfully ✅");
-         } catch (error) {
-           console.error("Attendance marking failed:", error);
-           toast.error("Failed to mark attendance");
-         }
-       },
-       () => toast.error("Location Permission Denied ❌")
-     );
-   };
+  const handleEnableLocation = async () => {
+    let position;
+    try {
+      position = await getPreciseLocation();
+    } catch (error) {
+      console.error("Location retrieval failed:", error);
+      toast.error(getGeolocationErrorMessage(error));
+      return;
+    }
 
-  const handleStartWork = () => {
+    try {
+      const payload = {
+        latitude: position.coords.latitude.toString(),
+        longitude: position.coords.longitude.toString(),
+      };
+      await executiveService.markAttendance(payload);
+      setAttendanceMarked(true);
+      toast.success("Attendance Marked Successfully ✅");
+    } catch (error) {
+      console.error("Attendance marking failed:", error);
+      toast.error("Failed to mark attendance");
+    }
+  };
+
+  const handleStartWork = async () => {
     setIsLocationLoading(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const startLocation = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          timestamp: new Date().toISOString(),
-        };
+    try {
+      const position = await getPreciseLocation();
+      const startLocation = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+        timestamp: new Date().toISOString(),
+      };
 
-        setWorkStartLocation(startLocation);
-        setWorkStarted(true);
-        // If we want to automatically open the entry form for the TL themselves
-        setSelectedExecutiveForForm({
-          id: dashboardUser?.id,
-          name: dashboardUser?.userCode,
-        });
-        setViewMode("add-entry");
-        setIsLocationLoading(false);
-      },
-      () => alert("Unable to fetch start location")
-    );
+      setWorkStartLocation(startLocation);
+      setWorkStarted(true);
+      // If we want to automatically open the entry form for the TL themselves
+      setSelectedExecutiveForForm({
+        id: dashboardUser?.id,
+        name: dashboardUser?.userCode,
+      });
+      setViewMode("add-entry");
+    } catch (error) {
+      console.error("Start work location failed:", error);
+      alert(getGeolocationErrorMessage(error));
+    } finally {
+      setIsLocationLoading(false);
+    }
   };
 
   const handleFormSubmit = async (formData) => {

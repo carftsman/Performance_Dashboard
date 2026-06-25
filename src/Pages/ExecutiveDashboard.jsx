@@ -3,6 +3,7 @@ import VendorForm from "../components/Executive/VendorForm";
 import { formService } from "../Services/form.service";
 import { executiveService } from "../Services/executive.service";
 import { parseAsUTC } from "../utils/helpers";
+import { getPreciseLocation, getGeolocationErrorMessage } from "../utils/geolocation";
 import "./ExecutiveDashboard.css";
 import {toast } from "react-toastify";
 import UniformNavbar from "../components/common/Navbar/UniformNavbar";
@@ -99,107 +100,105 @@ const ExecutiveDashboard = ({ user, logout }) => {
   /* =========================================
      ENABLE LOCATION
   ========================================== */
-  const handleEnableLocation = () => {
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        try {
-          const payload = {
-            latitude: position.coords.latitude.toString(),
-            longitude: position.coords.longitude.toString(),
-          };
-          await executiveService.markAttendance(payload);
-          setAttendanceMarked(true);
-          toast.success("Attendance Marked Successfully ✅");
-        } catch (error) {
-          console.error("Attendance marking failed:", error);
-          toast.error("Failed to mark attendance");
-        }
-      },
-      () => toast.error("Location Permission Denied ❌")
-    );
+  const handleEnableLocation = async () => {
+    let position;
+    try {
+      position = await getPreciseLocation();
+    } catch (error) {
+      console.error("Location retrieval failed:", error);
+      toast.error(getGeolocationErrorMessage(error));
+      return;
+    }
+
+    try {
+      const payload = {
+        latitude: position.coords.latitude.toString(),
+        longitude: position.coords.longitude.toString(),
+      };
+      await executiveService.markAttendance(payload);
+      setAttendanceMarked(true);
+      toast.success("Attendance Marked Successfully ✅");
+    } catch (error) {
+      console.error("Attendance marking failed:", error);
+      toast.error("Failed to mark attendance");
+    }
   };
 
   /* =========================================
      START WORK (Store once)
   ========================================== */
-  const handleStartWork = () => {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const startLocation = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          timestamp: new Date().toISOString(),
-        };
+  const handleStartWork = async () => {
+    try {
+      const position = await getPreciseLocation();
+      const startLocation = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+        timestamp: new Date().toISOString(),
+      };
 
-        setWorkStartLocation(startLocation);
-        setWorkStarted(true);
-        setShowForm(true);
-      },
-      () => toast.error("Unable to fetch start location")
-    );
+      setWorkStartLocation(startLocation);
+      setWorkStarted(true);
+      setShowForm(true);
+    } catch (error) {
+      console.error("Start work location failed:", error);
+      toast.error(getGeolocationErrorMessage(error));
+    }
   };
 
   /* =========================================
      CAPTURE VENDOR LOCATION + AUTOFILL
   ========================================== */
-  const captureVendorLocation = () => {
-
+  const captureVendorLocation = async () => {
     setIsGettingLocation(true);
     setVendorLocation(null);
     setGeocodedAddress(null);
 
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
+    try {
+      const position = await getPreciseLocation();
+      const { latitude, longitude } = position.coords;
 
-        const { latitude, longitude } = position.coords;
+      const visitLocation = {
+        latitude,
+        longitude,
+        timestamp: new Date().toISOString(),
+      };
 
-        const visitLocation = {
-          latitude,
-          longitude,
-          timestamp: new Date().toISOString(),
-        };
+      setVendorLocation(visitLocation);
 
-        setVendorLocation(visitLocation);
+      try {
+        const apiKey = "AIzaSyAt59NjjnVtI5PfvhkQKFDLeBFfCTW-mxg";
+        const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`;
 
-        try {
-          const apiKey = "AIzaSyAt59NjjnVtI5PfvhkQKFDLeBFfCTW-mxg";
-          const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`;
-
-          const res = await fetch(url);
-          const data = await res.json();
+        const res = await fetch(url);
+        const data = await res.json();
  
-          if (data.status === "OK") {
+        if (data.status === "OK") {
+          const result = data.results[0];
+          const components = result.address_components;
 
-            const result = data.results[0];
-            const components = result.address_components;
+          const getComponent = (type) =>
+            components.find((c) => c.types.includes(type))?.long_name || "";
 
-            const getComponent = (type) =>
-              components.find((c) => c.types.includes(type))?.long_name || "";
+          const address = {
+            streetName: result.formatted_address || "",
+            areaName: getComponent("sublocality") || getComponent("locality"),
+            pinCode: getComponent("postal_code"),
+            state: getComponent("administrative_area_level_1"),
+            district: getComponent("administrative_area_level_2") || getComponent("administrative_area_level_3"),
+          };
 
-            const address = {
-              streetName: result.formatted_address || "",
-              areaName: getComponent("sublocality") || getComponent("locality"),
-              pinCode: getComponent("postal_code"),
-              state: getComponent("administrative_area_level_1"),
-              district: getComponent("administrative_area_level_2") || getComponent("administrative_area_level_3"),
-            };
-
-            setGeocodedAddress(address);
-          }
-
-        } catch (error) {
-          console.error("Reverse geocode failed");
+          setGeocodedAddress(address);
         }
-
-        setIsGettingLocation(false);
-      },
-      () => {
-        toast.error("Unable to capture vendor location");
-        setIsGettingLocation(false);
-      },
-      { enableHighAccuracy: true }
-    );
-  }
+      } catch (error) {
+        console.error("Reverse geocode failed");
+      }
+    } catch (error) {
+      console.error("Capture vendor location failed:", error);
+      toast.error(getGeolocationErrorMessage(error));
+    } finally {
+      setIsGettingLocation(false);
+    }
+  };
 
   /* =========================================
      SUBMIT FORM

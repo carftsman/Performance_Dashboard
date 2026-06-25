@@ -1,6 +1,7 @@
 
 import VendorForm from '../Executive/VendorForm';
 import { useState } from 'react';
+import { getPreciseLocation, getGeolocationErrorMessage } from '../../utils/geolocation';
 
  
 
@@ -21,62 +22,55 @@ const AddEntryView = ({
     /* =========================================
      CAPTURE VENDOR LOCATION + AUTOFILL
   ========================================== */
-  const captureVendorLocation = () => {
-
+  const captureVendorLocation = async () => {
     setIsGettingLocation(true);
     setVendorLocation(null);
     setGeocodedAddress(null);
 
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
+    try {
+      const position = await getPreciseLocation();
+      const { latitude, longitude } = position.coords;
 
-        const { latitude, longitude } = position.coords;
+      const visitLocation = {
+        latitude,
+        longitude,
+        timestamp: new Date().toISOString(),
+      };
 
-        const visitLocation = {
-          latitude,
-          longitude,
-          timestamp: new Date().toISOString(),
-        };
+      setVendorLocation(visitLocation);
 
-        setVendorLocation(visitLocation);
+      try {
+        const apiKey = "AIzaSyAt59NjjnVtI5PfvhkQKFDLeBFfCTW-mxg";
+        const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`;
 
-        try {
-          const apiKey = "AIzaSyAt59NjjnVtI5PfvhkQKFDLeBFfCTW-mxg";
-          const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`;
+        const res = await fetch(url);
+        const data = await res.json();
 
-          const res = await fetch(url);
-          const data = await res.json();
+        if (data.status === "OK") {
+          const result = data.results[0];
+          const components = result.address_components;
 
-          if (data.status === "OK") {
+          const getComponent = (type) =>
+            components.find((c) => c.types.includes(type))?.long_name || "";
 
-            const result = data.results[0];
-            const components = result.address_components;
+          const address = {
+            streetName: result.formatted_address || "",
+            areaName: getComponent("sublocality") || getComponent("locality"),
+            pinCode: getComponent("postal_code"),
+            state: getComponent("administrative_area_level_1"),
+          };
 
-            const getComponent = (type) =>
-              components.find((c) => c.types.includes(type))?.long_name || "";
-
-            const address = {
-              streetName: result.formatted_address || "",
-              areaName: getComponent("sublocality") || getComponent("locality"),
-              pinCode: getComponent("postal_code"),
-              state: getComponent("administrative_area_level_1"),
-            };
-
-            setGeocodedAddress(address);
-          }
-
-        } catch (error) {
-          console.error("Reverse geocode failed");
+          setGeocodedAddress(address);
         }
-
-        setIsGettingLocation(false);
-      },
-      () => {
-        alert("Unable to capture vendor location");
-        setIsGettingLocation(false);
-      },
-      { enableHighAccuracy: true }
-    );
+      } catch (error) {
+        console.error("Reverse geocode failed");
+      }
+    } catch (error) {
+      console.error("Capture vendor location failed:", error);
+      alert(getGeolocationErrorMessage(error));
+    } finally {
+      setIsGettingLocation(false);
+    }
   };
    /* =========================================
        SUBMIT FORM

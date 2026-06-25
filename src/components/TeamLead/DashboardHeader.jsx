@@ -1,5 +1,6 @@
 import React from "react";
 import './DashboardHeader.css';
+import { getPreciseLocation, getGeolocationErrorMessage } from "../../utils/geolocation";
 
 const DashboardHeader = ({
   dashboardUser,
@@ -18,34 +19,36 @@ const DashboardHeader = ({
    /* =========================================
      ENABLE LOCATION
   ========================================== */
-  const handleEnableLocation = () => {
-    navigator.geolocation.getCurrentPosition(
-      () => {
-        setLocationAllowed(true);
-        alert("Location Permission Granted ✅");
-      },
-      () => alert("Location Permission Denied ❌")
-    );
+  const handleEnableLocation = async () => {
+    try {
+      await getPreciseLocation();
+      setLocationAllowed(true);
+      alert("Location Permission Granted ✅");
+    } catch (error) {
+      console.error("Location enable failed:", error);
+      alert(getGeolocationErrorMessage(error));
+    }
   };
   
   /* =========================================
      START WORK (Store once)
   ========================================== */
-  const handleStartWork = () => {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const startLocation = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          timestamp: new Date().toISOString(),
-        };
+  const handleStartWork = async () => {
+    try {
+      const position = await getPreciseLocation();
+      const startLocation = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+        timestamp: new Date().toISOString(),
+      };
 
-        setWorkStartLocation(startLocation);
-        setWorkStarted(true);
-         onAddEntry(); 
-      },
-      () => alert("Unable to fetch start location")
-    );
+      setWorkStartLocation(startLocation);
+      setWorkStarted(true);
+      onAddEntry(); 
+    } catch (error) {
+      console.error("Start work location failed:", error);
+      alert(getGeolocationErrorMessage(error));
+    }
   };
 
   return (
