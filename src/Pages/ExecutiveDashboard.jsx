@@ -43,6 +43,8 @@ const ExecutiveDashboard = ({ user, logout }) => {
   // ── Attendance states ─────────────────────────────────────────────────────
   const [attendanceMarked, setAttendanceMarked] = useState(false);
   const [checkingAttendance, setCheckingAttendance] = useState(true);
+  const [isLocationLoading, setIsLocationLoading] = useState(false);
+  const isEnablingLocationRef = React.useRef(false);
 
   // ── Search state ──────────────────────────────────────────────────────────
   const [searchQuery, setSearchQuery] = useState("");
@@ -101,12 +103,17 @@ const ExecutiveDashboard = ({ user, logout }) => {
      ENABLE LOCATION
   ========================================== */
   const handleEnableLocation = async () => {
+    if (isEnablingLocationRef.current) return;
+    isEnablingLocationRef.current = true;
+    setIsLocationLoading(true);
     let position;
     try {
       position = await getPreciseLocation();
     } catch (error) {
       console.error("Location retrieval failed:", error);
       toast.error(getGeolocationErrorMessage(error));
+      setIsLocationLoading(false);
+      isEnablingLocationRef.current = false;
       return;
     }
 
@@ -121,6 +128,9 @@ const ExecutiveDashboard = ({ user, logout }) => {
     } catch (error) {
       console.error("Attendance marking failed:", error);
       toast.error("Failed to mark attendance");
+    } finally {
+      setIsLocationLoading(false);
+      isEnablingLocationRef.current = false;
     }
   };
 
@@ -405,6 +415,7 @@ const ExecutiveDashboard = ({ user, logout }) => {
         user={user}
         role="Field Executive"
         locationAllowed={attendanceMarked}
+        locationLoading={isLocationLoading}
         workStarted={workStarted}
         loading={loadingHistory}
         showForm={showForm}

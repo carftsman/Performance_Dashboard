@@ -40,6 +40,7 @@ const [workStartLocation, setWorkStartLocation] = useState(null);
   const [attendanceMarked, setAttendanceMarked] = useState(false);
   const [checkingAttendance, setCheckingAttendance] = useState(true);
   const [isLocationLoading, setIsLocationLoading] = useState(false);
+  const isEnablingLocationRef = React.useRef(false);
   const [userCode,setUsercode] = useState("");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
@@ -160,12 +161,17 @@ const filterFormsByDate = () => {
   };
 
   const handleEnableLocation = async () => {
+    if (isEnablingLocationRef.current) return;
+    isEnablingLocationRef.current = true;
+    setIsLocationLoading(true);
     let position;
     try {
       position = await getPreciseLocation();
     } catch (error) {
       console.error("Location retrieval failed:", error);
       toast.error(getGeolocationErrorMessage(error));
+      setIsLocationLoading(false);
+      isEnablingLocationRef.current = false;
       return;
     }
 
@@ -180,6 +186,9 @@ const filterFormsByDate = () => {
     } catch (error) {
       console.error("Attendance marking failed:", error);
       toast.error("Failed to mark attendance");
+    } finally {
+      setIsLocationLoading(false);
+      isEnablingLocationRef.current = false;
     }
   };
 
